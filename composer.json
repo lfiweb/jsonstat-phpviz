@@ -1,0 +1,28 @@
+{
+  "name": "speich/jsonstat-phpviz",
+  "description": "Render jsonstat data as multidimensional html tables",
+  "minimum-stability": "stable",
+  "license": "GPL-3.0-or-later",
+  "authors": [
+    {
+      "name": "Speich",
+      "email": "simon.speich@wsl.ch"
+    }
+  ],
+  "require": {
+    "ext-dom": "*",
+    "ext-json": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "jsonstatPhpViz\\": "./"
+    }
+  },
+  "config": {
+    "platform": {
+      "php": "7.3"
+    },
+    "preferred-install": "dist",
+    "optimize-autoloader": true
+  }
+}

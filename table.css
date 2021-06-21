@@ -1,0 +1,55 @@
+.lfi4 {
+	--color: #1cb7ea;
+	--border-width: 0.5px;
+}
+
+.lfi4 {
+	font-family: "Noto Sans";
+	font-size: 0.8em;
+}
+
+.lfi4 .jst-viz {
+	empty-cells: hide;
+	border-collapse: collapse;
+	min-width: 900px;
+}
+
+.lfi4 .jst-viz caption {
+	font-weight: bold;
+	text-align: left;
+	margin-bottom: 1em;
+}
+
+.lfi4 .jst-viz th, .lfi4 .jst-viz td {
+	padding: 0.4em 0.6em;
+	line-height: 1;
+	font-weight: normal;
+	border: var(--border-width) solid var(--color);
+}
+
+.lfi4 .jst-viz td {
+	text-align: right;
+}
+
+.lfi4 .jst-viz tbody th[scope] {
+	text-align: left;
+	vertical-align: top;
+}
+
+.lfi4 .jst-viz thead tr:not(:first-child) th[scope="col"] {
+	border-top-width: 0;
+}
+
+.lfi4 .jst-viz thead tr:nth-last-child(2) th {
+	border-bottom-width: 0;
+}
+
+.lfi4 .jst-viz.lastDimSize2 tbody td:nth-of-type(2n),
+.lfi4 .jst-viz.numRowDims1.lastDimSize2 thead tr:last-child th:nth-child(2n+3),
+.lfi4 .jst-viz.numRowDims2.lastDimSize2 thead tr:last-child th:nth-child(2n+4) {
+	font-size: 0.8em;
+}
+
+.lfi4 .jst-viz th.last, .lfi4 .jst-viz th[scope="row"].last ~ td  {
+	font-weight: bold;
+}
