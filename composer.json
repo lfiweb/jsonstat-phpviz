@@ -1,5 +1,5 @@
 {
-  "name": "speich/jsonstat-phpviz",
+  "name": "lfiweb/jsonstat-phpviz",
   "description": "Render jsonstat data as multidimensional html tables",
   "minimum-stability": "stable",
   "license": "GPL-3.0-or-later",
