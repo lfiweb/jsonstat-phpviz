@@ -74,13 +74,13 @@ class RendererTable
     /**
      *
      * @param JsonStatReader $jsonStatReader
-     * @param int $numRowDim
+     * @param int|null $numRowDim
      */
-    public function __construct(JsonStatReader $jsonStatReader, int $numRowDim)
+    public function __construct(JsonStatReader $jsonStatReader, ?int $numRowDim = null)
     {
         $this->reader = $jsonStatReader;
         $dims = $this->reader->getDimensionSizes();
-        $this->numRowDim = $numRowDim;
+        $this->numRowDim = $numRowDim ?? $this->numRowDimAuto();
         $this->rowDims = $this->getDims($dims, self::DIM_TYPE_ROW);
         $this->colDims = $this->getDims($dims, self::DIM_TYPE_COL);
         $this->table = new Table();
@@ -331,5 +331,11 @@ class RendererTable
         $numVirtRow = $this->noLabelLastDim ? 1 : 0;
 
         return (int)$row->getAttribute('rowIndex') - $this->numHeaderRows + $numVirtRow;
+    }
+
+    public function numRowDimAuto() {
+        $dims = $this->reader->getDimensionSizes();
+
+        return count(array_slice($dims, 0, count($dims) - 2));
     }
 }
