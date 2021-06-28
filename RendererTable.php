@@ -39,37 +39,40 @@ class RendererTable
     public const DIM_TYPE_COL = 2;
 
     /** @var JsonStatReader */
-    private $reader;
+    protected $reader;
 
     /* @var array $colDims dimensions used for columns containing values */
-    private $colDims;
+    protected $colDims;
 
     /* @var array $rowDims dimensions used for rows containing labels, that make up the rows */
-    private $rowDims;
+    protected $rowDims;
 
     /** @var int number of dimensions of size one */
-    private $numOneDim;
+    protected $numOneDim;
 
     /** @var int number of columns with values */
-    private $numValueCols;
+    protected $numValueCols;
 
     /** @var int number of columns with labels */
-    private $numLabelCols;
+    protected $numLabelCols;
 
     /** @var int number of row dimensions */
-    private $numRowDim;
+    protected $numRowDim;
 
     /** @var DOMNode */
-    private $table;
+    protected $table;
 
     /** @var bool render the row with labels of last dimension? default = true */
-    private $noLabelLastDim = true;
+    protected $noLabelLastDim = true;
 
     /** @var bool $useRowSpans render the table with rowspans ? default = true */
-    private $useRowSpans = true;
+    protected $useRowSpans = true;
 
     /** @var int number of row headers */
-    private $numHeaderRows;
+    protected $numHeaderRows;
+
+    /** @var ?string caption of the table */
+    public $caption;
 
     /**
      *
@@ -99,7 +102,9 @@ class RendererTable
         $this->numValueCols = count($this->colDims) > 0 ? UtilArray::product($this->colDims) : 1;
         $this->numLabelCols = count($this->rowDims);
         $this->numHeaderRows = count($this->colDims) > 0 ? count($this->colDims) * 2 : 1; // add an additional row to label each dimension
-
+        if (property_exists($this->reader->data, 'label')) {
+            $this->caption = $this->reader->escapeHtml($this->reader->data->label);
+        }
     }
 
     /**
@@ -124,7 +129,7 @@ class RendererTable
     public function render(bool $asHtml = true)
     {
         $this->init();
-        //$this->caption();
+        $this->caption();
         $this->rowHeaders();
         $this->rows();
 
@@ -212,7 +217,7 @@ class RendererTable
                 $i += $colspan - 1; // colspan - 1 -> i++ $follows
                 $scope = 'colgroup';
             }
-            $cell = $this->headerCell($row,$label, $scope, $colspan);
+            $cell = $this->headerCell($row, $label, $scope, $colspan);
             $row->appendChild($cell);
         }
     }
@@ -257,11 +262,9 @@ class RendererTable
         $css = 'rowdim'.($cellIdx + 1);
         if ($modulo === 0) {
             $cl->add($css, 'first');
-        } else {
-            if ($modulo === $f[0] - $f[1]) {
-                $css = 'rowdim'.($cellIdx + 1);
-                $cl->add($css, 'last');
-            }
+        } elseif ($modulo === $f[0] - $f[1]) {
+            $css = 'rowdim'.($cellIdx + 1);
+            $cl->add($css, 'last');
         }
     }
 
@@ -276,7 +279,7 @@ class RendererTable
         $stat = $this->reader;
         $cell = $this->table->doc->createElement('td');
         $cell = $row->appendChild($cell);
-        $cell->textContent = $stat->data->value[$offset]; // not need to escape
+        $cell->textContent = $stat->data->value[$offset]; // no need to escape
     }
 
     /**
@@ -309,14 +312,19 @@ class RendererTable
 
     /**
      * Creates and inserts a caption.
-     * @return DOMNode
+     * @return ?DOMNode
      */
-    public function caption(): DOMNode
+    public function caption()
     {
-        $caption = $this->table->insertCaption();
-        $caption->textContent = $this->reader->escapeHtml($this->reader->data->label);
+        if ($this->caption) {
+            $caption = $this->table->insertCaption();
+            $fragment = $this->table->doc->createDocumentFragment();
+            $fragment->appendXML($this->caption);
+            $caption->appendChild($fragment);
+            $this->caption = $caption;
+        }
 
-        return $caption;
+        return $this->caption;
     }
 
     /**
@@ -333,7 +341,12 @@ class RendererTable
         return (int)$row->getAttribute('rowIndex') - $this->numHeaderRows + $numVirtRow;
     }
 
-    public function numRowDimAuto() {
+    /**
+     * Returns the default number of dimensions used for rows.
+     * @return int
+     */
+    public function numRowDimAuto(): int
+    {
         $dims = $this->reader->getDimensionSizes();
 
         return count(array_slice($dims, 0, count($dims) - 2));
