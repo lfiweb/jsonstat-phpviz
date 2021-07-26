@@ -83,10 +83,10 @@ class JsonStatReader
         $index = $dim->category->index;
         if ($index) {
             $id = is_array($index) ? $index[$labelIdx] : $this->categoryIdFromObject($index, $labelIdx);
-            $label = $dim->category->label ? $dim->category->label->{$id} : $id;
+            $label = $dim->category->label->{$id} ?? $id;
         } else {  // e.g. constant dimension with single category and no index, label is required
             $keys = array_keys((array)$dim->category->label);
-            $label = $dim->category->label[$keys[0]];
+            $label = $dim->category->label->{$keys[0]};
         }
 
         return $this->escapeHtml($label);
