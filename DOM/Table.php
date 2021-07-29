@@ -45,6 +45,15 @@ class Table
     }
 
     /**
+     * Return the table as a html string
+     * @return false|string html
+     */
+    public function toHtml() {
+        // do not use saveHTML, since that will encode html entities
+        return $this->doc->saveXML($this->domNode);
+    }
+
+    /**
      * Returns the table head element.
      * @return DOMElement
      */
