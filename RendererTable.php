@@ -133,7 +133,7 @@ class RendererTable
         $this->rowHeaders();
         $this->rows();
 
-        return $asHtml ? $this->table->doc->saveHTML() : $this->table->get();
+        return $asHtml ? $this->table->toHtml() : $this->table->get();
     }
 
     /**
