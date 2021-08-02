@@ -6,6 +6,8 @@ use DOMElement;
 use DOMNode;
 use jsonstatPhpViz\DOM\ClassList;
 use jsonstatPhpViz\DOM\Table;
+use function array_slice;
+use function count;
 
 /**
  * Renders json-stat data as a html table.
@@ -89,13 +91,6 @@ class RendererTable
         $this->table = new Table();
         $css = new ClassList($this->table->get());
         $css->add('jst-viz', 'numRowDims'.count($this->rowDims), 'lastDimSize'.$dims[count($dims) - 1]);
-    }
-
-    /**
-     * Initialize properties before rendering the table.
-     */
-    public function init(): void
-    {
         // cache some often used numbers before rendering table
         $dimsAll = $this->reader->getDimensionSizes(false);
         $this->numOneDim = count($dimsAll) - count($this->rowDims) - count($this->colDims);
@@ -128,7 +123,6 @@ class RendererTable
      */
     public function render(bool $asHtml = true)
     {
-        $this->init();
         $this->caption();
         $this->rowHeaders();
         $this->rows();
