@@ -85,7 +85,8 @@ class Table
     }
 
     /**
-     * @return DOMElement
+     * Inserts and returns an empty caption element
+     * @return DOMElement caption element
      */
     public function insertCaption(): DOMElement
     {
