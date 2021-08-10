@@ -8,7 +8,7 @@
 	font-size: 0.8em;
 }
 
-.theme1 {
+.theme1 table {
 	empty-cells: hide;
 	border-collapse: collapse;
 	min-width: 900px;
