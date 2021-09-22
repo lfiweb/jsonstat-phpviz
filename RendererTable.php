@@ -283,9 +283,9 @@ class RendererTable
      * @param {String} [scope] scope of cell
      * @param [colspan] number of columns to span
      * @param [rowspan] number of rows to span
-     * @return DOMElement
+     * @return DOMNode
      */
-    public function headerCell(DOMNode $row, $str = null, $scope = null, $colspan = null, $rowspan = null): DOMElement
+    public function headerCell(DOMNode $row, $str = null, $scope = null, $colspan = null, $rowspan = null): DOMNode
     {
         $cell = $this->table->doc->createElement('th');
         if ($scope !== null) {
