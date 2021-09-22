@@ -42,9 +42,7 @@ class JsonStatReader
      */
     public function getLabel(int $dimIdx): string
     {
-        $dim = $this->data->dimension->{$this->getId($dimIdx)};
-
-        return $this->escapeHtml($dim->label);
+        return $this->data->dimension->{$this->getId($dimIdx)}->label;
     }
 
     /**
@@ -89,7 +87,7 @@ class JsonStatReader
             $label = $dim->category->label->{$keys[0]};
         }
 
-        return $this->escapeHtml($label);
+        return $label;
     }
 
     /**
@@ -102,16 +100,5 @@ class JsonStatReader
         $arr = array_keys((array)$obj);
 
         return array_search($labelIdx, $arr, true);
-    }
-
-    /**
-     * Escape a string so it can be safely inserted into html.
-     * @param {String} text
-     * @return string
-     */
-    public function escapeHtml($text): string
-    {
-
-        return htmlspecialchars($text, ENT_HTML5, 'UTF-8');
     }
 }

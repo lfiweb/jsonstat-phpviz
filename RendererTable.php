@@ -98,7 +98,7 @@ class RendererTable
         $this->numLabelCols = count($this->rowDims);
         $this->numHeaderRows = count($this->colDims) > 0 ? count($this->colDims) * 2 : 1; // add an additional row to label each dimension
         if (property_exists($this->reader->data, 'label')) {
-            $this->caption = $this->reader->escapeHtml($this->reader->data->label);
+            $this->caption = $this->escapeHtml($this->reader->data->label);
         }
     }
 
@@ -292,7 +292,7 @@ class RendererTable
             $cell->setAttribute('scope', $scope);
         }
         if ($str !== null) {
-            $cell->textContent = $str;
+            $cell->textContent = $str;  // no need to escape
         }
         if ($colspan !== null) {
             $cell->setAttribute('colSpan', $colspan);
@@ -344,5 +344,16 @@ class RendererTable
         $dims = $this->reader->getDimensionSizes();
 
         return count(array_slice($dims, 0, count($dims) - 2));
+    }
+
+    /**
+     * Escape a string, so it can be safely inserted into html.
+     * @param {String} text
+     * @return string
+     */
+    public function escapeHtml($text): string
+    {
+
+        return htmlspecialchars($text, ENT_HTML5, 'UTF-8');
     }
 }
