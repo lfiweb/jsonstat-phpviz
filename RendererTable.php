@@ -291,7 +291,11 @@ class RendererTable
         if ($scope !== null) {
             $cell->setAttribute('scope', $scope);
         }
-        if ($str !== null) {
+        if ($str === null) {
+            // otherwise, <th/> is created, which is invalid on a non-void element
+            $cell->appendChild($this->table->doc->createTextNode(''));
+        }
+        else {
             $cell->textContent = $str;  // no need to escape
         }
         if ($colspan !== null) {
