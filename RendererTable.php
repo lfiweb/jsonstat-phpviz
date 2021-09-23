@@ -73,8 +73,8 @@ class RendererTable
     /** @var int|float number of row headers */
     protected int|float $numHeaderRows;
 
-    /** @var ?string caption of the table */
-    public ?string $caption;
+    /** @var null|string|DOMNode caption of the table */
+    public null|string|DOMNode $caption;
 
     /**
      *
