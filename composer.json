@@ -1,11 +1,11 @@
 {
   "name": "lfiweb/jsonstat-phpviz",
-  "description": "Render jsonstat data as multidimensional html tables",
+  "description": "Render JSON-stat data as multidimensional html tables",
   "minimum-stability": "stable",
   "license": "GPL-3.0-or-later",
   "authors": [
     {
-      "name": "Speich",
+      "name": "Simon Speich",
       "email": "simon.speich@wsl.ch"
     }
   ],
@@ -20,7 +20,7 @@
   },
   "config": {
     "platform": {
-      "php": "7.3"
+      "php": "8.0"
     },
     "preferred-install": "dist",
     "optimize-autoloader": true

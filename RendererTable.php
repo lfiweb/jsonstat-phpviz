@@ -18,7 +18,7 @@ use function count;
  * whereas the column dimensions contain the actual values.
  *
  * Setting the property numRowDim (number of row dimensions) defines how many of the dimensions are use for the rows,
- * beginning at the start of the ordered size array of the jsonstat schema. Remaining dimensions are used for columns.
+ * beginning at the start of the ordered size array of the json-stat schema. Remaining dimensions are used for columns.
  * Dimensions of length one are excluded.
  *
  * Setting the property noLabelLastDim will skip the row in the table heading containing the labels of the last
@@ -41,40 +41,40 @@ class RendererTable
     public const DIM_TYPE_COL = 2;
 
     /** @var JsonStatReader */
-    protected $reader;
+    protected JsonStatReader $reader;
 
     /* @var array $colDims dimensions used for columns containing values */
-    protected $colDims;
+    protected array $colDims;
 
     /* @var array $rowDims dimensions used for rows containing labels, that make up the rows */
-    protected $rowDims;
+    protected array $rowDims;
 
     /** @var int number of dimensions of size one */
-    protected $numOneDim;
+    protected int $numOneDim;
 
     /** @var int number of columns with values */
-    protected $numValueCols;
+    protected int $numValueCols;
 
     /** @var int number of columns with labels */
-    protected $numLabelCols;
+    protected int $numLabelCols;
 
     /** @var int number of row dimensions */
-    protected $numRowDim;
+    protected int $numRowDim;
 
-    /** @var DOMNode */
-    protected $table;
+    /** @var DOMNode|Table */
+    protected Table|DOMNode $table;
 
     /** @var bool render the row with labels of last dimension? default = true */
-    protected $noLabelLastDim = true;
+    protected bool $noLabelLastDim = true;
 
     /** @var bool $useRowSpans render the table with rowspans ? default = true */
-    protected $useRowSpans = true;
+    protected bool $useRowSpans = true;
 
-    /** @var int number of row headers */
-    protected $numHeaderRows;
+    /** @var int|float number of row headers */
+    protected int|float $numHeaderRows;
 
     /** @var ?string caption of the table */
-    public $caption;
+    public ?string $caption;
 
     /**
      *
@@ -121,7 +121,7 @@ class RendererTable
      * @param bool $asHtml render as html or DOMElement?
      * @return DOMElement|string table
      */
-    public function render(bool $asHtml = true)
+    public function render(bool $asHtml = true): string|DOMElement
     {
         $this->caption();
         $this->rowHeaders();
@@ -172,7 +172,8 @@ class RendererTable
             $scope = null;
 
             if ($rowIdx === $this->numHeaderRows - 1) { // last header row
-                $label = $this->reader->getLabel($this->numOneDim + $k);
+                $id = $this->reader->getId($this->numOneDim + $k);
+                $label = $this->reader->getLabel($id);
                 $scope = 'col';
             }
             $this->headerCell($row, $label, $scope);
@@ -200,11 +201,13 @@ class RendererTable
             $colspan = null;
             $scope = 'col';
             $z = $rowIdx % 2;
+            $id = $this->reader->getId($dimIdx);
             if ($z === 0) {
-                $label = $this->reader->getLabel($dimIdx);
+                $label = $this->reader->getLabel($id);
             } else {
                 $catIdx = floor(($i % $f[0]) / $f[1]);
-                $label = $this->reader->getCategoryLabel($dimIdx, $catIdx);
+                $catId = $this->reader->getCategoryId($id, $catIdx);
+                $label = $this->reader->getCategoryLabel($id, $catId);
             }
             if ($f[$z] > 1) {
                 $colspan = $f[$z];
@@ -226,8 +229,13 @@ class RendererTable
         $rowIdxBody = $this->rowIdxBody($row);
         for ($i = 0; $i < $this->numLabelCols; $i++) {
             $f = UtilArray::productUpperNext($this->rowDims, $i);
-            $catIdx = floor($rowIdxBody % $f[0] / $f[1]);
-            $label = $rowIdxBody % $f[1] === 0 ? $this->reader->getCategoryLabel($this->numOneDim + $i, $catIdx) : null;
+            $label = null;
+            if ($rowIdxBody % $f[1] === 0) {
+                $catIdx = floor($rowIdxBody % $f[0] / $f[1]);
+                $id = $this->reader->getId($this->numOneDim + $i);
+                $labelId = $this->reader->getCategoryId($id, $catIdx);
+                $label = $this->reader->getCategoryLabel($id, $labelId);
+            }
             $rowspan = null;
             $scope = 'row';
             if ($this->useRowSpans && $f[1] > 1) {
@@ -310,9 +318,9 @@ class RendererTable
 
     /**
      * Creates and inserts a caption.
-     * @return ?DOMNode
+     * @return DOMNode|string|null
      */
-    public function caption()
+    public function caption(): DOMNode|string|null
     {
         if ($this->caption) {
             $caption = $this->table->insertCaption();

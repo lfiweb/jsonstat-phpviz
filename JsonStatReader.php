@@ -2,23 +2,20 @@
 
 namespace jsonstatPhpViz;
 
+use JetBrains\PhpStorm\Pure;
 use stdClass;
+use function count;
+use function is_array;
 
 /**
- * Class to work with jsonstat.org files.
+ * Class to work with json-stat.org files.
  */
 class JsonStatReader
 {
-    public $data;
+    public stdClass $data;
 
     /**
-     * @param stdClass jsonstat
-     * @param string jsonstat.label
-     * @param array jsonstat.id
-     * @param array jsonstat.size
-     * @param array jsonstat.value
-     * @param object jsonstat.dimension
-     * @property {Object} data
+     * @param stdClass $jsonstat
      */
     public function __construct(stdClass $jsonstat)
     {
@@ -26,29 +23,40 @@ class JsonStatReader
     }
 
     /**
-     * Returns the id of a dimension by its index.
-     * @param int $dimIdx
-     * @return mixed {*}
+     * Returns the id of a dimension by its array index.
+     * @param int $dimIdx index of the dimension array
+     * @return string id of the dimension
      */
-    public function getId(int $dimIdx)
+    public function getId(int $dimIdx): string
     {
         return $this->data->id[$dimIdx];
     }
 
     /**
-     * Returns the label of a dimension by its index.
-     * @param int $dimIdx
-     * @return string
+     * Returns the id of a category label.
+     * @param int $categIdx index of the category label
      */
-    public function getLabel(int $dimIdx): string
+    #[Pure] public function getCategoryId(string $dimId, int $categIdx) {
+        $dim = $this->data->dimension->{$dimId};
+        $index = $dim->category->index;
+
+        return is_array($index) ? $index[$categIdx] : $this->categoryIdFromObject($index, $categIdx);
+    }
+
+    /**
+     * Returns the label of a dimension by its id.
+     * @param string $dimId dimension id
+     * @return string dimension label
+     */
+    public function getLabel(string $dimId): string
     {
-        return $this->data->dimension->{$this->getId($dimIdx)}->label;
+        return $this->data->dimension->{$dimId}->label;
     }
 
     /**
      * Return list with the sizes of the dimensions.
-     * @param bool $excludeSizeOne
-     * @return array
+     * @param bool $excludeSizeOne do not return dimensions with size one
+     * @return array list of sizes
      */
     public function getDimensionSizes(bool $excludeSizeOne = true): array
     {
@@ -70,19 +78,19 @@ class JsonStatReader
     }
 
     /**
-     * Returns the label of a category of a dimension by dimension index and category index.
-     * @param int $dimIdx
-     * @param int|null $labelIdx
-     * @return string
+     * Returns the label of a category of a dimension by dimension id and category id.
+     * @param string $dimId dimension id
+     * @param ?string $labelId id of the category label
+     * @return string label
      */
-    public function getCategoryLabel(int $dimIdx, ?int $labelIdx = null): string
+    public function getCategoryLabel(string $dimId, ?string $labelId = null): string
     {
-        $dim = $this->data->dimension->{$this->getId($dimIdx)};
+        $dim = $this->data->dimension->{$dimId};
         $index = $dim->category->index;
         if ($index) {
-            $id = is_array($index) ? $index[$labelIdx] : $this->categoryIdFromObject($index, $labelIdx);
-            $label = $dim->category->label->{$id} ?? $id;
-        } else {  // e.g. constant dimension with single category and no index, label is required
+
+            $label = $dim->category->label->{$labelId} ?? $labelId;
+        } else {  // e.g. constant dimension with a single category and no index, label is required
             $keys = array_keys((array)$dim->category->label);
             $label = $dim->category->label->{$keys[0]};
         }
@@ -91,11 +99,12 @@ class JsonStatReader
     }
 
     /**
-     * @param stdClass $obj
-     * @param $labelIdx
-     * @return string
+     * Return the category id by index, when category is an object.
+     * @param stdClass $obj category object
+     * @param int $labelIdx index of the label
+     * @return string id of the category label
      */
-    protected function categoryIdFromObject(stdClass $obj, $labelIdx): string
+    protected function categoryIdFromObject(stdClass $obj, int $labelIdx): string
     {
         $arr = array_keys((array)$obj);
 
