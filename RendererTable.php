@@ -172,8 +172,8 @@ class RendererTable
             $scope = null;
 
             if ($rowIdx === $this->numHeaderRows - 1) { // last header row
-                $id = $this->reader->getId($this->numOneDim + $k);
-                $label = $this->reader->getLabel($id);
+                $id = $this->reader->getDimensionId($this->numOneDim + $k);
+                $label = $this->reader->getDimensionLabel($id);
                 $scope = 'col';
             }
             $this->headerCell($row, $label, $scope);
@@ -201,9 +201,9 @@ class RendererTable
             $colspan = null;
             $scope = 'col';
             $z = $rowIdx % 2;
-            $id = $this->reader->getId($dimIdx);
+            $id = $this->reader->getDimensionId($dimIdx);
             if ($z === 0) {
-                $label = $this->reader->getLabel($id);
+                $label = $this->reader->getDimensionLabel($id);
             } else {
                 $catIdx = floor(($i % $f[0]) / $f[1]);
                 $catId = $this->reader->getCategoryId($id, $catIdx);
@@ -232,7 +232,7 @@ class RendererTable
             $label = null;
             if ($rowIdxBody % $f[1] === 0) {
                 $catIdx = floor($rowIdxBody % $f[0] / $f[1]);
-                $id = $this->reader->getId($this->numOneDim + $i);
+                $id = $this->reader->getDimensionId($this->numOneDim + $i);
                 $labelId = $this->reader->getCategoryId($id, $catIdx);
                 $label = $this->reader->getCategoryLabel($id, $labelId);
             }

@@ -27,7 +27,7 @@ class JsonStatReader
      * @param int $dimIdx index of the dimension array
      * @return string id of the dimension
      */
-    public function getId(int $dimIdx): string
+    public function getDimensionId(int $dimIdx): string
     {
         return $this->data->id[$dimIdx];
     }
@@ -48,7 +48,7 @@ class JsonStatReader
      * @param string $dimId dimension id
      * @return string dimension label
      */
-    public function getLabel(string $dimId): string
+    public function getDimensionLabel(string $dimId): string
     {
         return $this->data->dimension->{$dimId}->label;
     }
