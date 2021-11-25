@@ -1,0 +1,71 @@
+{
+	"version": "2.0",
+	"class": "dataset",
+	"label": "Integers: ordered ascending for Testing",
+	"source": "© WSL, Swiss National Forest Inventory, 25.11.2021",
+	"updated": "2021-11-25T14:11:2Z",
+	"id": ["A", "B", "C", "D"],
+	"size": [3, 2, 4, 2],
+	"role": {
+		"geo": ["Dimension C"],
+		"metric": ["Dimension D"]
+	},
+	"value": [
+		1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,
+		25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48],
+	"dimension": {
+		"A": {
+			"label": "Dimension A",
+			"category": {
+				"index": ["1", "2", "3"],
+				"label": {
+					"1": "A1",
+					"2": "A2",
+					"3": "A3"
+				}
+			}
+		},
+		"B": {
+			"label": "Dimension B",
+			"category": {
+				"index": ["0", "1"],
+				"label": {
+					"0": "B1",
+					"1": "B2"
+				}
+			}
+		},
+		"C": {
+			"label": "Dimension C",
+			"category": {
+				"index": ["1", "2", "3", "4"],
+				"label": {
+					"1": "C1",
+					"2": "C2",
+					"3": "C3",
+					"4": "C4"
+				}
+			}
+		},
+		"D": {
+			"label": "Dimension D",
+			"category": {
+				"index": ["1", "2"],
+				"label": {
+					"1": "D1",
+					"2": "D2"
+				},
+				"unit": {
+					"1": {
+						"decimals": 1,
+						"multiplier": 1
+					},
+					"2": {
+						"decimals": 0,
+						"multiplier": 1
+					}
+				}
+			}
+		}
+	}
+}
