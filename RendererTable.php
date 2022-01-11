@@ -349,13 +349,14 @@ class RendererTable
 
     /**
      * Returns the default number of dimensions used for rows.
+     * Uses at least two dimensions for the columns when there are more than 2 dimensions.
      * @return int
      */
     public function numRowDimAuto(): int
     {
-        $dims = $this->reader->getDimensionSizes();
+        $dims = $this->reader->getDimensionSizes(   );
 
-        return count(array_slice($dims, 0, count($dims) - 2));
+        return count($dims) === 2 ? 1 : count(array_slice($dims, 0, count($dims) - 2));
     }
 
     /**
