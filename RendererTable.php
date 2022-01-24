@@ -307,10 +307,10 @@ class RendererTable
             $cell->textContent = $str;  // no need to escape
         }
         if ($colspan !== null) {
-            $cell->setAttribute('colSpan', $colspan);
+            $cell->setAttribute('colspan', $colspan);
         }
         if ($rowspan !== null) {
-            $cell->setAttribute('rowSpan', $rowspan);
+            $cell->setAttribute('rowspan', $rowspan);
         }
 
         return $row->appendChild($cell);
