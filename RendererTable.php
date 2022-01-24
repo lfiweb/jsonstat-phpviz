@@ -354,7 +354,7 @@ class RendererTable
      */
     public function numRowDimAuto(): int
     {
-        $dims = $this->reader->getDimensionSizes(   );
+        $dims = $this->reader->getDimensionSizes();
 
         return count($dims) === 2 ? 1 : count(array_slice($dims, 0, count($dims) - 2));
     }
