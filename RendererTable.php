@@ -120,6 +120,7 @@ class RendererTable
      * Reads the value array and renders it as a table.
      * @param bool $asHtml render as html or DOMElement?
      * @return DOMElement|string table
+     * @throws \DOMException
      */
     public function render(bool $asHtml = true): string|DOMElement
     {
@@ -132,6 +133,7 @@ class RendererTable
 
     /**
      * Creates the table head and appends header cells, row by row to it.
+     * @throws \DOMException
      */
     public function rowHeaders(): void
     {
@@ -147,6 +149,7 @@ class RendererTable
 
     /**
      * Creates the table body and appends table cells row by row to it.
+     * @throws \DOMException
      */
     public function rows(): void
     {
@@ -184,10 +187,10 @@ class RendererTable
      * Creates the cells for the headers of the value columns.
      * @param DOMNode $row
      * @param int $rowIdx
+     * @throws \DOMException
      */
     public function headerValueCells(DOMNode $row, int $rowIdx): void
     {
-
         if (count($this->colDims) === 0) {
             $this->headerCell($row);
 
@@ -223,6 +226,7 @@ class RendererTable
      * Appends cells with labels to the row.
      * Inserts the label as a HTMLTableHeaderElement at the end of the row.
      * @param DOMElement $row
+     * @throws \DOMException
      */
     public function labelCells(DOMElement $row): void
     {
@@ -265,7 +269,6 @@ class RendererTable
         if ($modulo === 0) {
             $cl->add($css, 'first');
         } elseif ($modulo === $f[0] - $f[1]) {
-            $css = 'rowdim'.($cellIdx + 1);
             $cl->add($css, 'last');
         }
     }
@@ -275,6 +278,7 @@ class RendererTable
      * Inserts a HTMLTableCellElement at the end of the row with a value taken from the values at given offset.
      * @param DOMNode $row
      * @param int $offset
+     * @throws \DOMException
      */
     public function valueCell(DOMNode $row, int $offset): void
     {
@@ -292,6 +296,7 @@ class RendererTable
      * @param [colspan] number of columns to span
      * @param [rowspan] number of rows to span
      * @return DOMNode
+     * @throws \DOMException
      */
     public function headerCell(DOMNode $row, $str = null, $scope = null, $colspan = null, $rowspan = null): DOMNode
     {
@@ -344,7 +349,7 @@ class RendererTable
     {
         $numVirtRow = $this->noLabelLastDim ? 1 : 0;
 
-        return (int)$row->getAttribute('rowIndex') - $this->numHeaderRows + $numVirtRow;
+        return (int)$row->getAttribute('rowindex') - $this->numHeaderRows + $numVirtRow;
     }
 
     /**
