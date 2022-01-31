@@ -1,11 +1,11 @@
 <?php
 
-namespace jsonstatPhpViz;
+namespace jsonstatPhpViz\src;
 
 use DOMElement;
 use DOMNode;
-use jsonstatPhpViz\DOM\ClassList;
-use jsonstatPhpViz\DOM\Table;
+use jsonstatPhpViz\src\DOM\ClassList;
+use jsonstatPhpViz\src\DOM\Table;
 use function array_slice;
 use function count;
 
@@ -40,8 +40,8 @@ class RendererTable
     /** @var int dimensions of type col */
     public const DIM_TYPE_COL = 2;
 
-    /** @var JsonStatReader */
-    protected JsonStatReader $reader;
+    /** @var Reader */
+    protected Reader $reader;
 
     /* @var array $colDims dimensions used for columns containing values */
     protected array $colDims;
@@ -78,10 +78,10 @@ class RendererTable
 
     /**
      *
-     * @param JsonStatReader $jsonStatReader
+     * @param Reader $jsonStatReader
      * @param int|null $numRowDim
      */
-    public function __construct(JsonStatReader $jsonStatReader, ?int $numRowDim = null)
+    public function __construct(Reader $jsonStatReader, ?int $numRowDim = null)
     {
         $this->reader = $jsonStatReader;
         $dims = $this->reader->getDimensionSizes();

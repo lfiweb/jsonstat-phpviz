@@ -1,6 +1,6 @@
 <?php
 
-namespace jsonstatPhpViz;
+namespace jsonstatPhpViz\src;
 
 use JetBrains\PhpStorm\Pure;
 use stdClass;
@@ -10,7 +10,7 @@ use function is_array;
 /**
  * Class to work with json-stat.org files.
  */
-class JsonStatReader
+class Reader
 {
     public stdClass $data;
 

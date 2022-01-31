@@ -1,7 +1,8 @@
 <?php
 
-use jsonstatPhpViz\JsonStatReader;
-use jsonstatPhpViz\RendererTable;
+use jsonstatPhpViz\src\Reader;
+use jsonstatPhpViz\src\RendererTable;
+use jsonstatPhpViz\src\UtilArray;
 
 require_once __DIR__.'/vendor/autoload.php';
 
@@ -9,26 +10,30 @@ require_once __DIR__.'/vendor/autoload.php';
 $filename = $_GET['source'] ?? 'integer.json';   // TODO: this us unsafe !!!!
 $json = file_get_contents($filename);
 $jsonstat = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
-$reader = new JsonStatReader($jsonstat);
+$reader = new Reader($jsonstat);
 $dims = $reader->getDimensionSizes();
 $numRowDim = count(array_slice($dims, 0, count($dims) - 2));
 $table = new RendererTable($reader, $numRowDim);
 $html = $table->render();
 
+$axes = [0, 2, 1, 3];
+$jsonstat->value = UtilArray::transpose($jsonstat->value, $jsonstat->size, $axes);
+$jsonstat->id = UtilArray::swap($jsonstat->id, $axes);
+$jsonstat->size = UtilArray::swap($jsonstat->size, $axes);
+$table = new RendererTable($reader, $numRowDim);
+$html2 = $table->render();
+
 
 $filename = 'integer-transposed.json';
 $json = file_get_contents($filename);
 $jsonstat = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
-$reader = new JsonStatReader($jsonstat);
+$reader = new Reader($jsonstat);
 $dims = $reader->getDimensionSizes();
 $numRowDim = count(array_slice($dims, 0, count($dims) - 2));
 $table = new RendererTable($reader, $numRowDim);
-$html2 = $table->render();
+$html3 = $table->render();
 
-/*$doc = new DOMDocument('1.0', 'UTF-8');
-$node = $doc->importNode($table, true);
-$doc->appendChild($node);
-$table = $doc->saveHTML();*/
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -58,5 +63,7 @@ $table = $doc->saveHTML();*/
 <?php echo $html; ?>
 <p><br><br></p>
 <?php echo $html2; ?>
+<p><br><br></p>
+<?php echo $html3; ?>
 </body>
 </html>
