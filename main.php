@@ -6,8 +6,9 @@ use jsonstatPhpViz\src\UtilArray;
 
 require_once __DIR__.'/vendor/autoload.php';
 
-// TODO: let user select which json to render
-$filename = $_GET['source'] ?? 'integer.json';   // TODO: this us unsafe !!!!
+// TODO: let user select which json to render, security implications?
+
+$filename = 'integer.json';
 $json = file_get_contents($filename);
 $jsonstat = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
 $reader = new Reader($jsonstat);
@@ -16,13 +17,10 @@ $numRowDim = count(array_slice($dims, 0, count($dims) - 2));
 $table = new RendererTable($reader, $numRowDim);
 $html = $table->render();
 
-$axes = [0, 2, 1, 3];
-$jsonstat->value = UtilArray::transpose($jsonstat->value, $jsonstat->size, $axes);
-$jsonstat->id = UtilArray::swap($jsonstat->id, $axes);
-$jsonstat->size = UtilArray::swap($jsonstat->size, $axes);
+$axes = [2, 1, 0, 3];
+$reader->transpose($axes);
 $table = new RendererTable($reader, $numRowDim);
 $html2 = $table->render();
-
 
 $filename = 'integer-transposed.json';
 $json = file_get_contents($filename);
@@ -33,7 +31,22 @@ $numRowDim = count(array_slice($dims, 0, count($dims) - 2));
 $table = new RendererTable($reader, $numRowDim);
 $html3 = $table->render();
 
+$filename = 'vorrat.json';
+$json = file_get_contents($filename);
+$jsonstat = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
+$reader = new Reader($jsonstat);
+//$reader->transpose([2,3,0,1,4,5]);
+$table = new RendererTable($reader, 2);
+$table->excludeOneDim = true;
+$html4 = $table->render();
 
+$filename = 'sizeone.json';
+$json = file_get_contents($filename);
+$jsonstat = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
+$reader = new Reader($jsonstat);
+$table = new RendererTable($reader);
+$table->excludeOneDim = true;
+$html5 = $table->render();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -65,5 +78,9 @@ $html3 = $table->render();
 <?php echo $html2; ?>
 <p><br><br></p>
 <?php echo $html3; ?>
+<p><br><br></p>
+<?php echo $html4; ?>
+<p><br><br></p>
+<?php echo $html5; ?>
 </body>
 </html>
