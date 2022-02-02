@@ -39,11 +39,6 @@
 					"5": "Southern Alps",
 					"999999": "Switzerland"
 				}
-			},
-			"extension": {
-				"type": "abl",
-				"VARNR": 49,
-				"TABNR": 6
 			}
 		},
 		"BHDKL": {
@@ -58,11 +53,6 @@
 					"4": ">= 52 cm",
 					"999999": "total"
 				}
-			},
-			"extension": {
-				"type": "abl",
-				"VARNR": 1029,
-				"TABNR": 5
 			}
 		},
 		"LBHNDH123": {
@@ -74,11 +64,6 @@
 					"2": "broadleaves",
 					"999999": "total"
 				}
-			},
-			"extension": {
-				"type": "abl",
-				"VARNR": 1090,
-				"TABNR": 5
 			}
 		},
 		"concept": {
@@ -99,11 +84,6 @@
 						"multiplier": 1
 					}
 				}
-			},
-			"extension": {
-				"type": "zigr",
-				"ZIGRNR": 21,
-				"TABNR": 5
 			}
 		},
 		"period": {
@@ -112,10 +92,6 @@
 				"label": {
 					"1": "NFI4b, state 2009/13"
 				}
-			},
-			"extension": {
-				"type": "inv",
-				"INVNR": 452
 			}
 		},
 		"N4P12345": {
@@ -124,11 +100,6 @@
 				"label": {
 					"1": "grid NFI4 2009-2013"
 				}
-			},
-			"extension": {
-				"type": "abl",
-				"VARNR": 1746,
-				"TABNR": 1
 			}
 		}
 	}
