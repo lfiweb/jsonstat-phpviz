@@ -58,8 +58,8 @@ class RendererTable
     /** @var int number of columns with labels */
     protected int $numLabelCols;
 
-    /** @var int number of row dimensions */
-    protected int $numRowDim;
+    /** @var int|null number of row dimensions */
+    protected ?int $numRowDim;
 
     /** @var DOMNode|Table */
     protected Table|DOMNode $table;
@@ -77,6 +77,13 @@ class RendererTable
     public null|string|DOMNode $caption;
 
     /**
+     * Exclude dimensions of size one from rendering.
+     * Only excludes dimensions of size one, when each dimension with a lower index is also of size one.
+     * @var bool
+     */
+    public ?bool $excludeOneDim = false;
+
+    /**
      *
      * @param Reader $jsonStatReader
      * @param int|null $numRowDim
@@ -84,11 +91,20 @@ class RendererTable
     public function __construct(Reader $jsonStatReader, ?int $numRowDim = null)
     {
         $this->reader = $jsonStatReader;
-        $dims = $this->reader->getDimensionSizes();
-        $this->numRowDim = $numRowDim ?? $this->numRowDimAuto();
+        $this->table = new Table();
+        $this->numRowDim = $numRowDim;
+    }
+
+    /**
+     * Precalculate and cache often used numbers before rendering.
+     * @return void
+     */
+    protected function init(): void
+    {
+        $dims = $this->reader->getDimensionSizes($this->excludeOneDim);
+        $this->numRowDim = $this->numRowDim ?? $this->numRowDimAuto();
         $this->rowDims = $this->getDims($dims, self::DIM_TYPE_ROW);
         $this->colDims = $this->getDims($dims, self::DIM_TYPE_COL);
-        $this->table = new Table();
         $css = new ClassList($this->table->get());
         $css->add('jst-viz', 'numRowDims'.count($this->rowDims), 'lastDimSize'.$dims[count($dims) - 1]);
         // cache some often used numbers before rendering table
@@ -124,6 +140,7 @@ class RendererTable
      */
     public function render(bool $asHtml = true): string|DOMElement
     {
+        $this->init();
         $this->caption();
         $this->rowHeaders();
         $this->rows();
@@ -167,6 +184,7 @@ class RendererTable
      * Creates the cells for the headers of the label columns
      * @param DOMElement $row
      * @param int $rowIdx
+     * @throws \DOMException
      */
     public function headerLabelCells(DOMNode $row, int $rowIdx): void
     {
@@ -307,8 +325,7 @@ class RendererTable
         if ($str === null) {
             // otherwise, <th/> is created, which is invalid on a non-void element
             $cell->appendChild($this->table->doc->createTextNode(''));
-        }
-        else {
+        } else {
             $cell->textContent = $str;  // no need to escape
         }
         if ($colspan !== null) {
@@ -359,7 +376,7 @@ class RendererTable
      */
     public function numRowDimAuto(): int
     {
-        $dims = $this->reader->getDimensionSizes();
+        $dims = $this->reader->getDimensionSizes($this->excludeOneDim);
 
         return count($dims) === 2 ? 1 : count(array_slice($dims, 0, count($dims) - 2));
     }
