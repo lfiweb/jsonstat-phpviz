@@ -93,6 +93,9 @@ class RendererTable
         $this->reader = $jsonStatReader;
         $this->table = new Table();
         $this->numRowDim = $numRowDim;
+        if (property_exists($this->reader->data, 'label')) {
+            $this->caption = $this->escapeHtml($this->reader->data->label);
+        }
     }
 
     /**
@@ -113,9 +116,6 @@ class RendererTable
         $this->numValueCols = count($this->colDims) > 0 ? UtilArray::product($this->colDims) : 1;
         $this->numLabelCols = count($this->rowDims);
         $this->numHeaderRows = count($this->colDims) > 0 ? count($this->colDims) * 2 : 1; // add an additional row to label each dimension
-        if (property_exists($this->reader->data, 'label')) {
-            $this->caption = $this->escapeHtml($this->reader->data->label);
-        }
     }
 
     /**
