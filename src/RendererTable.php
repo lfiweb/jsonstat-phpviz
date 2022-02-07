@@ -64,17 +64,14 @@ class RendererTable
     /** @var DOMNode|Table */
     protected Table|DOMNode $table;
 
-    /** @var bool render the row with labels of last dimension? default = true */
-    protected bool $noLabelLastDim = true;
-
-    /** @var bool $useRowSpans render the table with rowspans ? default = true */
-    protected bool $useRowSpans = true;
-
     /** @var int|float number of row headers */
     protected int|float $numHeaderRows;
 
-    /** @var null|string|DOMNode caption of the table */
-    public null|string|DOMNode $caption;
+    /** @var bool render the row with labels of last dimension? default = true */
+    public bool $noLabelLastDim = false;
+
+    /** @var bool $useRowSpans render the table with rowspans ? default = true */
+    public bool $useRowSpans = true;
 
     /**
      * Exclude dimensions of size one from rendering.
@@ -82,6 +79,9 @@ class RendererTable
      * @var bool
      */
     public ?bool $excludeOneDim = false;
+
+    /** @var null|string|DOMNode caption of the table */
+    public null|string|DOMNode $caption;
 
     /**
      *
