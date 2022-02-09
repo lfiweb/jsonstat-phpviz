@@ -98,12 +98,11 @@ class RendererTable
         }
     }
 
-
     /**
      * Set the number of dimensions to be used for rows.
-     * @param int|null $numRowDim
+     * @param int $numRowDim
      */
-    public function setNumRowDim(?int $numRowDim): void
+    public function setNumRowDim(int $numRowDim): void
     {
         $this->numRowDim = $numRowDim;
     }
