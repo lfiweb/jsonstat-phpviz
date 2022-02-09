@@ -58,7 +58,7 @@ class RendererTable
     /** @var int number of columns with labels */
     protected int $numLabelCols;
 
-    /** @var int|null number of row dimensions */
+    /** @var int|null number of dimensions to be used for rows */
     protected ?int $numRowDim;
 
     /** @var DOMNode|Table */
@@ -96,6 +96,16 @@ class RendererTable
         if (property_exists($this->reader->data, 'label')) {
             $this->caption = $this->escapeHtml($this->reader->data->label);
         }
+    }
+
+
+    /**
+     * Set the number of dimensions to be used for rows.
+     * @param int|null $numRowDim
+     */
+    public function setNumRowDim(?int $numRowDim): void
+    {
+        $this->numRowDim = $numRowDim;
     }
 
     /**
