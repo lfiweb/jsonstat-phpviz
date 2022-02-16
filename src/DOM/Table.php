@@ -26,9 +26,6 @@ class Table
      */
     private DOMElement|false $domNode;
 
-    /** @var int */
-    private int $rowIndex = 0;
-
     /**
      * @throws \DOMException
      */
@@ -91,8 +88,6 @@ class Table
     public function appendRow(DOMElement $parent): DOMNode
     {
         $row = $this->doc->createElement('tr');
-        $row->setAttribute('rowindex', $this->rowIndex);
-        $this->rowIndex++;
         $this->domNode->appendChild($parent);
 
         return $parent->appendChild($row);

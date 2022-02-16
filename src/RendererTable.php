@@ -3,6 +3,7 @@
 namespace jsonstatPhpViz\src;
 
 use DOMElement;
+use DOMException;
 use DOMNode;
 use jsonstatPhpViz\src\DOM\ClassList;
 use jsonstatPhpViz\src\DOM\Table;
@@ -145,7 +146,7 @@ class RendererTable
      * Reads the value array and renders it as a table.
      * @param bool $asHtml render as html or DOMElement?
      * @return DOMElement|string table
-     * @throws \DOMException
+     * @throws DOMException
      */
     public function render(bool $asHtml = true): string|DOMElement
     {
@@ -159,7 +160,7 @@ class RendererTable
 
     /**
      * Creates the table head and appends header cells, row by row to it.
-     * @throws \DOMException
+     * @throws DOMException
      */
     public function rowHeaders(): void
     {
@@ -175,15 +176,17 @@ class RendererTable
 
     /**
      * Creates the table body and appends table cells row by row to it.
-     * @throws \DOMException
+     * @throws DOMException
      */
     public function rows(): void
     {
+        $rowIdx = 0;
         $tBody = $this->table->createTBody();
         for ($offset = 0, $len = $this->reader->getNumValues(); $offset < $len; $offset++) {
             if ($offset % $this->numValueCols === 0) {
                 $row = $this->table->appendRow($tBody);
-                $this->labelCells($row);
+                $this->labelCells($row, $rowIdx);
+                $rowIdx++;
             }
             $this->valueCell($row, $offset);
         }
@@ -193,7 +196,7 @@ class RendererTable
      * Creates the cells for the headers of the label columns
      * @param DOMElement $row
      * @param int $rowIdx
-     * @throws \DOMException
+     * @throws DOMException
      */
     public function headerLabelCells(DOMNode $row, int $rowIdx): void
     {
@@ -214,7 +217,7 @@ class RendererTable
      * Creates the cells for the headers of the value columns.
      * @param DOMNode $row
      * @param int $rowIdx
-     * @throws \DOMException
+     * @throws DOMException
      */
     public function headerValueCells(DOMNode $row, int $rowIdx): void
     {
@@ -252,12 +255,12 @@ class RendererTable
     /**
      * Appends cells with labels to the row.
      * Inserts the label as a HTMLTableHeaderElement at the end of the row.
-     * @param DOMElement $row
-     * @throws \DOMException
+     * @param DOMElement $row HTMLTableRow
+     * @param int $rowIdxBody row index
+     * @throws DOMException
      */
-    public function labelCells(DOMElement $row): void
+    protected function labelCells(DOMElement $row, int $rowIdxBody): void
     {
-        $rowIdxBody = $this->rowIdxBody($row);
         for ($i = 0; $i < $this->numLabelCols; $i++) {
             $f = UtilArray::productUpperNext($this->rowDims, $i);
             $label = null;
@@ -287,7 +290,7 @@ class RendererTable
      * @param {String} $cellIdx
      * @param {String} $rowIdxBody
      */
-    public function labelCellCss($cell, $cellIdx, $rowIdxBody): void
+    protected function labelCellCss($cell, $cellIdx, $rowIdxBody): void
     {
         $cl = new ClassList($cell);
         $f = UtilArray::productUpperNext($this->rowDims, $cellIdx);
@@ -305,7 +308,7 @@ class RendererTable
      * Inserts a HTMLTableCellElement at the end of the row with a value taken from the values at given offset.
      * @param DOMNode $row
      * @param int $offset
-     * @throws \DOMException
+     * @throws DOMException
      */
     public function valueCell(DOMNode $row, int $offset): void
     {
@@ -323,7 +326,7 @@ class RendererTable
      * @param [colspan] number of columns to span
      * @param [rowspan] number of rows to span
      * @return DOMNode
-     * @throws \DOMException
+     * @throws DOMException
      */
     public function headerCell(DOMNode $row, $str = null, $scope = null, $colspan = null, $rowspan = null): DOMNode
     {
@@ -362,20 +365,6 @@ class RendererTable
         }
 
         return $this->caption;
-    }
-
-    /**
-     * Returns the row index for body rows only.
-     * The html rowIdx attribute includes the rows from the table header. This function returns an index
-     * started at the first body row.
-     * @param DOMElement} $row
-     * @return int $row index
-     */
-    public function rowIdxBody(DOMElement $row): int
-    {
-        $numVirtRow = $this->noLabelLastDim ? 1 : 0;
-
-        return (int)$row->getAttribute('rowindex') - $this->numHeaderRows + $numVirtRow;
     }
 
     /**
