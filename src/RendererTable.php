@@ -71,7 +71,12 @@ class RendererTable
     /** @var bool render the row with labels of last dimension? default = true */
     public bool $noLabelLastDim = false;
 
-    /** @var bool $useRowSpans render the table with rowspans ? default = true */
+    /**
+     * Render the table with rowspans ?
+     * default = true
+     * Note: When this is set to false, empty rowheaders might be created, which are an accessibility problem.
+     * @var bool $useRowSpans
+     */
     public bool $useRowSpans = true;
 
     /**
