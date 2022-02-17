@@ -4,6 +4,10 @@ namespace jsonstatPhpViz\src;
 
 use function count;
 
+/**
+ * Utility to provide additional array methods.
+ * Some are modelled after numpy.
+ */
 class UtilArray
 {
     /**
@@ -71,7 +75,6 @@ class UtilArray
         $size = 1;
         $i = $len - 1;
         $stride = [];
-
         for (; $i >= 0; --$i) {
             $stride[$i] = $size;
             $size *= $shape[$i];
@@ -104,7 +107,6 @@ class UtilArray
     {
         $i = count($shape) - 1;
         $arr = [];
-
         for (; $i >= 0; $i--) {
             $s = $idx % $shape[$i];
             $idx -= $s;
@@ -126,7 +128,6 @@ class UtilArray
         $n = 0;
         $len = count($strides);
         $idx = 0;
-
         for (; $n < $len; $n++) {
             $idx += $subscripts[$n] * $strides[$n];
         }
@@ -147,11 +148,9 @@ class UtilArray
         $i = 0;
         $len = count($arr);
         $values = [];
-
         $strides = self::getStrides($shape);
         $stridesTransp = self::swap($strides, $axes);
         $shapeTransp = self::swap($shape, $axes);
-
         for (; $i < $len; $i++) {
             $multi = self::linearToMultiDim($shapeTransp, $i);
             $idx = self::multiDimToLinear($stridesTransp, $multi);
