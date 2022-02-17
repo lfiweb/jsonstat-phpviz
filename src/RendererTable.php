@@ -299,8 +299,11 @@ class RendererTable
     {
         $cl = new ClassList($cell);
         $f = UtilArray::productUpperNext($this->rowDims, $cellIdx);
-        $modulo = $rowIdxBody % $f[0];
         $css = 'rowdim'.($cellIdx + 1);
+        $modulo = $rowIdxBody % $f[0];
+        if ($rowIdxBody % $f[1] === 0) {
+            $cl->add($css);
+        }
         if ($modulo === 0) {
             $cl->add($css, 'first');
         } elseif ($modulo === $f[0] - $f[1]) {
