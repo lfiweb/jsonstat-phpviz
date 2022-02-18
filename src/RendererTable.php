@@ -120,17 +120,36 @@ class RendererTable
     protected function init(): void
     {
         $dims = $this->reader->getDimensionSizes($this->excludeOneDim);
+        $dimsAll = $this->reader->getDimensionSizes(false);
         $this->numRowDim = $this->numRowDim ?? $this->numRowDimAuto();
         $this->rowDims = $this->getDims($dims, self::DIM_TYPE_ROW);
         $this->colDims = $this->getDims($dims, self::DIM_TYPE_COL);
-        $css = new ClassList($this->table->get());
-        $css->add('jst-viz', 'numRowDims'.count($this->rowDims), 'lastDimSize'.$dims[count($dims) - 1]);
+        $this->initTable($dims);
         // cache some often used numbers before rendering table
-        $dimsAll = $this->reader->getDimensionSizes(false);
         $this->numOneDim = count($dimsAll) - count($this->rowDims) - count($this->colDims);
         $this->numValueCols = count($this->colDims) > 0 ? UtilArray::product($this->colDims) : 1;
         $this->numLabelCols = count($this->rowDims);
         $this->numHeaderRows = count($this->colDims) > 0 ? count($this->colDims) * 2 : 1; // add an additional row to label each dimension
+    }
+
+    /**
+     * Set the attributes of table element.
+     * @param array<int> $dims dimension sizes (shape)
+     * @return void
+     */
+    protected function initTable(array $dims): void
+    {
+        $numRowDims = count($this->rowDims);
+        $strides = UtilArray::getStrides($dims);
+        $strides = implode(',', $strides);
+        $shape = implode(',', $dims);
+
+        $domNode = $this->table->get();
+        $css = new ClassList($domNode);
+        $css->add('jst-viz', 'numRowDims'.$numRowDims, 'lastDimSize'.$dims[count($dims) - 1]);
+        $domNode->setAttribute('data-shape', $shape);
+        $domNode->setAttribute('data-stride', $strides);
+        $domNode->setAttribute('data-num-row-dim', $numRowDims);
     }
 
     /**
