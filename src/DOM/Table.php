@@ -6,6 +6,7 @@ namespace jsonstatPhpViz\src\DOM;
 
 use DOMDocument;
 use DOMElement;
+use DOMException;
 use DOMNode;
 use function in_array;
 
@@ -24,10 +25,10 @@ class Table
     /**
      * @var DOMElement
      */
-    private DOMElement|false $domNode;
+    private DOMElement $domNode;
 
     /**
-     * @throws \DOMException
+     * @throws DOMException
      */
     public function __construct()
     {
@@ -39,9 +40,9 @@ class Table
 
     /**
      * Returns the DOMElement of the table.
-     * @return DOMElement|false
+     * @return DOMElement
      */
-    public function get(): bool|DOMElement
+    public function get(): DOMElement
     {
         return $this->domNode;
     }
@@ -59,7 +60,7 @@ class Table
     /**
      * Returns the table head element.
      * @return DOMElement
-     * @throws \DOMException
+     * @throws DOMException
      */
     public function createTHead(): DOMElement
     {
@@ -69,7 +70,7 @@ class Table
     /**
      * Creates the HTMLTBodyElement.
      * @return DOMElement
-     * @throws \DOMException
+     * @throws DOMException
      */
     public function createTBody(): DOMElement
     {
@@ -83,7 +84,7 @@ class Table
      * Appends a row to the table.
      * @param DOMElement $parent
      * @return DOMNode
-     * @throws \DOMException
+     * @throws DOMException
      */
     public function appendRow(DOMElement $parent): DOMNode
     {
@@ -96,6 +97,7 @@ class Table
     /**
      * Inserts and returns an empty caption element
      * @return DOMElement caption element
+     * @throws DOMException
      */
     public function insertCaption(): DOMElement
     {
@@ -109,7 +111,7 @@ class Table
      * and inserted at the correct place before being returned.
      * @param string $name element name
      * @return DOMElement
-     * @throws \DOMException
+     * @throws DOMException
      */
     private function getCreateChild(string $name): DOMElement
     {
@@ -161,10 +163,10 @@ class Table
 
     /**
      * Insert the section element after the specified nodes.
-     * @param DOMElement $newNode
+     * @param DOMNode $newNode
      * @param string[] $refNames names of nodes to insert after
      */
-    private function insertChildAfter(DOMElement $newNode, array $refNames): void
+    private function insertChildAfter(DOMNode $newNode, array $refNames): void
     {
         $child = $this->getFirstElementChild($this->domNode);
         while ($child && in_array($child->nodeName, $refNames, true)) {
@@ -244,9 +246,9 @@ class Table
     /**
      *
      * @param DOMNode $node
-     * @return DOMNode|null
+     * @return DOMElement|null
      */
-    protected function getFirstElementChild(DOMNode $node): ?DOMNode
+    protected function getFirstElementChild(DOMNode $node): ?DOMElement
     {
         for ($i = 0, $len = $node->childNodes->length; $i < $len; $i++) {
             $child = $node->childNodes->item($i);
@@ -260,7 +262,11 @@ class Table
         return null;
     }
 
-    protected function getNextElementSibling($node)
+    /**
+     * @param DOMNode $node
+     * @return DOMElement|null
+     */
+    protected function getNextElementSibling(DOMNode $node): DOMElement|null
     {
         $context = $node;
         while ($context = $context->nextSibling) {
