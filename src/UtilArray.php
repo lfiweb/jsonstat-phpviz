@@ -62,7 +62,6 @@ class UtilArray
         return $num;
     }
 
-
     /**
      * Calculate strides from the shape.
      * @see https://numpy.org/doc/stable/reference/generated/numpy.ndarray.strides.html
@@ -75,12 +74,16 @@ class UtilArray
         $size = 1;
         $i = $len - 1;
         $stride = [];
+        // note: using $stride[$i] = $size instead of $stride[] = $size in the loop below,
+        // we could do away with the array_reverse() in the return, since we are setting the correct keys, but the
+        // actual order would be inverted and turn out wrong, when using implode() or a 'for loop' instead of foreach,
+        // e.g shape[4,2,3,2] --> [3 => 1, 2 => 2, 1 => 6, 0 => 12] looking like [12,6,2,1], but imploding to '1,2,6,12'
         for (; $i >= 0; --$i) {
-            $stride[$i] = $size;
+            $stride[] = $size;
             $size *= $shape[$i];
         }
 
-        return $stride;
+        return array_reverse($stride);
     }
 
     /**
@@ -98,10 +101,13 @@ class UtilArray
 
     /**
      * Convert a linear index to a multidimensional index.
+     * Creates an array of subscripts from the shape,
+     * e.g. when called repeatedly from idx[0,1,2,3,...,48] with shape[4,2,3,2], it creates the following sequence:
+     * -> [0,0,0,0], [0,0,0,1], [0,0,1,0], [0,0,1,1], [0,0,2,0], [0,0,2,1], [0,1,0,0], [0,1,0,1], ..., [3,1,2,1]
      * @see https://stackoverflow.com/questions/46782444/how-to-convert-a-linear-index-to-subscripts-with-support-for-negative-strides
-     * @param array shape
+     * @param array<int> $shape
      * @param int $idx
-     * @return array
+     * @return array<int>
      */
     public static function linearToMultiDim(array $shape, int $idx): array
     {
@@ -119,8 +125,9 @@ class UtilArray
 
     /**
      * Convert a multidimensional index to a linear index.
-     * @param array $strides
-     * @param array $subscripts
+     * Converts the subscripts back to a linear index, @see UtilArray::linearToMultiDim()
+     * @param array<int> $strides
+     * @param array<int> $subscripts
      * @return int index
      */
     public static function multiDimToLinear(array $strides, array $subscripts): int
