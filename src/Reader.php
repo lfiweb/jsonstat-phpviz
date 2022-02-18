@@ -62,19 +62,21 @@ class Reader
      * Dimensions of size 1 are excluded by default, if each dimension with a lower index is also of size one, e.g.:
      * [1,1,3,2,5] --> [3,2,5], but
      * [1,1,3,2,1] --> [3,2,1]
-     * @param bool $excludeSizeOne do not return dimensions of size from the beginning
+     * @param bool $excludeSizeOne do not return dimensions of size one from the beginning
      * @return array list of sizes
      */
     public function getDimensionSizes(bool $excludeSizeOne = true): array
     {
         $size = 0;
         $dimensions = $this->data->size;
-        return array_filter($dimensions, static function ($value, $idx) use ($excludeSizeOne, $dimensions, $size) {
+        $arr = array_filter($dimensions, static function ($value, $idx) use ($excludeSizeOne, $dimensions, $size) {
             if ($excludeSizeOne && self::continuous($dimensions, $idx)) {
                 $size = 1;
             }
             return $value > $size;
         }, ARRAY_FILTER_USE_BOTH);
+
+        return array_values($arr);  // reindex the keys, in case some values were excluded with the filter
     }
 
     /**
