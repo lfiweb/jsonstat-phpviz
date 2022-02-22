@@ -25,7 +25,7 @@ use function count;
  * Setting the property noLabelLastDim will skip the row in the table heading containing the labels of the last
  * dimension.
  *
- * Note 1: When rendering a table with rowspans (setting the useRowSpans property to true),
+ * Note 1: When rendering a table with rowspans (useRowSpans property is true),
  * applying css might become complicated because of the irregular number of cells per row.
  *
  * Note 2: This code was directly translated from JavaScript jsonstat-viz
@@ -186,7 +186,7 @@ class RendererTable
      * Creates the table head and appends header cells, row by row to it.
      * @throws DOMException
      */
-    public function rowHeaders(): void
+    protected function rowHeaders(): void
     {
         $tHead = $this->table->createTHead();
         for ($rowIdx = 0; $rowIdx < $this->numHeaderRows; $rowIdx++) {
@@ -202,7 +202,7 @@ class RendererTable
      * Creates the table body and appends table cells row by row to it.
      * @throws DOMException
      */
-    public function rows(): void
+    protected function rows(): void
     {
         $rowIdx = 0;
         $tBody = $this->table->createTBody();
@@ -222,7 +222,7 @@ class RendererTable
      * @param int $rowIdx
      * @throws DOMException
      */
-    public function headerLabelCells(DOMNode $row, int $rowIdx): void
+    protected function headerLabelCells(DOMElement $row, int $rowIdx): void
     {
         for ($k = 0; $k < $this->numLabelCols; $k++) {
             $label = null;
@@ -239,11 +239,11 @@ class RendererTable
 
     /**
      * Creates the cells for the headers of the value columns.
-     * @param DOMNode $row
+     * @param DOMElement $row
      * @param int $rowIdx
      * @throws DOMException
      */
-    public function headerValueCells(DOMNode $row, int $rowIdx): void
+    protected function headerValueCells(DOMElement $row, int $rowIdx): void
     {
         if (count($this->colDims) === 0) {
             $this->headerCell($row);
@@ -310,11 +310,11 @@ class RendererTable
 
     /**
      * Sets the css class of the body row
-     * @param {HTMLTableCellElement} $cell
-     * @param {String} $cellIdx
-     * @param {String} $rowIdxBody
+     * @param DOMElement $cell
+     * @param int $cellIdx
+     * @param int $rowIdxBody
      */
-    protected function labelCellCss($cell, $cellIdx, $rowIdxBody): void
+    protected function labelCellCss(DOMElement $cell, int $cellIdx, int $rowIdxBody): void
     {
         $cl = new ClassList($cell);
         $f = UtilArray::productUpperNext($this->rowDims, $cellIdx);
@@ -333,11 +333,11 @@ class RendererTable
     /**
      * Appends cells with values to the row.
      * Inserts a HTMLTableCellElement at the end of the row with a value taken from the values at given offset.
-     * @param DOMNode $row
+     * @param DOMElement $row
      * @param int $offset
      * @throws DOMException
      */
-    public function valueCell(DOMNode $row, int $offset): void
+    protected function valueCell(DOMElement $row, int $offset): void
     {
         $stat = $this->reader;
         $cell = $this->table->doc->createElement('td');
@@ -347,16 +347,21 @@ class RendererTable
 
     /**
      * Create and returns a header cell element.
-     * @param DOMNode $row
-     * @param {String} [str] cell content
-     * @param {String} [scope] scope of cell
-     * @param [colspan] number of columns to span
-     * @param [rowspan] number of rows to span
-     * @return DOMNode
+     * @param DOMElement $row
+     * @param ?String $str cell content
+     * @param ?String $scope scope of cell
+     * @param ?String $colspan number of columns to span
+     * @param ?String $rowspan number of rows to span
+     * @return DOMElement
      * @throws DOMException
      */
-    public function headerCell(DOMNode $row, $str = null, $scope = null, $colspan = null, $rowspan = null): DOMNode
-    {
+    protected function headerCell(
+        DOMElement $row,
+        ?string $str = null,
+        ?string $scope = null,
+        ?string $colspan = null,
+        ?string $rowspan = null
+    ): DOMElement {
         $cell = $this->table->doc->createElement('th');
         if ($scope !== null) {
             $cell->setAttribute('scope', $scope);
@@ -374,14 +379,16 @@ class RendererTable
             $cell->setAttribute('rowspan', $rowspan);
         }
 
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
         return $row->appendChild($cell);
     }
 
     /**
      * Creates and inserts a caption.
      * @return DOMNode|string|null
+     * @throws DOMException
      */
-    public function caption(): DOMNode|string|null
+    protected function caption(): DOMNode|string|null
     {
         if ($this->caption) {
             $caption = $this->table->insertCaption();
@@ -408,10 +415,10 @@ class RendererTable
 
     /**
      * Escape a string, so it can be safely inserted into html.
-     * @param {String} text
-     * @return string
+     * @param String $text
+     * @return String
      */
-    public function escapeHtml($text): string
+    public function escapeHtml(string $text): string
     {
 
         return htmlspecialchars($text, ENT_HTML5, 'UTF-8');

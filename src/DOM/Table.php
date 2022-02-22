@@ -83,14 +83,15 @@ class Table
     /**
      * Appends a row to the table.
      * @param DOMElement $parent
-     * @return DOMNode
+     * @return DOMElement
      * @throws DOMException
      */
-    public function appendRow(DOMElement $parent): DOMNode
+    public function appendRow(DOMElement $parent): DOMElement
     {
         $row = $this->doc->createElement('tr');
         $this->domNode->appendChild($parent);
 
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
         return $parent->appendChild($row);
     }
 
@@ -128,9 +129,9 @@ class Table
      * Check if the table already has the specified child element.
      * Returns the first occurrence of the child or null if child was not found.
      * @param string $name element name
-     * @return null|DOMNode
+     * @return null|DOMElement
      */
-    private function hasChildFirst(string $name): ?DOMNode
+    private function hasChildFirst(string $name): ?DOMElement
     {
         for ($i = 0, $len = $this->domNode->childNodes->length; $i < $len; $i++) {
             $child = $this->domNode->childNodes->item($i);
