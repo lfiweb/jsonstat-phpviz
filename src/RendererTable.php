@@ -89,6 +89,9 @@ class RendererTable
     /** @var null|string|DOMNode caption of the table */
     public null|string|DOMNode $caption;
 
+    /** @var array number of elements to step in each dimension when traversing the value array */
+    private array $strides;
+
     /**
      *
      * @param Reader $jsonStatReader
@@ -130,6 +133,7 @@ class RendererTable
         $this->numValueCols = count($this->colDims) > 0 ? UtilArray::product($this->colDims) : 1;
         $this->numLabelCols = count($this->rowDims);
         $this->numHeaderRows = count($this->colDims) > 0 ? count($this->colDims) * 2 : 1; // add an additional row to label each dimension
+        $this->strides = UtilArray::getStrides($dims);
     }
 
     /**
@@ -140,8 +144,7 @@ class RendererTable
     protected function initTable(array $dims): void
     {
         $numRowDims = count($this->rowDims);
-        $strides = UtilArray::getStrides($dims);
-        $strides = implode(',', $strides);
+        $strides = implode(',', $this->strides);
         $shape = implode(',', $dims);
 
         $domNode = $this->table->get();

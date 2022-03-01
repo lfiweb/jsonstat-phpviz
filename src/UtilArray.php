@@ -6,7 +6,7 @@ use function count;
 
 /**
  * Utility to provide additional array methods.
- * Some are modelled after numpy.
+ * Some are modelled after NumPy.
  */
 class UtilArray
 {
