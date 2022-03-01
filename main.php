@@ -1,34 +1,52 @@
 <?php
 
-use jsonstatPhpViz\JsonStatReader;
-use jsonstatPhpViz\RendererTable;
+use jsonstatPhpViz\src\Reader;
+use jsonstatPhpViz\src\RendererTable;
+use jsonstatPhpViz\src\UtilArray;
 
 require_once __DIR__.'/vendor/autoload.php';
 
-// TODO: let user select which json to render
-$filename = $_GET['source'] ?? 'integer.json';   // TODO: this us unsafe !!!!
+// TODO: let user select which json to render, security implications?
+
+$filename = 'integer.json';
 $json = file_get_contents($filename);
 $jsonstat = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
-$reader = new JsonStatReader($jsonstat);
+$reader = new Reader($jsonstat);
 $dims = $reader->getDimensionSizes();
 $numRowDim = count(array_slice($dims, 0, count($dims) - 2));
 $table = new RendererTable($reader, $numRowDim);
 $html = $table->render();
 
+$axes = [2, 1, 0, 3];
+$reader->transpose($axes);
+$table = new RendererTable($reader, $numRowDim);
+$html2 = $table->render();
 
 $filename = 'integer-transposed.json';
 $json = file_get_contents($filename);
 $jsonstat = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
-$reader = new JsonStatReader($jsonstat);
+$reader = new Reader($jsonstat);
 $dims = $reader->getDimensionSizes();
 $numRowDim = count(array_slice($dims, 0, count($dims) - 2));
 $table = new RendererTable($reader, $numRowDim);
-$html2 = $table->render();
+$html3 = $table->render();
 
-/*$doc = new DOMDocument('1.0', 'UTF-8');
-$node = $doc->importNode($table, true);
-$doc->appendChild($node);
-$table = $doc->saveHTML();*/
+$filename = 'vorrat.json';
+$json = file_get_contents($filename);
+$jsonstat = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
+$reader = new Reader($jsonstat);
+//$reader->transpose([2,3,0,1,4,5]);
+$table = new RendererTable($reader, 2);
+$table->excludeOneDim = true;
+$html4 = $table->render();
+
+$filename = 'sizeone.json';
+$json = file_get_contents($filename);
+$jsonstat = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
+$reader = new Reader($jsonstat);
+$table = new RendererTable($reader);
+$table->excludeOneDim = true;
+$html5 = $table->render();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -58,5 +76,11 @@ $table = $doc->saveHTML();*/
 <?php echo $html; ?>
 <p><br><br></p>
 <?php echo $html2; ?>
+<p><br><br></p>
+<?php echo $html3; ?>
+<p><br><br></p>
+<?php echo $html4; ?>
+<p><br><br></p>
+<?php echo $html5; ?>
 </body>
 </html>

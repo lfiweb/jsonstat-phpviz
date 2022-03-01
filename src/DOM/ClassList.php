@@ -1,10 +1,14 @@
 <?php
 
 
-namespace jsonstatPhpViz\DOM;
+namespace jsonstatPhpViz\src\DOM;
 
 
 use DOMElement;
+use function call_user_func;
+use function call_user_func_array;
+use function in_array;
+
 
 /**
  * Represents a set of space-separated css class names.
@@ -21,16 +25,16 @@ class ClassList
     private $mutateCallback;
 
     /** @var string */
-    private $className;
+    private string $className;
 
     public function __construct(DOMElement $element)
     {
         $this->className = $element->getAttribute('class');
         $this->accessCallback = function () {
-            return explode(" ", $this->className);
+            return explode(' ', $this->className);
         };
-        $this->mutateCallback = function (string ...$tokens) use ($element) {
-            $element->setAttribute('class', implode(" ", $tokens));
+        $this->mutateCallback = static function (string ...$tokens) use ($element) {
+            $element->setAttribute('class', implode(' ', $tokens));
         };
     }
 
@@ -146,15 +150,13 @@ class ClassList
         $addRemove = $force;
 
         $currentTokens = $this->callAccessor();
-        $key = array_search($token, $currentTokens);
+        $key = in_array($token, $currentTokens);
         if ($key === false) {
             if ($force !== false) {
                 $addRemove = true;
             }
-        } else {
-            if ($force !== true) {
-                $addRemove = false;
-            }
+        } elseif ($force !== true) {
+            $addRemove = false;
         }
 
         if ($addRemove) {

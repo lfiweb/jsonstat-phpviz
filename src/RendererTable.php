@@ -1,11 +1,12 @@
 <?php
 
-namespace jsonstatPhpViz;
+namespace jsonstatPhpViz\src;
 
 use DOMElement;
+use DOMException;
 use DOMNode;
-use jsonstatPhpViz\DOM\ClassList;
-use jsonstatPhpViz\DOM\Table;
+use jsonstatPhpViz\src\DOM\ClassList;
+use jsonstatPhpViz\src\DOM\Table;
 use function array_slice;
 use function count;
 
@@ -24,7 +25,7 @@ use function count;
  * Setting the property noLabelLastDim will skip the row in the table heading containing the labels of the last
  * dimension.
  *
- * Note 1: When rendering a table with rowspans (setting the useRowSpans property to true),
+ * Note 1: When rendering a table with rowspans (useRowSpans property is true),
  * applying css might become complicated because of the irregular number of cells per row.
  *
  * Note 2: This code was directly translated from JavaScript jsonstat-viz
@@ -40,8 +41,8 @@ class RendererTable
     /** @var int dimensions of type col */
     public const DIM_TYPE_COL = 2;
 
-    /** @var JsonStatReader */
-    protected JsonStatReader $reader;
+    /** @var Reader */
+    protected Reader $reader;
 
     /* @var array $colDims dimensions used for columns containing values */
     protected array $colDims;
@@ -58,48 +59,97 @@ class RendererTable
     /** @var int number of columns with labels */
     protected int $numLabelCols;
 
-    /** @var int number of row dimensions */
-    protected int $numRowDim;
+    /** @var int|null number of dimensions to be used for rows */
+    protected ?int $numRowDim;
 
     /** @var DOMNode|Table */
     protected Table|DOMNode $table;
 
-    /** @var bool render the row with labels of last dimension? default = true */
-    protected bool $noLabelLastDim = true;
-
-    /** @var bool $useRowSpans render the table with rowspans ? default = true */
-    protected bool $useRowSpans = true;
-
     /** @var int|float number of row headers */
     protected int|float $numHeaderRows;
+
+    /** @var bool render the row with labels of last dimension? default = true */
+    public bool $noLabelLastDim = false;
+
+    /**
+     * Render the table with rowspans ?
+     * default = true
+     * Note: When this is set to false, empty rowheaders might be created, which are an accessibility problem.
+     * @var bool $useRowSpans
+     */
+    public bool $useRowSpans = true;
+
+    /**
+     * Exclude dimensions of size one from rendering.
+     * Only excludes dimensions of size one, when each dimension with a lower index is also of size one.
+     * @var bool
+     */
+    public ?bool $excludeOneDim = false;
 
     /** @var null|string|DOMNode caption of the table */
     public null|string|DOMNode $caption;
 
     /**
      *
-     * @param JsonStatReader $jsonStatReader
+     * @param Reader $jsonStatReader
      * @param int|null $numRowDim
      */
-    public function __construct(JsonStatReader $jsonStatReader, ?int $numRowDim = null)
+    public function __construct(Reader $jsonStatReader, ?int $numRowDim = null)
     {
         $this->reader = $jsonStatReader;
-        $dims = $this->reader->getDimensionSizes();
-        $this->numRowDim = $numRowDim ?? $this->numRowDimAuto();
+        $this->table = new Table();
+        $this->numRowDim = $numRowDim;
+        if (property_exists($this->reader->data, 'label')) {
+            $this->caption = $this->escapeHtml($this->reader->data->label);
+        }
+    }
+
+    /**
+     * Set the number of dimensions to be used for rows.
+     * @param int $numRowDim
+     */
+    public function setNumRowDim(int $numRowDim): void
+    {
+        $this->numRowDim = $numRowDim;
+    }
+
+    /**
+     * Precalculate and cache often used numbers before rendering.
+     * @return void
+     */
+    protected function init(): void
+    {
+        $dims = $this->reader->getDimensionSizes($this->excludeOneDim);
+        $dimsAll = $this->reader->getDimensionSizes(false);
+        $this->numRowDim = $this->numRowDim ?? $this->numRowDimAuto();
         $this->rowDims = $this->getDims($dims, self::DIM_TYPE_ROW);
         $this->colDims = $this->getDims($dims, self::DIM_TYPE_COL);
-        $this->table = new Table();
-        $css = new ClassList($this->table->get());
-        $css->add('jst-viz', 'numRowDims'.count($this->rowDims), 'lastDimSize'.$dims[count($dims) - 1]);
+        $this->initTable($dims);
         // cache some often used numbers before rendering table
-        $dimsAll = $this->reader->getDimensionSizes(false);
         $this->numOneDim = count($dimsAll) - count($this->rowDims) - count($this->colDims);
         $this->numValueCols = count($this->colDims) > 0 ? UtilArray::product($this->colDims) : 1;
         $this->numLabelCols = count($this->rowDims);
         $this->numHeaderRows = count($this->colDims) > 0 ? count($this->colDims) * 2 : 1; // add an additional row to label each dimension
-        if (property_exists($this->reader->data, 'label')) {
-            $this->caption = $this->escapeHtml($this->reader->data->label);
-        }
+    }
+
+    /**
+     * Set the attributes of table element.
+     * @param array<int> $dims dimension sizes (shape)
+     * @return void
+     */
+    protected function initTable(array $dims): void
+    {
+        $numRowDims = count($this->rowDims);
+        $strides = UtilArray::getStrides($dims);
+        $strides = implode(',', $strides);
+        $shape = implode(',', $dims);
+
+        $domNode = $this->table->get();
+        $css = new ClassList($domNode);
+        $css->add('jst-viz', 'numRowDims'.$numRowDims, 'lastDimSize'.$dims[count($dims) - 1]);
+        $domNode->setAttribute('data-shape', $shape);
+        $domNode->setAttribute('data-stride', $strides);
+        $domNode->setAttribute('data-num-row-dim', $numRowDims);
     }
 
     /**
@@ -120,9 +170,11 @@ class RendererTable
      * Reads the value array and renders it as a table.
      * @param bool $asHtml render as html or DOMElement?
      * @return DOMElement|string table
+     * @throws DOMException
      */
     public function render(bool $asHtml = true): string|DOMElement
     {
+        $this->init();
         $this->caption();
         $this->rowHeaders();
         $this->rows();
@@ -132,8 +184,9 @@ class RendererTable
 
     /**
      * Creates the table head and appends header cells, row by row to it.
+     * @throws DOMException
      */
-    public function rowHeaders(): void
+    protected function rowHeaders(): void
     {
         $tHead = $this->table->createTHead();
         for ($rowIdx = 0; $rowIdx < $this->numHeaderRows; $rowIdx++) {
@@ -147,14 +200,17 @@ class RendererTable
 
     /**
      * Creates the table body and appends table cells row by row to it.
+     * @throws DOMException
      */
-    public function rows(): void
+    protected function rows(): void
     {
+        $rowIdx = 0;
         $tBody = $this->table->createTBody();
         for ($offset = 0, $len = $this->reader->getNumValues(); $offset < $len; $offset++) {
             if ($offset % $this->numValueCols === 0) {
                 $row = $this->table->appendRow($tBody);
-                $this->labelCells($row);
+                $this->labelCells($row, $rowIdx);
+                $rowIdx++;
             }
             $this->valueCell($row, $offset);
         }
@@ -164,8 +220,9 @@ class RendererTable
      * Creates the cells for the headers of the label columns
      * @param DOMElement $row
      * @param int $rowIdx
+     * @throws DOMException
      */
-    public function headerLabelCells(DOMNode $row, int $rowIdx): void
+    protected function headerLabelCells(DOMElement $row, int $rowIdx): void
     {
         for ($k = 0; $k < $this->numLabelCols; $k++) {
             $label = null;
@@ -182,12 +239,12 @@ class RendererTable
 
     /**
      * Creates the cells for the headers of the value columns.
-     * @param DOMNode $row
+     * @param DOMElement $row
      * @param int $rowIdx
+     * @throws DOMException
      */
-    public function headerValueCells(DOMNode $row, int $rowIdx): void
+    protected function headerValueCells(DOMElement $row, int $rowIdx): void
     {
-
         if (count($this->colDims) === 0) {
             $this->headerCell($row);
 
@@ -222,11 +279,12 @@ class RendererTable
     /**
      * Appends cells with labels to the row.
      * Inserts the label as a HTMLTableHeaderElement at the end of the row.
-     * @param DOMElement $row
+     * @param DOMElement $row HTMLTableRow
+     * @param int $rowIdxBody row index
+     * @throws DOMException
      */
-    public function labelCells(DOMElement $row): void
+    protected function labelCells(DOMElement $row, int $rowIdxBody): void
     {
-        $rowIdxBody = $this->rowIdxBody($row);
         for ($i = 0; $i < $this->numLabelCols; $i++) {
             $f = UtilArray::productUpperNext($this->rowDims, $i);
             $label = null;
@@ -252,20 +310,22 @@ class RendererTable
 
     /**
      * Sets the css class of the body row
-     * @param {HTMLTableCellElement} $cell
-     * @param {String} $cellIdx
-     * @param {String} $rowIdxBody
+     * @param DOMElement $cell
+     * @param int $cellIdx
+     * @param int $rowIdxBody
      */
-    public function labelCellCss($cell, $cellIdx, $rowIdxBody): void
+    protected function labelCellCss(DOMElement $cell, int $cellIdx, int $rowIdxBody): void
     {
         $cl = new ClassList($cell);
         $f = UtilArray::productUpperNext($this->rowDims, $cellIdx);
-        $modulo = $rowIdxBody % $f[0];
         $css = 'rowdim'.($cellIdx + 1);
+        $modulo = $rowIdxBody % $f[0];
+        if ($rowIdxBody % $f[1] === 0) {
+            $cl->add($css);
+        }
         if ($modulo === 0) {
             $cl->add($css, 'first');
         } elseif ($modulo === $f[0] - $f[1]) {
-            $css = 'rowdim'.($cellIdx + 1);
             $cl->add($css, 'last');
         }
     }
@@ -273,10 +333,11 @@ class RendererTable
     /**
      * Appends cells with values to the row.
      * Inserts a HTMLTableCellElement at the end of the row with a value taken from the values at given offset.
-     * @param DOMNode $row
+     * @param DOMElement $row
      * @param int $offset
+     * @throws DOMException
      */
-    public function valueCell(DOMNode $row, int $offset): void
+    protected function valueCell(DOMElement $row, int $offset): void
     {
         $stat = $this->reader;
         $cell = $this->table->doc->createElement('td');
@@ -286,15 +347,21 @@ class RendererTable
 
     /**
      * Create and returns a header cell element.
-     * @param DOMNode $row
-     * @param {String} [str] cell content
-     * @param {String} [scope] scope of cell
-     * @param [colspan] number of columns to span
-     * @param [rowspan] number of rows to span
-     * @return DOMNode
+     * @param DOMElement $row
+     * @param ?String $str cell content
+     * @param ?String $scope scope of cell
+     * @param ?String $colspan number of columns to span
+     * @param ?String $rowspan number of rows to span
+     * @return DOMElement
+     * @throws DOMException
      */
-    public function headerCell(DOMNode $row, $str = null, $scope = null, $colspan = null, $rowspan = null): DOMNode
-    {
+    protected function headerCell(
+        DOMElement $row,
+        ?string $str = null,
+        ?string $scope = null,
+        ?string $colspan = null,
+        ?string $rowspan = null
+    ): DOMElement {
         $cell = $this->table->doc->createElement('th');
         if ($scope !== null) {
             $cell->setAttribute('scope', $scope);
@@ -302,25 +369,26 @@ class RendererTable
         if ($str === null) {
             // otherwise, <th/> is created, which is invalid on a non-void element
             $cell->appendChild($this->table->doc->createTextNode(''));
-        }
-        else {
+        } else {
             $cell->textContent = $str;  // no need to escape
         }
         if ($colspan !== null) {
-            $cell->setAttribute('colSpan', $colspan);
+            $cell->setAttribute('colspan', $colspan);
         }
         if ($rowspan !== null) {
-            $cell->setAttribute('rowSpan', $rowspan);
+            $cell->setAttribute('rowspan', $rowspan);
         }
 
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
         return $row->appendChild($cell);
     }
 
     /**
      * Creates and inserts a caption.
      * @return DOMNode|string|null
+     * @throws DOMException
      */
-    public function caption(): DOMNode|string|null
+    protected function caption(): DOMNode|string|null
     {
         if ($this->caption) {
             $caption = $this->table->insertCaption();
@@ -334,36 +402,23 @@ class RendererTable
     }
 
     /**
-     * Returns the row index for body rows only.
-     * The html rowIdx attribute includes the rows from the table header. This function returns an index
-     * started at the first body row.
-     * @param DOMElement} $row
-     * @return int $row index
-     */
-    public function rowIdxBody(DOMElement $row): int
-    {
-        $numVirtRow = $this->noLabelLastDim ? 1 : 0;
-
-        return (int)$row->getAttribute('rowIndex') - $this->numHeaderRows + $numVirtRow;
-    }
-
-    /**
      * Returns the default number of dimensions used for rows.
+     * Uses at least two dimensions for the columns when there are more than 2 dimensions.
      * @return int
      */
     public function numRowDimAuto(): int
     {
-        $dims = $this->reader->getDimensionSizes();
+        $dims = $this->reader->getDimensionSizes($this->excludeOneDim);
 
-        return count(array_slice($dims, 0, count($dims) - 2));
+        return count($dims) === 2 ? 1 : count(array_slice($dims, 0, count($dims) - 2));
     }
 
     /**
      * Escape a string, so it can be safely inserted into html.
-     * @param {String} text
-     * @return string
+     * @param String $text
+     * @return String
      */
-    public function escapeHtml($text): string
+    public function escapeHtml(string $text): string
     {
 
         return htmlspecialchars($text, ENT_HTML5, 'UTF-8');

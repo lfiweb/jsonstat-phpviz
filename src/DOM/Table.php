@@ -1,12 +1,14 @@
 <?php
 
 
-namespace jsonstatPhpViz\DOM;
+namespace jsonstatPhpViz\src\DOM;
 
 
 use DOMDocument;
 use DOMElement;
+use DOMException;
 use DOMNode;
+use function in_array;
 
 /**
  * Class HTMLTableElement
@@ -18,15 +20,16 @@ use DOMNode;
 class Table
 {
     /** @var DOMDocument */
-    public $doc;
+    public DOMDocument $doc;
+
     /**
      * @var DOMElement
      */
-    private $domNode;
+    private DOMElement $domNode;
 
-    /** @var int */
-    private $rowIndex = 0;
-
+    /**
+     * @throws DOMException
+     */
     public function __construct()
     {
         $this->doc = new DOMDocument('1.0', 'UTF-8');
@@ -37,9 +40,9 @@ class Table
 
     /**
      * Returns the DOMElement of the table.
-     * @return DOMElement|false
+     * @return DOMElement
      */
-    public function get()
+    public function get(): DOMElement
     {
         return $this->domNode;
     }
@@ -48,7 +51,8 @@ class Table
      * Return the table as a html string
      * @return false|string html
      */
-    public function toHtml() {
+    public function toHtml(): bool|string
+    {
         // do not use saveHTML, since that will encode html entities
         return $this->doc->saveXML($this->domNode);
     }
@@ -56,12 +60,18 @@ class Table
     /**
      * Returns the table head element.
      * @return DOMElement
+     * @throws DOMException
      */
     public function createTHead(): DOMElement
     {
         return $this->getCreateChild('thead');
     }
 
+    /**
+     * Creates the HTMLTBodyElement.
+     * @return DOMElement
+     * @throws DOMException
+     */
     public function createTBody(): DOMElement
     {
         $tbody = $this->doc->createElement('tbody');
@@ -71,27 +81,29 @@ class Table
     }
 
     /**
+     * Appends a row to the table.
      * @param DOMElement $parent
      * @return DOMElement
+     * @throws DOMException
      */
     public function appendRow(DOMElement $parent): DOMElement
     {
         $row = $this->doc->createElement('tr');
-        $row->setAttribute('rowIndex', $this->rowIndex);
-        $this->rowIndex++;
         $this->domNode->appendChild($parent);
 
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
         return $parent->appendChild($row);
     }
 
     /**
      * Inserts and returns an empty caption element
      * @return DOMElement caption element
+     * @throws DOMException
      */
     public function insertCaption(): DOMElement
     {
 
-   		return $this->getCreateChild('caption');
+        return $this->getCreateChild('caption');
     }
 
     /**
@@ -100,6 +112,7 @@ class Table
      * and inserted at the correct place before being returned.
      * @param string $name element name
      * @return DOMElement
+     * @throws DOMException
      */
     private function getCreateChild(string $name): DOMElement
     {
@@ -116,9 +129,9 @@ class Table
      * Check if the table already has the specified child element.
      * Returns the first occurrence of the child or null if child was not found.
      * @param string $name element name
-     * @return null|DOMNode
+     * @return null|DOMElement
      */
-    private function hasChildFirst(string $name): ?DOMNode
+    private function hasChildFirst(string $name): ?DOMElement
     {
         for ($i = 0, $len = $this->domNode->childNodes->length; $i < $len; $i++) {
             $child = $this->domNode->childNodes->item($i);
@@ -151,10 +164,10 @@ class Table
 
     /**
      * Insert the section element after the specified nodes.
-     * @param DOMElement $newNode
+     * @param DOMNode $newNode
      * @param string[] $refNames names of nodes to insert after
      */
-    private function insertChildAfter(DOMElement $newNode, array $refNames): void
+    private function insertChildAfter(DOMNode $newNode, array $refNames): void
     {
         $child = $this->getFirstElementChild($this->domNode);
         while ($child && in_array($child->nodeName, $refNames, true)) {
@@ -183,6 +196,11 @@ class Table
         }
     }
 
+    /**
+     * Inserts a caption element.
+     * @param DOMElement|null $caption
+     * @return void
+     */
     private function placeCaption(?DOMElement $caption): void
     {
         if ($caption !== null) {
@@ -190,6 +208,11 @@ class Table
         }
     }
 
+    /**
+     * Inserts a thead element
+     * @param DOMElement|null $thead
+     * @return void
+     */
     private function placeThead(?DOMElement $thead): void
     {
         if ($thead !== null) {
@@ -197,6 +220,11 @@ class Table
         }
     }
 
+    /**
+     * Inserts a tbody element.
+     * @param DOMElement|null $tbody
+     * @return void
+     */
     private function placeTBody(?DOMElement $tbody): void
     {
         if ($tbody !== null) {
@@ -204,6 +232,11 @@ class Table
         }
     }
 
+    /**
+     * Inserts a tfoot element.
+     * @param DOMElement|null $tfoot
+     * @return void
+     */
     private function placeTFoot(?DOMElement $tfoot): void
     {
         if ($tfoot !== null) {
@@ -211,7 +244,12 @@ class Table
         }
     }
 
-    protected function getFirstElementChild(DOMNode $node): ?DOMNode
+    /**
+     *
+     * @param DOMNode $node
+     * @return DOMElement|null
+     */
+    protected function getFirstElementChild(DOMNode $node): ?DOMElement
     {
         for ($i = 0, $len = $node->childNodes->length; $i < $len; $i++) {
             $child = $node->childNodes->item($i);
@@ -225,7 +263,11 @@ class Table
         return null;
     }
 
-    protected function getNextElementSibling($node)
+    /**
+     * @param DOMNode $node
+     * @return DOMElement|null
+     */
+    protected function getNextElementSibling(DOMNode $node): DOMElement|null
     {
         $context = $node;
         while ($context = $context->nextSibling) {
