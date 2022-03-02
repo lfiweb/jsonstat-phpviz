@@ -10,22 +10,6 @@ use function count;
  */
 class UtilArray
 {
-    /**
-     * Calculate the product of all array elements.
-     * @param array $values
-     * @return int
-     */
-    public static function product(array $values): int
-    {
-        if (count($values) > 0) {
-            $initial = array_shift($values);
-            return array_reduce($values, static function ($a, $b) {
-                return $a * $b;
-            }, $initial);
-        }
-
-        return 0;
-    }
 
     /**
      * Calculate two products from array values.
@@ -100,7 +84,7 @@ class UtilArray
     }
 
     /**
-     * Convert a linear index to a multidimensional index.
+     * Convert a linear index to subindexes.
      * Creates an array of subscripts from the shape,
      * e.g. when called repeatedly from idx[0,1,2,3,...,48] with shape[4,2,3,2], it creates the following sequence:
      * -> [0,0,0,0], [0,0,0,1], [0,0,1,0], [0,0,1,1], [0,0,2,0], [0,0,2,1], [0,1,0,0], [0,1,0,1], ..., [3,1,2,1]
@@ -109,7 +93,7 @@ class UtilArray
      * @param int $idx
      * @return array<int>
      */
-    public static function linearToMultiDim(array $shape, int $idx): array
+    public static function linearToSub(array $shape, int $idx): array
     {
         $i = count($shape) - 1;
         $arr = [];
@@ -124,13 +108,13 @@ class UtilArray
     }
 
     /**
-     * Convert a multidimensional index to a linear index.
-     * Converts the subscripts back to a linear index, @see UtilArray::linearToMultiDim()
-     * @param array<int> $strides
+     * Convert subindexes to a linear index.
+     * Converts the subscripts back to a linear index, @param array<int> $strides
      * @param array<int> $subscripts
      * @return int index
+     *@see UtilArray::linearToSub()
      */
-    public static function multiDimToLinear(array $strides, array $subscripts): int
+    public static function subToLinear(array $strides, array $subscripts): int
     {
         $n = 0;
         $len = count($strides);
@@ -159,8 +143,8 @@ class UtilArray
         $stridesTransp = self::swap($strides, $axes);
         $shapeTransp = self::swap($shape, $axes);
         for (; $i < $len; $i++) {
-            $multi = self::linearToMultiDim($shapeTransp, $i);
-            $idx = self::multiDimToLinear($stridesTransp, $multi);
+            $multi = self::linearToSub($shapeTransp, $i);
+            $idx = self::subToLinear($stridesTransp, $multi);
             $values[$i] = $arr[$idx];
         }
 

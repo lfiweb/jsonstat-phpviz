@@ -16,7 +16,7 @@ $dims = $reader->getDimensionSizes();
 $numRowDim = count(array_slice($dims, 0, count($dims) - 2));
 $table = new RendererTable($reader, $numRowDim);
 $html = $table->render();
-
+/*
 $axes = [2, 1, 0, 3];
 $reader->transpose($axes);
 $table = new RendererTable($reader, $numRowDim);
@@ -47,6 +47,7 @@ $reader = new Reader($jsonstat);
 $table = new RendererTable($reader);
 $table->excludeOneDim = true;
 $html5 = $table->render();
+*/
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -73,7 +74,7 @@ $html5 = $table->render();
             <option value="2">2</option>
             <option value="3">3</option>
         </select></label></form>
-<?php echo $html; ?>
+<?php echo $html; /* ?>
 <p><br><br></p>
 <?php echo $html2; ?>
 <p><br><br></p>
@@ -81,6 +82,6 @@ $html5 = $table->render();
 <p><br><br></p>
 <?php echo $html4; ?>
 <p><br><br></p>
-<?php echo $html5; ?>
+<?php echo $html5; */ ?>
 </body>
 </html>

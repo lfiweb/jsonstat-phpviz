@@ -89,8 +89,13 @@ class RendererTable
     /** @var null|string|DOMNode caption of the table */
     public null|string|DOMNode $caption;
 
-    /** @var array number of elements to step in each dimension when traversing the value array */
+    /** @var array number of elements to step in each dimension when traversing the json-stat value array */
     private array $strides;
+
+    /** @var array shape of the json-stat value array */
+    private array $shape;
+
+    private int $numDim;
 
     /**
      *
@@ -122,34 +127,37 @@ class RendererTable
      */
     protected function init(): void
     {
-        $dims = $this->reader->getDimensionSizes($this->excludeOneDim);
-        $dimsAll = $this->reader->getDimensionSizes(false);
+        $this->shape = $this->reader->getDimensionSizes($this->excludeOneDim);
+        $this->strides = UtilArray::getStrides($this->shape);
+        $this->colStrides =
+        $this->numDim = count($this->shape);
         $this->numRowDim = $this->numRowDim ?? $this->numRowDimAuto();
-        $this->rowDims = $this->getDims($dims, self::DIM_TYPE_ROW);
-        $this->colDims = $this->getDims($dims, self::DIM_TYPE_COL);
-        $this->initTable($dims);
+        $this->rowDims = $this->getDims($this->shape, self::DIM_TYPE_ROW);
+
+        $this->colDims = $this->getDims($this->shape, self::DIM_TYPE_COL);
+        $this->initTable();
         // cache some often used numbers before rendering table
+        $dimsAll = $this->reader->getDimensionSizes(false);
         $this->numOneDim = count($dimsAll) - count($this->rowDims) - count($this->colDims);
-        $this->numValueCols = count($this->colDims) > 0 ? UtilArray::product($this->colDims) : 1;
+        $this->numValueCols = count($this->colDims) > 0 ? array_product($this->colDims) : 1;
         $this->numLabelCols = count($this->rowDims);
         $this->numHeaderRows = count($this->colDims) > 0 ? count($this->colDims) * 2 : 1; // add an additional row to label each dimension
-        $this->strides = UtilArray::getStrides($dims);
     }
 
     /**
      * Set the attributes of table element.
-     * @param array<int> $dims dimension sizes (shape)
      * @return void
      */
-    protected function initTable(array $dims): void
+    protected function initTable(): void
     {
         $numRowDims = count($this->rowDims);
         $strides = implode(',', $this->strides);
-        $shape = implode(',', $dims);
+        $shape = implode(',', $this->shape);
+        $lastDimSize = $this->shape[count($this->shape) - 1];
 
         $domNode = $this->table->get();
         $css = new ClassList($domNode);
-        $css->add('jst-viz', 'numRowDims'.$numRowDims, 'lastDimSize'.$dims[count($dims) - 1]);
+        $css->add('jst-viz', 'numRowDims'.$numRowDims, 'lastDimSize'.$lastDimSize);
         $domNode->setAttribute('data-shape', $shape);
         $domNode->setAttribute('data-stride', $strides);
         $domNode->setAttribute('data-num-row-dim', $numRowDims);
@@ -179,7 +187,7 @@ class RendererTable
     {
         $this->init();
         $this->caption();
-        $this->rowHeaders();
+        $this->headers();
         $this->rows();
 
         return $asHtml ? $this->table->toHtml() : $this->table->get();
@@ -189,7 +197,7 @@ class RendererTable
      * Creates the table head and appends header cells, row by row to it.
      * @throws DOMException
      */
-    protected function rowHeaders(): void
+    protected function headers(): void
     {
         $tHead = $this->table->createTHead();
         for ($rowIdx = 0; $rowIdx < $this->numHeaderRows; $rowIdx++) {
@@ -220,7 +228,7 @@ class RendererTable
     }
 
     /**
-     * Creates the cells for the headers of the label columns
+     * Creates the cells for the headers of the label columns.
      * @param DOMElement $row
      * @param int $rowIdx
      * @throws DOMException
@@ -254,9 +262,12 @@ class RendererTable
             return;
         }
 
-        $idx = floor($rowIdx / 2); // 0,1,2,3,... -> 0,0,1,1,2,2,...
+        // note: we render two rows with headings per column dimension
+        $idx = (int)floor($rowIdx / 2); // 0,1,2,3,... -> 0,0,1,1,2,2,...
         $dimIdx = $this->numOneDim + $this->numRowDim + $idx;
-        $f = UtilArray::productUpperNext($this->colDims, $idx);
+       // $f = UtilArray::productUpperNext($this->colDims, $idx);
+        $f[] = $this->strides[$dimIdx];
+        $f[] = $dimIdx < $this->numDim ? $this->strides[$dimIdx + 1] : 1;
         for ($i = 0; $i < $this->numValueCols; $i++) {
             $colspan = null;
             $scope = 'col';
