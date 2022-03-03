@@ -6,7 +6,6 @@ use jsonstatPhpViz\src\UtilArray;
 
 require_once __DIR__.'/vendor/autoload.php';
 
-// TODO: let user select which json to render, security implications?
 
 $filename = 'integer.json';
 $json = file_get_contents($filename);
@@ -31,7 +30,7 @@ $numRowDim = count(array_slice($dims, 0, count($dims) - 2));
 $table = new RendererTable($reader, $numRowDim);
 $html3 = $table->render();
 
-$filename = 'vorrat.json';
+$filename = 'volume.json';
 $json = file_get_contents($filename);
 $jsonstat = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
 $reader = new Reader($jsonstat);
