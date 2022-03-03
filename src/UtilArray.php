@@ -10,58 +10,6 @@ use function count;
  */
 class UtilArray
 {
-
-    /**
-     * Calculate two products from array values.
-     * The first returned value is the product of all values with an element index equal or higher than the passed one,
-     * the second is the product of all values with an index higher. If it is the last element then the product is 1.
-     * @param array $values
-     * @param int $idx
-     * @return array
-     * @private
-     */
-    public static function productUpperNext(array $values, int $idx): array
-    {
-        $f = [];
-        $f[0] = self::productUpper($values, $idx);
-        $f[1] = $idx < count($values) ? self::productUpper($values, $idx + 1) : 1;
-
-        return $f;
-    }
-
-    /**
-     * Calculates the product of all array values with an element index equal or higher than the passed one.
-     * @param array $values
-     * @param int $idx
-     * @return int
-     */
-    public static function productUpper(array $values, int $idx): int
-    {
-        $num = 1;
-        $len = count($values);
-        for ($i = $idx; $i < $len; $i++) {
-            $num *= $values[$i];
-        }
-
-        return $num;
-    }
-
-    /**
-     * Calculate the product of values from the shape.
-     * Calculates a product for each item in the array from values with an index equal or larger than the own and
-     * adds a, e.g.
-     * calculates the stride and multiplies it with itself for all items.
-     * @param array $shape
-     * @return array
-     */
-    public static function getProducts(array $shape): array
-    {
-        $products[] = array_product($shape);
-        array_push($products, ...self::getStrides($shape));
-
-        return $products;
-    }
-
     /**
      * Calculate strides from the shape.
      * @see https://numpy.org/doc/stable/reference/generated/numpy.ndarray.strides.html
@@ -73,7 +21,6 @@ class UtilArray
         $len = count($shape);
         $size = 1;
         $i = $len - 1;
-        $stride = [];
         // note: using $stride[$i] = $size instead of $stride[] = $size in the loop below,
         // we could do away with the array_reverse() in the return, since we are setting the correct keys, but the
         // actual order would be inverted and turn out wrong, when using implode() or a 'for loop' instead of foreach,

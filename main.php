@@ -18,7 +18,7 @@ $html = $table->render();
 
 $axes = [2, 1, 0, 3];
 $reader->transpose($axes);
-$numRowDim = 3;
+$numRowDim = 2;
 $table = new RendererTable($reader, $numRowDim);
 $html2 = $table->render();
 
@@ -36,9 +36,9 @@ $json = file_get_contents($filename);
 $jsonstat = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
 $reader = new Reader($jsonstat);
 //$reader->transpose([2,3,0,1,4,5]);
-$table = new RendererTable($reader, 3);
-//$table->noLabelLastDim = true;
-//$table->excludeOneDim = true;
+$table = new RendererTable($reader, 4);
+$table->noLabelLastDim = true;
+$table->excludeOneDim = false;
 $html4 = $table->render();
 
 $filename = 'sizeone.json';
