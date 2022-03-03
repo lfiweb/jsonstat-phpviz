@@ -20,7 +20,7 @@ use function count;
  *
  * Setting the property numRowDim (number of row dimensions) defines how many of the dimensions are use for the rows,
  * beginning at the start of the ordered size array of the json-stat schema. Remaining dimensions are used for columns.
- * Dimensions of length one are excluded.
+ * Dimensions of length one can be excluded from rendering with property excludeOneDim.
  *
  * Setting the property noLabelLastDim will skip the row in the table heading containing the labels of the last
  * dimension.
@@ -81,7 +81,7 @@ class RendererTable
 
     /**
      * Exclude dimensions of size one from rendering.
-     * Only excludes dimensions of size one, when each dimension with a lower index is also of size one.
+     * Only excludes continuous dimensions of size one, e.g. when each dimension with a lower index is also of size one.
      * @var bool
      */
     public ?bool $excludeOneDim = false;
@@ -89,8 +89,14 @@ class RendererTable
     /** @var null|string|DOMNode caption of the table */
     public null|string|DOMNode $caption;
 
+    /** @var array shape of the json-stat value array */
+    private array $shape;
+
+    /** @var array strides of the array */
+    private array $strides;
+
     /**
-     *
+     * Instantiates the class.
      * @param Reader $jsonStatReader
      * @param int|null $numRowDim
      */
@@ -119,36 +125,35 @@ class RendererTable
      */
     protected function init(): void
     {
-        $dims = $this->reader->getDimensionSizes($this->excludeOneDim);
-        $dimsAll = $this->reader->getDimensionSizes(false);
+        $this->shape = $this->reader->getDimensionSizes($this->excludeOneDim);
+        $this->strides = UtilArray::getStrides($this->shape);
         $this->numRowDim = $this->numRowDim ?? $this->numRowDimAuto();
-        $this->rowDims = $this->getDims($dims, self::DIM_TYPE_ROW);
-        $this->colDims = $this->getDims($dims, self::DIM_TYPE_COL);
-        $this->initTable($dims);
+        $this->rowDims = $this->extractDims($this->shape, self::DIM_TYPE_ROW);
+        $this->colDims = $this->extractDims($this->shape, self::DIM_TYPE_COL);
+        $this->initTable();
         // cache some often used numbers before rendering table
+        $dimsAll = $this->reader->getDimensionSizes(false);
         $this->numOneDim = count($dimsAll) - count($this->rowDims) - count($this->colDims);
-        $this->numValueCols = count($this->colDims) > 0 ? UtilArray::product($this->colDims) : 1;
+        $this->numValueCols = count($this->colDims) > 0 ? array_product($this->colDims) : 1;
         $this->numLabelCols = count($this->rowDims);
-        $this->numHeaderRows = count($this->colDims) > 0 ? count($this->colDims) * 2 : 1; // add an additional row to label each dimension
+        // add an additional row to label each dimension
+        $this->numHeaderRows = count($this->colDims) > 0 ? count($this->colDims) * 2 : 1;
     }
 
     /**
-     * Set the attributes of table element.
-     * @param array<int> $dims dimension sizes (shape)
+     * Set the attributes of the table element.
      * @return void
      */
-    protected function initTable(array $dims): void
+    protected function initTable(): void
     {
         $numRowDims = count($this->rowDims);
-        $strides = UtilArray::getStrides($dims);
-        $strides = implode(',', $strides);
-        $shape = implode(',', $dims);
+        $shape = implode(',', $this->shape);
+        $lastDimSize = $this->shape[count($this->shape) - 1];
 
         $domNode = $this->table->get();
         $css = new ClassList($domNode);
-        $css->add('jst-viz', 'numRowDims'.$numRowDims, 'lastDimSize'.$dims[count($dims) - 1]);
+        $css->add('jst-viz', 'numRowDims'.$numRowDims, 'lastDimSize'.$lastDimSize);
         $domNode->setAttribute('data-shape', $shape);
-        $domNode->setAttribute('data-stride', $strides);
         $domNode->setAttribute('data-num-row-dim', $numRowDims);
     }
 
@@ -159,16 +164,19 @@ class RendererTable
      * @param int $type 'row' or 'col' possible values are RendererTable::DIM_TYPE_ROW or RendererTable::DIM_TYPE_COL
      * @return array
      */
-    public function getDims(array $dims, int $type = RendererTable::DIM_TYPE_ROW): array
+    protected function extractDims(array $dims, int $type = RendererTable::DIM_TYPE_ROW): array
     {
+        if ($type === self::DIM_TYPE_ROW) {
+            return array_slice($dims, 0, $this->numRowDim);
+        }
 
-        return $type === 1 ? array_slice($dims, 0, $this->numRowDim) : array_slice($dims, $this->numRowDim);
+        return array_slice($dims, $this->numRowDim);
     }
 
     /**
      * Renders the data as a html table.
      * Reads the value array and renders it as a table.
-     * @param bool $asHtml render as html or DOMElement?
+     * @param bool $asHtml return html or DOMElement?
      * @return DOMElement|string table
      * @throws DOMException
      */
@@ -176,7 +184,7 @@ class RendererTable
     {
         $this->init();
         $this->caption();
-        $this->rowHeaders();
+        $this->headers();
         $this->rows();
 
         return $asHtml ? $this->table->toHtml() : $this->table->get();
@@ -186,7 +194,7 @@ class RendererTable
      * Creates the table head and appends header cells, row by row to it.
      * @throws DOMException
      */
-    protected function rowHeaders(): void
+    protected function headers(): void
     {
         $tHead = $this->table->createTHead();
         for ($rowIdx = 0; $rowIdx < $this->numHeaderRows; $rowIdx++) {
@@ -217,7 +225,7 @@ class RendererTable
     }
 
     /**
-     * Creates the cells for the headers of the label columns
+     * Creates the cells for the headers of the label columns.
      * @param DOMElement $row
      * @param int $rowIdx
      * @throws DOMException
@@ -251,25 +259,26 @@ class RendererTable
             return;
         }
 
-        $idx = floor($rowIdx / 2); // 0,1,2,3,... -> 0,0,1,1,2,2,...
-        $dimIdx = $this->numOneDim + $this->numRowDim + $idx;
-        $f = UtilArray::productUpperNext($this->colDims, $idx);
+        // remember: we render two rows with headings per column dimension, e.g.
+        //      one for the dimension label and one for the category label
+        $dimIdx = $this->numRowDim + (int)floor($rowIdx / 2);
+        $stride = $this->strides[$dimIdx];
+        $product = $this->shape[$dimIdx] * $stride;
+        $scope = $stride > 1 ? 'colgroup' : 'col';
         for ($i = 0; $i < $this->numValueCols; $i++) {
-            $colspan = null;
-            $scope = 'col';
             $z = $rowIdx % 2;
-            $id = $this->reader->getDimensionId($dimIdx);
+            $id = $this->reader->getDimensionId($this->numOneDim + $dimIdx);
             if ($z === 0) {
                 $label = $this->reader->getDimensionLabel($id);
+                $colspan = $product > 1 ? $product : null;
             } else {
-                $catIdx = floor(($i % $f[0]) / $f[1]);
+                $catIdx = floor(($i % $product) / $stride);
                 $catId = $this->reader->getCategoryId($id, $catIdx);
                 $label = $this->reader->getCategoryLabel($id, $catId);
+                $colspan = $stride > 1 ? $stride : null;
             }
-            if ($f[$z] > 1) {
-                $colspan = $f[$z];
-                $i += $colspan - 1; // colspan - 1 -> i++ $follows
-                $scope = 'colgroup';
+            if ($colspan) {
+                $i += $colspan - 1; // skip colspan - 1 cells
             }
             $cell = $this->headerCell($row, $label, $scope, $colspan);
             $row->appendChild($cell);
@@ -285,24 +294,23 @@ class RendererTable
      */
     protected function labelCells(DOMElement $row, int $rowIdxBody): void
     {
+        $rowStrides = UtilArray::getStrides($this->rowDims);
         for ($i = 0; $i < $this->numLabelCols; $i++) {
-            $f = UtilArray::productUpperNext($this->rowDims, $i);
+            $dimIdx = $i;
+            $stride = $rowStrides[$dimIdx];
+            $product = $this->shape[$dimIdx] * $stride;
             $label = null;
-            if ($rowIdxBody % $f[1] === 0) {
-                $catIdx = floor($rowIdxBody % $f[0] / $f[1]);
-                $id = $this->reader->getDimensionId($this->numOneDim + $i);
+            $scope = $stride > 1 ? 'rowgroup' : 'row';
+            $rowspan = $this->useRowSpans && $stride > 1 ? $stride : null;
+            if ($rowIdxBody % $stride === 0) {
+                $catIdx = floor($rowIdxBody % $product / $stride);
+                $id = $this->reader->getDimensionId($this->numOneDim + $dimIdx);
                 $labelId = $this->reader->getCategoryId($id, $catIdx);
                 $label = $this->reader->getCategoryLabel($id, $labelId);
             }
-            $rowspan = null;
-            $scope = 'row';
-            if ($this->useRowSpans && $f[1] > 1) {
-                $rowspan = $f[1];
-                $scope = 'rowgroup';
-            }
-            if ($rowIdxBody % $f[1] === 0 || !$this->useRowSpans) {
+            if ($this->useRowSpans === false || $rowIdxBody % $stride === 0) {
                 $cell = $this->headerCell($row, $label, $scope, null, $rowspan);
-                $this->labelCellCss($cell, $i, $rowIdxBody);
+                $this->labelCellCss($cell, $i, $rowIdxBody, $stride);
                 $row->appendChild($cell);
             }
         }
@@ -313,19 +321,20 @@ class RendererTable
      * @param DOMElement $cell
      * @param int $cellIdx
      * @param int $rowIdxBody
+     * @param int $rowStride
      */
-    protected function labelCellCss(DOMElement $cell, int $cellIdx, int $rowIdxBody): void
+    protected function labelCellCss(DOMElement $cell, int $cellIdx, int $rowIdxBody, int $rowStride): void
     {
         $cl = new ClassList($cell);
-        $f = UtilArray::productUpperNext($this->rowDims, $cellIdx);
+        $product = $this->shape[$cellIdx] * $rowStride;
         $css = 'rowdim'.($cellIdx + 1);
-        $modulo = $rowIdxBody % $f[0];
-        if ($rowIdxBody % $f[1] === 0) {
+        $modulo = $rowIdxBody % $product;
+        if ($rowIdxBody % $rowStride === 0) {
             $cl->add($css);
         }
         if ($modulo === 0) {
             $cl->add($css, 'first');
-        } elseif ($modulo === $f[0] - $f[1]) {
+        } elseif ($modulo === $product - $rowStride) {
             $cl->add($css, 'last');
         }
     }
