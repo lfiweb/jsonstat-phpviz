@@ -11,7 +11,7 @@ $json = file_get_contents($filename);
 $jsonstat = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
 $reader = new Reader($jsonstat);
 $table = new RendererTable($reader);
-$table->caption = $table->caption.', dimension A and B used as row dimensions';
+$table->caption.= ', dimension A and B used as row dimensions';
 $html = $table->render();
 
 // Render the table with 3 dimensions used for the row grouping instead of 2 (default):
@@ -29,7 +29,7 @@ $html3 = $table->render();
 
 
 
-$filename = 'volume.json';
+$filename = 'canada.json';
 $json = file_get_contents($filename);
 $jsonstat = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
 $reader = new Reader($jsonstat);
