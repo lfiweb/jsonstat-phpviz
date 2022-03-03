@@ -56,7 +56,7 @@ none
 - transposition
 - accessible using scope and spans, render without spans
 - table caption is created from jsonstat . Can be hidden by setting to null
-- dimensions of size one are exluded by default,
+- dimensions of size one are excluded by default,
 - css classes are set to allow for row totals (last category of each row dimension)
 
 ## JSON-stat rendering rules
