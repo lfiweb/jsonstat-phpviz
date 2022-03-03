@@ -13,12 +13,12 @@ $json = file_get_contents($filename);
 $jsonstat = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
 $reader = new Reader($jsonstat);
 $dims = $reader->getDimensionSizes();
-$numRowDim = count(array_slice($dims, 0, count($dims) - 2));
-$table = new RendererTable($reader, $numRowDim);
+$table = new RendererTable($reader, 2);
 $html = $table->render();
-/*
+
 $axes = [2, 1, 0, 3];
 $reader->transpose($axes);
+$numRowDim = 3;
 $table = new RendererTable($reader, $numRowDim);
 $html2 = $table->render();
 
@@ -36,8 +36,9 @@ $json = file_get_contents($filename);
 $jsonstat = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
 $reader = new Reader($jsonstat);
 //$reader->transpose([2,3,0,1,4,5]);
-$table = new RendererTable($reader, 2);
-$table->excludeOneDim = true;
+$table = new RendererTable($reader, 3);
+//$table->noLabelLastDim = true;
+//$table->excludeOneDim = true;
 $html4 = $table->render();
 
 $filename = 'sizeone.json';
@@ -47,7 +48,7 @@ $reader = new Reader($jsonstat);
 $table = new RendererTable($reader);
 $table->excludeOneDim = true;
 $html5 = $table->render();
-*/
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -74,7 +75,7 @@ $html5 = $table->render();
             <option value="2">2</option>
             <option value="3">3</option>
         </select></label></form>
-<?php echo $html; /* ?>
+<?php echo $html; ?>
 <p><br><br></p>
 <?php echo $html2; ?>
 <p><br><br></p>
@@ -82,6 +83,6 @@ $html5 = $table->render();
 <p><br><br></p>
 <?php echo $html4; ?>
 <p><br><br></p>
-<?php echo $html5; */ ?>
+<?php echo $html5; ?>
 </body>
 </html>

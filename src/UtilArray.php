@@ -47,6 +47,22 @@ class UtilArray
     }
 
     /**
+     * Calculate the product of values from the shape.
+     * Calculates a product for each item in the array from values with an index equal or larger than the own and
+     * adds a, e.g.
+     * calculates the stride and multiplies it with itself for all items.
+     * @param array $shape
+     * @return array
+     */
+    public static function getProducts(array $shape): array
+    {
+        $products[] = array_product($shape);
+        array_push($products, ...self::getStrides($shape));
+
+        return $products;
+    }
+
+    /**
      * Calculate strides from the shape.
      * @see https://numpy.org/doc/stable/reference/generated/numpy.ndarray.strides.html
      * @param array $shape
@@ -84,7 +100,7 @@ class UtilArray
     }
 
     /**
-     * Convert a linear index to subindexes.
+     * Convert a linear index (row major) to subindexes.
      * Creates an array of subscripts from the shape,
      * e.g. when called repeatedly from idx[0,1,2,3,...,48] with shape[4,2,3,2], it creates the following sequence:
      * -> [0,0,0,0], [0,0,0,1], [0,0,1,0], [0,0,1,1], [0,0,2,0], [0,0,2,1], [0,1,0,0], [0,1,0,1], ..., [3,1,2,1]
@@ -109,7 +125,7 @@ class UtilArray
 
     /**
      * Convert subindexes to a linear index.
-     * Converts the subscripts back to a linear index, @param array<int> $strides
+     * Converts the subscripts back to a linear index (row major), @param array<int> $strides
      * @param array<int> $subscripts
      * @return int index
      *@see UtilArray::linearToSub()

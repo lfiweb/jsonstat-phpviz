@@ -81,7 +81,7 @@ class RendererTable
 
     /**
      * Exclude dimensions of size one from rendering.
-     * Only excludes dimensions of size one, when each dimension with a lower index is also of size one.
+     * Only excludes continuous dimensions of size one, e.g. when each dimension with a lower index is also of size one.
      * @var bool
      */
     public ?bool $excludeOneDim = false;
@@ -90,12 +90,13 @@ class RendererTable
     public null|string|DOMNode $caption;
 
     /** @var array number of elements to step in each dimension when traversing the json-stat value array */
-    private array $strides;
+    private array $products;
 
     /** @var array shape of the json-stat value array */
     private array $shape;
 
     private int $numDim;
+    private array $strides;
 
     /**
      *
@@ -128,12 +129,11 @@ class RendererTable
     protected function init(): void
     {
         $this->shape = $this->reader->getDimensionSizes($this->excludeOneDim);
+        $this->products = UtilArray::getProducts($this->shape);
         $this->strides = UtilArray::getStrides($this->shape);
-        $this->colStrides =
         $this->numDim = count($this->shape);
         $this->numRowDim = $this->numRowDim ?? $this->numRowDimAuto();
         $this->rowDims = $this->getDims($this->shape, self::DIM_TYPE_ROW);
-
         $this->colDims = $this->getDims($this->shape, self::DIM_TYPE_COL);
         $this->initTable();
         // cache some often used numbers before rendering table
@@ -151,7 +151,7 @@ class RendererTable
     protected function initTable(): void
     {
         $numRowDims = count($this->rowDims);
-        $strides = implode(',', $this->strides);
+        $strides = implode(',', UtilArray::getStrides($this->shape));
         $shape = implode(',', $this->shape);
         $lastDimSize = $this->shape[count($this->shape) - 1];
 
@@ -179,7 +179,7 @@ class RendererTable
     /**
      * Renders the data as a html table.
      * Reads the value array and renders it as a table.
-     * @param bool $asHtml render as html or DOMElement?
+     * @param bool $asHtml return html or DOMElement?
      * @return DOMElement|string table
      * @throws DOMException
      */
@@ -265,9 +265,8 @@ class RendererTable
         // note: we render two rows with headings per column dimension
         $idx = (int)floor($rowIdx / 2); // 0,1,2,3,... -> 0,0,1,1,2,2,...
         $dimIdx = $this->numOneDim + $this->numRowDim + $idx;
-       // $f = UtilArray::productUpperNext($this->colDims, $idx);
-        $f[] = $this->strides[$dimIdx];
-        $f[] = $dimIdx < $this->numDim ? $this->strides[$dimIdx + 1] : 1;
+        $f[] = $this->products[$dimIdx];
+        $f[] = $this->products[$dimIdx + 1];
         for ($i = 0; $i < $this->numValueCols; $i++) {
             $colspan = null;
             $scope = 'col';
@@ -276,14 +275,14 @@ class RendererTable
             if ($z === 0) {
                 $label = $this->reader->getDimensionLabel($id);
             } else {
-                $catIdx = floor(($i % $f[0]) / $f[1]);
+                $catIdx = $i % $this->strides[$dimIdx];
                 $catId = $this->reader->getCategoryId($id, $catIdx);
                 $label = $this->reader->getCategoryLabel($id, $catId);
             }
             if ($f[$z] > 1) {
-                $colspan = $f[$z];
-                $i += $colspan - 1; // colspan - 1 -> i++ $follows
                 $scope = 'colgroup';
+                $colspan = $f[$z];
+                $i += $colspan - 1; // skip colspan - 1 cells
             }
             $cell = $this->headerCell($row, $label, $scope, $colspan);
             $row->appendChild($cell);
