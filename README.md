@@ -49,7 +49,7 @@ $reader->transpose($axes);
 $table = new RendererTable($reader);
 $html = $table->render();
 ```
-See [NumPy tranpose](https://numpy.org/doc/stable/reference/generated/numpy.transpose.html) for how to use the axes array.
+See [NumPy transpose](https://numpy.org/doc/stable/reference/generated/numpy.transpose.html) for how to use the axes array.
 ![screenshot-03](demo/screenshot-03.png)
 
 ### Example 4
