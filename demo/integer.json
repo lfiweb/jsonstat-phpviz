@@ -1,7 +1,7 @@
 {
 	"version": "2.0",
 	"class": "dataset",
-	"label": "Integers: ordered ascending for testing",
+	"label": "Integers: ordered ascending",
 	"source": "© WSL, Swiss National Forest Inventory, 25.11.2021",
 	"updated": "2021-11-25T14:11:2Z",
 	"id": ["A", "B", "C", "D"],
