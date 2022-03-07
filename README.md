@@ -1,19 +1,22 @@
 # jsonstat-phpviz
-Render [JSON-stat data](https://json-stat.org/) with any number of dimensions as a HTML table using PHP.
+Render [JSON-stat v2.0 data](https://json-stat.org/) with any number of dimensions as a HTML table using PHP.
 
 ## Features
-- theoretically any number of dimensions of any size can be rendered as an HTML table (e.g. limited only by memory).
-- tables are structured with `<thead>` and `<tbody>`
-- a table `<caption>` is automatically created from the JSONS-stat. Can be hidden by setting `RendererTable->caption = null`
-- screenreader support for visually impaired users by rendering column and row headers together \
-with the `scope`, `colspan` and `rowspan` attributes
-- css classes (`first` and `last`) are set to identify starting and ending of row groups (e.g. row totals)
-- dimensions can be transposed along two or more axes with the method Reader::transpose() method using
-- dimensions of size one (when ordered continuously from index 0) can be excluded from rendering
+- render any number of dimensions of any size as an HTML table (e.g. theoretically limited only by memory).
+- use any number of dimensions to group rows and columns.
+- transpose dimensions along two or more axes
+- structures the table with `<thead>` and `<tbody>` elements
+- creates a table `<caption>` automatically from the JSONS-stat.
+- renders column and row headers using the attributes `scope`, `colspan` and `rowspan` to provide
+screenreader support for visually impaired users
+- sets css classes (`first` and `last`) to identify starting and ending of row groups (e.g. row totals)
+- exclude dimensions of size one (when ordered continuously from index 0) from rendering when wanted
+### not implemented
+- `child` property, e.g. hierarchical relationships between different categories
 
 ## Usage
 ### Example 1
-Render a table from a JSON-stat having 4 dimensions with sizes `[3,2,4,2]` (= shape).
+Render a table from JSON-stat data having 4 dimensions with sizes `[3,2,4,2]` (= shape).
 Two dimensions are automatically used to group the rows:
 ```php
 <?php
@@ -53,7 +56,16 @@ See [NumPy transpose](https://numpy.org/doc/stable/reference/generated/numpy.tra
 ![screenshot-03](demo/screenshot-03.png)
 
 ### Example 4
-Real-world example from the Swiss National Forest Inventory
+Real-world example with [data from the Swiss NFI](https://www.lfi.ch/resultate/sammlungenliste-en.php?prodNr=32&prodItNr=189147&lang=en) having a caption, column units and row totals as well as
+two dimensions of size one excluded from rendering.
+```php
+$reader = new Reader($jsonstat);
+$table = new RendererTable($reader);
+$table->excludeOneDim = true;
+$table->noLabelLastDim = true;
+$html = $table->render();
+```
+![screenshot-04](demo/screenshot-04.png)
 
 ## Installation
 Install with composer
@@ -63,16 +75,16 @@ none
 
 
 ## JSON-stat rendering rules
-The renderer follows these rules:
-
-- only dimensions of size > 1 are used to render
-- the last dimension is used for the innermost table columns
-- label property is used for the caption
-- all the other dimensions are use for either rows or columns.
-- by default the second to last dimension is also used for columns, all the others for rows
+The renderer applies the following rules when generating a html table:
+-
+- the size of the dimensions are always read from the `size` property from left to right and also rendered in that order
+- dimensions 1, ..., n-2 are used to group rows (can be set manually to any number <= n)
+- the second to last dimension n-1 is used as the first, outer column
+- the last dimension is used as the innermost column
+- the `label` property is used for the caption (can be set manually to null or any string)
 
 ### Author
-Simon Speich, [Swiss National Forest Inventory](https://www.lfi.ch/)
+Simon Speich for the [Swiss National Forest Inventory](https://www.lfi.ch/)
 
 ## License
 GNU General Public License v3.0 or later\
