@@ -27,26 +27,24 @@ $table->noLabelLastDim = true;
 $table->caption = 'Integers transposed: dimension A is permutated with Dimension D';
 $html3 = $table->render();
 
-
-
-$filename = 'canada.json';
-$json = file_get_contents($filename);
-$jsonstat = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
-$reader = new Reader($jsonstat);
-//$reader->transpose([2,3,0,1,4,5]);
-$table = new RendererTable($reader, 4);
-$table->noLabelLastDim = true;
-$table->excludeOneDim = false;
-$html4 = $table->render();
-/*
-$filename = 'sizeone.json';
+// Real-world example with data from the Swiss NFI having a caption, column units and row totals as well as
+// two dimensions of size one excluded from rendering.
+$filename = 'volume.json';
 $json = file_get_contents($filename);
 $jsonstat = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
 $reader = new Reader($jsonstat);
 $table = new RendererTable($reader);
 $table->excludeOneDim = true;
-$html5 = $table->render();*/
+$table->noLabelLastDim = true;
+$html4 = $table->render();
 
+// JSON-stat testdata
+$filename = '../tests/oecd.json';
+$json = file_get_contents($filename);
+$jsonstat = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
+$reader = new Reader($jsonstat);
+$table = new RendererTable($reader, 2);
+$html5 = $table->render();
 ?>
 <!DOCTYPE html>
 <html lang="en">

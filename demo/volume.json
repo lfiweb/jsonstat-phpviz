@@ -12,8 +12,7 @@
 		"time": ["period"]
 	},
 	"extension": {
-		"url-table": "https://www.lfi.ch/resultate/resultate-en.php?p=reg&zigrNr=21&befNr=1090&regionNr=49&prodNr=32&prodItNr=189147",
-		"url-json": "https://www.lfi.ch/temp/vorrat.json"
+		"url-table": "https://www.lfi.ch/resultate/sammlungenliste-en.php?prodNr=32&prodItNr=189147&lang=en"
 	},
 	"value": [
 		3.7, 9, 4.7, 2, 4.5, 0, 5.6, 7, 2.0, 5, 4.4, 5, 4.5, 9, 4.2, 13, 3.2, 13, 3.3, 9, 7.9, 10, 4.3, 5, 8.3, 7, 8.9, 9,
