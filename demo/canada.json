@@ -19,26 +19,25 @@
 			"label" : "concepts",
 			"category" : {
 				"index" : {
-					"POP" : 0,
-					"PERCENT" : 1
-				},
-				"label" : {
-					"POP" : "population",
-					"PERCENT" : "weight of age group in the population"
-				},
-				"unit" : {
-					"POP" : {
-						"label": "thousands of persons",
-						"decimals": 1
+						"POP" : 0,
+						"PERCENT" : 1
 					},
-					"PERCENT" : {
-						"symbol" : "%",
-						"decimals": 1
+				"label" : {
+						"POP" : "population",
+						"PERCENT" : "weight of age group in the population"
+					},
+				"unit" : {
+						"POP" : {
+							"label": "thousands of persons",
+							"decimals": 1
+						},
+						"PERCENT" : {
+							"symbol" : "%",
+							"decimals": 1
+						}
 					}
-				}
 			}
 		},
-
 		"year" : {
 			"label" : "year",
 			"category" : {
@@ -47,7 +46,6 @@
 				}
 			}
 		},
-
 		"country" : {
 			"label" : "country",
 			"category" : {
@@ -56,7 +54,6 @@
 				}
 			}
 		},
-
 		"age" : {
 			"label" : "age group",
 			"category" : {
@@ -106,10 +103,8 @@
 				}
 			}
 		},
-
 		"sex" : {
 			"label" : "sex",
-
 			"link" : {
 				"alternate" : [
 					{
