@@ -68,7 +68,7 @@ $html = $table->render();
 ![screenshot-04](demo/screenshot-04.png)
 
 ## Installation
-Install with composer
+Install with `composer require lfiweb/jsonstat-phpviz` or add it to your composer.json
 
 ## Dependencies
 none
