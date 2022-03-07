@@ -133,9 +133,13 @@ class Reader
      */
     protected function categoryIdFromObject(stdClass $obj, int $labelIdx): string
     {
-        $arr = array_keys((array)$obj);
+        foreach ($obj as $key => $value) {
+            if ($value === $labelIdx) {
+                return $key;
+            }
+        }
 
-        return array_search($labelIdx, $arr, true);
+        return $key;
     }
 
     /**
