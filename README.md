@@ -6,7 +6,7 @@ Render [JSON-stat v2.0 data](https://json-stat.org/) with any number of dimensio
 - use any number of dimensions to group rows and columns.
 - transpose dimensions along two or more axes
 - structures the table with `<thead>` and `<tbody>` elements
-- creates a table `<caption>` automatically from the JSONS-stat.
+- creates a table `<caption>` automatically from the JSON-stat.
 - renders column and row headers using the attributes `scope`, `colspan` and `rowspan` to provide
 screenreader support for visually impaired users
 - sets css classes (`first` and `last`) to identify starting and ending of row groups (e.g. row totals)
@@ -75,7 +75,7 @@ none
 
 ## JSON-stat rendering rules
 The renderer applies the following rules when generating a html table:
-- the size of the dimensions are always read from the `size` property from left to right and also rendered in that order
+- the sizes of the dimensions are read from the `size` property from left to right and also rendered in that order
 - dimensions 1, ..., n-2 are used to group rows (can be set manually to any number <= n)
 - the second to last dimension n-1 is used as the first, outer column
 - the last dimension is used as the innermost column
