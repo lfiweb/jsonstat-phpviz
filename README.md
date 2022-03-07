@@ -73,10 +73,8 @@ Install with composer
 ## Dependencies
 none
 
-
 ## JSON-stat rendering rules
 The renderer applies the following rules when generating a html table:
--
 - the size of the dimensions are always read from the `size` property from left to right and also rendered in that order
 - dimensions 1, ..., n-2 are used to group rows (can be set manually to any number <= n)
 - the second to last dimension n-1 is used as the first, outer column
