@@ -9,7 +9,7 @@ Render [JSON-stat v2.0 data](https://json-stat.org/) with any number of dimensio
 - creates a table `<caption>` automatically from the JSON-stat.
 - renders column and row headers using the attributes `scope`, `colspan` and `rowspan` to provide
 screenreader support for visually impaired users
-- sets css classes (`first` and `last`) to identify starting and ending of row groups (e.g. row totals)
+- sets CSS classes (`first` and `last`) to identify the start and end of row groups (e.g. row totals)
 - exclude dimensions of size one (when ordered continuously from index 0) from rendering when wanted
 ### not implemented
 - `child` property, e.g. hierarchical relationships between different categories
@@ -57,7 +57,7 @@ See [NumPy transpose](https://numpy.org/doc/stable/reference/generated/numpy.tra
 
 ### Example 4
 Real-world example with [data from the Swiss NFI](https://www.lfi.ch/resultate/sammlungenliste-en.php?prodNr=32&prodItNr=189147&lang=en) having a caption, column units and row totals as well as
-two dimensions of size one excluded from rendering.
+two dimensions of size one, excluded from rendering.
 ```php
 $reader = new Reader($jsonstat);
 $table = new RendererTable($reader);
