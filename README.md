@@ -48,8 +48,8 @@ $html = $table->render();
 ### Example 3
 Transpose the table by permutating dimension A with dimension D:
 ```php
-$axes = [3, 1, 2, 0];
 $reader = new Reader($jsonstat);
+$axes = [3, 1, 2, 0];
 $reader->transpose($axes);
 $table = new RendererTable($reader);
 $html = $table->render();
