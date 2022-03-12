@@ -39,6 +39,7 @@ $html = $table->render();
 ### Example 2
 Render a table from the same JSON-stat data, but with 3 dimensions used for the row grouping instead:
 ```php
+$reader = new Reader($jsonstat);
 $table = new RendererTable($reader, 3);
 $html = $table->render();
 ```
@@ -48,6 +49,7 @@ $html = $table->render();
 Transpose the table by permutating dimension A with dimension D:
 ```php
 $axes = [3, 1, 2, 0];
+$reader = new Reader($jsonstat);
 $reader->transpose($axes);
 $table = new RendererTable($reader);
 $html = $table->render();
