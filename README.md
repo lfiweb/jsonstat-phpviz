@@ -84,7 +84,7 @@ The renderer applies the following rules when generating a html table:
 - the `label` property is used for the caption (can be set manually to null or any string)
 
 ### Author
-Simon Speich for the [Swiss National Forest Inventory](https://www.lfi.ch/)
+[Simon Speich](https://www.speich.net) for the [Swiss National Forest Inventory](https://www.lfi.ch/)
 
 ## License
 GNU General Public License v3.0 or later\
