@@ -21,6 +21,7 @@ class UtilArray
         $len = count($shape);
         $size = 1;
         $i = $len - 1;
+        $stride = [];
         // note: using $stride[$i] = $size instead of $stride[] = $size in the loop below,
         // we could do away with the array_reverse() in the return, since we are setting the correct keys, but the
         // actual order would be inverted and turn out wrong, when using implode() or a 'for loop' instead of foreach,
