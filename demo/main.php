@@ -50,7 +50,7 @@ $html5 = $table->render();
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>JSON-stat table renderer</title>
     <link rel="stylesheet" href="main.css">
     <link rel="stylesheet" href="table.css">
 </head>
