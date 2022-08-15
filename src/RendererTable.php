@@ -264,21 +264,24 @@ class RendererTable
         $dimIdx = $this->numRowDim + (int)floor($rowIdx / 2);
         $stride = $this->strides[$dimIdx];
         $product = $this->shape[$dimIdx] * $stride;
-        $scope = $stride > 1 ? 'colgroup' : 'col';
         for ($i = 0; $i < $this->numValueCols; $i++) {
             $z = $rowIdx % 2;
             $id = $this->reader->getDimensionId($this->numOneDim + $dimIdx);
-            if ($z === 0) {
+            if ($z === 0) { // set attributes for dimension label cell
                 $label = $this->reader->getDimensionLabel($id);
                 $colspan = $product > 1 ? $product : null;
-            } else {
+            } else {    // set attributes for category label cell
                 $catIdx = floor(($i % $product) / $stride);
                 $catId = $this->reader->getCategoryId($id, $catIdx);
                 $label = $this->reader->getCategoryLabel($id, $catId);
                 $colspan = $stride > 1 ? $stride : null;
             }
             if ($colspan) {
+                $scope = 'colgroup';
                 $i += $colspan - 1; // skip colspan - 1 cells
+            }
+            else {
+                $scope = 'col';
             }
             $cell = $this->headerCell($row, $label, $scope, $colspan);
             $row->appendChild($cell);
