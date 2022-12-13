@@ -68,7 +68,7 @@ class UtilArray
             $arr[$i] = $s;
         }
 
-        return $arr;
+        return array_reverse($arr);
     }
 
     /**
