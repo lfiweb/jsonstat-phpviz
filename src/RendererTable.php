@@ -25,12 +25,6 @@ use function count;
  * Setting the property noLabelLastDim will skip the row in the table heading containing the labels of the last
  * dimension.
  *
- * Note 1: When rendering a table with rowspans (useRowSpans property is true),
- * applying css might become complicated because of the irregular number of cells per row.
- *
- * Note 2: This code was directly translated from JavaScript jsonstat-viz
- * @see https://github.com/speich/jsonstat-viz
- *
  * @see www.json-stat.org
  */
 class RendererTable
