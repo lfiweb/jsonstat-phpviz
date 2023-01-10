@@ -114,4 +114,18 @@ class UtilArray
 
         return $values;
     }
+
+    /**
+     * Searches for the values in needle in the haystack and returns an array with positions of the matches.
+     * @param array $needle the array values to check
+     * @param array $haystack the array values to check against
+     * @return array array indexes of the matched values
+     */
+    protected static function getIndex(array $needle, array $haystack): array
+    {
+        return array_map(static function ($item) use ($haystack) {
+            return array_search($item, $haystack, true);
+        }, $needle);
+    }
+
 }
