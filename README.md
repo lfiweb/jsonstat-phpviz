@@ -83,7 +83,17 @@ The renderer applies the following rules when generating a html table:
 - the last dimension is used as the innermost column
 - the `label` property is used for the caption (can be set manually to null or any string)
 
-### Author
+## Note:
+* Note 1: When rendering a table with rowspans (useRowSpans property is true),
+* applying css might become complicated because of the irregular number of cells per row.
+*
+* Note 2: Originally, this code was directly translated from its JavaScript counterpart jsonstat-viz, but has since
+*  been developed independently
+* @see https://github.com/speich/jsonstat-viz
+
+
+
+## Author
 [Simon Speich](https://www.speich.net) for the [Swiss National Forest Inventory](https://www.lfi.ch/)
 
 ## License
