@@ -121,7 +121,7 @@ class UtilArray
      * @param array $haystack the array values to check against
      * @return array array indexes of the matched values
      */
-    protected static function getIndex(array $needle, array $haystack): array
+    public static function getIndex(array $needle, array $haystack): array
     {
         return array_map(static function ($item) use ($haystack) {
             return array_search($item, $haystack, true);
