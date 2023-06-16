@@ -83,6 +83,38 @@ The renderer applies the following rules when generating a html table:
 - the last dimension is used as the innermost column
 - the `label` property is used for the caption (can be set manually to null or any string)
 
+## HTML inside JSON-stat
+**Caution**: Do this only if you trust the origin of the JSON-stat.
+
+The renderer (or rather the DOMDocument) escapes all html contained in the JSON-stat when inserting it into the DOM.
+If you want to allow HTML inside the table cells, you need to override the RendererTable as follows:
+```php
+class RendererHtml extends RendererTable
+{
+    // render html inside label cells
+    protected function headerCell(DOMElement $row, ?string $str = null, ?string $scope = null, ?string $colspan = null, ?string $rowspan = null): DOMElement
+    {
+        $cell = parent::headerCell($row, $str, $scope, $colspan, $rowspan);
+        if ($str !== null && $scope === 'row') {
+            $cell->textContent = '';
+            UtilHtml::append($cell, $str);
+        }
+
+        return $cell;
+    }
+
+    // render html inside value cells
+    protected function valueCell(DOMElement $row, int $offset): DOMNode
+    {
+        $cell = parent::valueCell($row, $offset);
+        $cell->textContent = '';
+        UtilHtml::append($cell, $this->reader->data->value[$offset]);
+
+        return $cell;
+    }
+}
+```
+
 ## Note:
 Note 1: When rendering a table with rowspans (useRowSpans property is true),
 applying css might become complicated because of the irregular number of cells per row.
