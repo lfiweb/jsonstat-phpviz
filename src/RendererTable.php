@@ -100,6 +100,7 @@ class RendererTable
         $this->table = new Table();
         $this->numRowDim = $numRowDim;
         if (property_exists($this->reader->data, 'label')) {
+            // since html content is allowed in caption when set explicitly, we have to escape it when set via json-stat to prevent html content
             $this->caption = $this->escapeHtml($this->reader->data->label);
         }
     }
