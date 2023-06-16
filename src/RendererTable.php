@@ -342,14 +342,16 @@ class RendererTable
      * Inserts a HTMLTableCellElement at the end of the row with a value taken from the values at given offset.
      * @param DOMElement $row
      * @param int $offset
+     * @return DOMNode the created table cell
      * @throws DOMException
      */
-    protected function valueCell(DOMElement $row, int $offset): void
+    protected function valueCell(DOMElement $row, int $offset): DOMNode
     {
         $stat = $this->reader;
         $cell = $this->table->doc->createElement('td');
-        $cell = $row->appendChild($cell);
         $cell->textContent = $stat->data->value[$offset]; // no need to escape
+
+        return $row->appendChild($cell);
     }
 
     /**
