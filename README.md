@@ -95,10 +95,8 @@ class RendererHtml extends RendererTable
     protected function headerCell(DOMElement $row, ?string $str = null, ?string $scope = null, ?string $colspan = null, ?string $rowspan = null): DOMElement
     {
         $cell = parent::headerCell($row, $str, $scope, $colspan, $rowspan);
-        if ($str !== null && $scope === 'row') {
-            $cell->textContent = '';
-            UtilHtml::append($cell, $str);
-        }
+        $cell->textContent = '';
+        UtilHtml::append($cell, $str);
 
         return $cell;
     }
