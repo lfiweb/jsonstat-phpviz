@@ -349,9 +349,12 @@ class RendererTable
     {
         $stat = $this->reader;
         $cell = $this->table->doc->createElement('td');
-        $cell->textContent = $stat->data->value[$offset]; // no need to escape
+        $row->appendChild($cell);
+        if ($stat->data->value[$offset] !== null) {
+            $cell->textContent = $stat->data->value[$offset];
+        }
 
-        return $row->appendChild($cell);
+        return $cell;
     }
 
     /**
