@@ -101,7 +101,7 @@ class RendererTable
         $this->numRowDim = $numRowDim;
         if (property_exists($this->reader->data, 'label')) {
             // since html content is allowed in caption when set explicitly, we have to escape it when set via json-stat to prevent html content
-            $this->caption = $this->escapeHtml($this->reader->data->label);
+            $this->caption = UtilHtml::escape($this->reader->data->label);
         }
     }
 
@@ -419,16 +419,5 @@ class RendererTable
         $dims = $this->reader->getDimensionSizes($this->excludeOneDim);
 
         return count($dims) === 2 ? 1 : count(array_slice($dims, 0, count($dims) - 2));
-    }
-
-    /**
-     * Escape a string, so it can be safely inserted into html.
-     * @param String $text
-     * @return String
-     */
-    public function escapeHtml(string $text): string
-    {
-
-        return htmlspecialchars($text, ENT_HTML5, 'UTF-8');
     }
 }
