@@ -349,10 +349,13 @@ class RendererTable
     {
         $stat = $this->reader;
         $cell = $this->table->doc->createElement('td');
-        $row->appendChild($cell);
-        if ($stat->data->value[$offset] !== null) {
-            $cell->textContent = $stat->data->value[$offset];
+        $val = $stat->data->value[$offset];
+        if ($val === null) {
+            // create empty text node, otherwise <td/> is created, which is invalid on a non-void element
+            $val = '';
         }
+        $cell->appendChild($this->table->doc->createTextNode($val));
+        $row->appendChild($cell);
 
         return $cell;
     }
@@ -364,7 +367,7 @@ class RendererTable
      * @param ?String $scope scope of cell
      * @param ?String $colspan number of columns to span
      * @param ?String $rowspan number of rows to span
-     * @return DOMElement
+     * @return DOMNode
      * @throws DOMException
      */
     protected function headerCell(
@@ -373,7 +376,7 @@ class RendererTable
         ?string $scope = null,
         ?string $colspan = null,
         ?string $rowspan = null
-    ): DOMElement {
+    ): DOMNode {
         $cell = $this->table->doc->createElement('th');
         if ($scope !== null) {
             $cell->setAttribute('scope', $scope);
@@ -390,7 +393,6 @@ class RendererTable
         }
         $cell->appendChild($this->table->doc->createTextNode($str));
 
-        /** @noinspection PhpIncompatibleReturnTypeInspection */
         return $row->appendChild($cell);
     }
 
@@ -413,14 +415,15 @@ class RendererTable
     }
 
     /**
-     * Returns the default number of dimensions used for rows.
-     * Uses at least two dimensions for the columns when there are more than 2 dimensions.
+     * Returns the default number of dimensions used for rendering rows.
+     * By default, a table is rendered using all dimensions for rows expect the last two dimensions are used for columns.
+     * When there are fewer than 3 dimensions, only the first dimension is used for rows.
      * @return int
      */
     public function numRowDimAuto(): int
     {
         $dims = $this->reader->getDimensionSizes($this->excludeOneDim);
 
-        return count($dims) === 2 ? 1 : count(array_slice($dims, 0, count($dims) - 2));
+        return count($dims) < 3 ? 1 : count(array_slice($dims, 0, count($dims) - 2));
     }
 }
