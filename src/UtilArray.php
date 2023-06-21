@@ -116,7 +116,8 @@ class UtilArray
     }
 
     /**
-     * Searches for the values in needle in the haystack and returns an array with positions of the matches.
+     * Searches for the values in needle in the haystack and returns an array with positions of the first matches.
+     * Note: Only the index of the first match of each needle in the haystack is returned.
      * @param array $needle the array values to check
      * @param array $haystack the array values to check against
      * @return array array indexes of the matched values
