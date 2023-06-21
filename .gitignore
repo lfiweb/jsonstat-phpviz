@@ -1,3 +1,4 @@
 /vendor/
 /test.json
 /lastodd.json
+/.phpunit.result.cache
