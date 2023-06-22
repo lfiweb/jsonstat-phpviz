@@ -6,7 +6,7 @@ use DOMDocument;
 use DOMNode;
 
 /**
- * Utility to provides html related methods.
+ * Utility that provides html related methods.
  */
 class UtilHtml
 {
