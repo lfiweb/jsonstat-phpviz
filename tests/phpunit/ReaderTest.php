@@ -23,21 +23,28 @@ class ReaderTest extends TestCase
     }
 
     /**
+     * Tests, that the JSON-stat was correctly transposed.
      * @throws DOMException
      */
     public function testTranspose(): void
     {
-        $html = file_get_contents(__DIR__ . '/../resources/volume-transposed.html');
         $this->reader->transpose([0, 1, 2, 4, 3, 5]);
         $table = new RendererTable($this->reader, 2);
         $table->excludeOneDim = true;
+        $html = file_get_contents(__DIR__ . '/../resources/volume-transposed.html');
+        self::assertSame($html, $table->render());
+
+        // transpose back
+        $this->reader->transpose([0, 1, 2, 4, 3, 5]);
+
+        // transpose dimension of size one
+        $this->reader->transpose([0, 4, 2, 3, 1, 5]);
+        $table = new RendererTable($this->reader, 3);
+        $table->excludeOneDim = true;
+        $html = file_get_contents(__DIR__ . '/../resources/volume-onedim-transposed.html');
         self::assertSame($html, $table->render());
     }
 
-    /**
-     * Test, that
-     * @return void
-     */
     public function testGetCategoryLabel(): void
     {
         $label = $this->reader->getCategoryLabel('BHDKL', '3');
