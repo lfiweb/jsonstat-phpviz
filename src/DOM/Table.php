@@ -91,7 +91,6 @@ class Table
         $row = $this->doc->createElement('tr');
         $this->domNode->appendChild($parent);
 
-        /** @noinspection PhpIncompatibleReturnTypeInspection */
         return $parent->appendChild($row);
     }
 
@@ -141,25 +140,6 @@ class Table
         }
 
         return null;
-    }
-
-    /**
-     * Check if the table already has the specified child element.
-     * Returns the last occurrence of the child or null if child was not found.
-     * @param string $name element name
-     * @return DOMNode
-     */
-    private function hasChildLast(string $name): DOMNode
-    {
-        $lastChild = null;
-        for ($i = 0, $len = $this->domNode->childNodes->length; $i < $len; $i++) {
-            $child = $this->domNode->childNodes->item($i);
-            if ($child !== null && strtolower($child->nodeName) === $name) {
-                $lastChild = $child;
-            }
-        }
-
-        return $lastChild;
     }
 
     /**
