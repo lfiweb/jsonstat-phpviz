@@ -3,11 +3,15 @@
 namespace jsonstatPhpViz\tests\phpunit;
 
 use DOMDocument;
+use DOMException;
 use jsonstatPhpViz\src\UtilHtml;
 use PHPUnit\Framework\TestCase;
 
 class UtilHtmlTest extends TestCase
 {
+    /**
+     * @throws DOMException
+     */
     public function testAppend(): void
     {
         $strHtml = '<p class="test">This is <strong>a test</strong> to insert directly html</p>';
