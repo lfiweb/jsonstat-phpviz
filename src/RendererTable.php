@@ -36,31 +36,31 @@ class RendererTable
     public const DIM_TYPE_COL = 2;
 
     /** @var Reader */
-    protected Reader $reader;
+    public Reader $reader;
 
     /* @var array $colDims dimensions used for columns containing values */
-    protected array $colDims;
+    public array $colDims;
 
     /* @var array $rowDims dimensions used for rows containing labels, that make up the rows */
-    protected array $rowDims;
+    public array $rowDims;
 
     /** @var int number of dimensions of size one */
-    protected int $numOneDim;
+    public int $numOneDim;
 
     /** @var int number of columns with values */
-    protected int $numValueCols;
+    public int $numValueCols;
 
     /** @var int number of columns with labels */
-    protected int $numLabelCols;
+    public int $numLabelCols;
 
     /** @var int|null number of dimensions to be used for rows */
-    protected ?int $numRowDim;
+    public ?int $numRowDim;
 
     /** @var DOMNode|Table */
-    protected Table|DOMNode $table;
+    public Table|DOMNode $table;
 
     /** @var int|float number of row headers */
-    protected int|float $numHeaderRows;
+    public int|float $numHeaderRows;
 
     /** @var bool render the row with labels of last dimension? default = true */
     public bool $noLabelLastDim = false;
@@ -68,7 +68,7 @@ class RendererTable
     /**
      * Render the table with rowspans ?
      * default = true
-     * Note: When this is set to false, empty rowheaders might be created, which are an accessibility problem.
+     * Note: When this is set to false, empty row headers might be created, which are an accessibility problem.
      * @var bool $useRowSpans
      */
     public bool $useRowSpans = true;
@@ -84,10 +84,12 @@ class RendererTable
     public null|string|DOMNode $caption;
 
     /** @var array shape of the json-stat value array */
-    private array $shape;
+    public array $shape;
 
     /** @var array strides of the array */
-    private array $strides;
+    public array $strides;
+
+    private RendererCell $rendererCell;
 
     /**
      * Instantiates the class.
@@ -100,6 +102,7 @@ class RendererTable
         $this->table = new Table();
         $this->numRowDim = $numRowDim;
         $this->initCaption();
+        $this->rendererCell = new RendererCell($this);
     }
 
     /**
@@ -164,22 +167,6 @@ class RendererTable
     }
 
     /**
-     * Returns the dimensions that can be used for rows or cols.
-     * Constant dimensions (e.g. of length 1) are excluded.
-     * @param array $dims
-     * @param int $type 'row' or 'col' possible values are RendererTable::DIM_TYPE_ROW or RendererTable::DIM_TYPE_COL
-     * @return array
-     */
-    protected function extractDims(array $dims, int $type = RendererTable::DIM_TYPE_ROW): array
-    {
-        if ($type === self::DIM_TYPE_ROW) {
-            return array_slice($dims, 0, $this->numRowDim);
-        }
-
-        return array_slice($dims, $this->numRowDim);
-    }
-
-    /**
      * Renders the data as a html table.
      * Reads the value array and renders it as a table.
      * @param bool $asHtml return html or DOMElement?
@@ -206,8 +193,8 @@ class RendererTable
         for ($rowIdx = 0; $rowIdx < $this->numHeaderRows; $rowIdx++) {
             if ($this->noLabelLastDim === false || $rowIdx !== $this->numHeaderRows - 2) {
                 $row = $this->table->appendRow($tHead);
-                $this->headerLabelCells($row, $rowIdx);
-                $this->headerValueCells($row, $rowIdx);
+                $this->rendererCell->headerLabelCells($row, $rowIdx);
+                $this->rendererCell->headerValueCells($row, $rowIdx);
             }
         }
     }
@@ -223,181 +210,11 @@ class RendererTable
         for ($offset = 0, $len = $this->reader->getNumValues(); $offset < $len; $offset++) {
             if ($offset % $this->numValueCols === 0) {
                 $row = $this->table->appendRow($tBody);
-                $this->labelCells($row, $rowIdx);
+                $this->rendererCell->labelCells($row, $rowIdx);
                 $rowIdx++;
             }
-            $this->valueCell($row, $offset);
+            $this->rendererCell->valueCell($row, $offset);
         }
-    }
-
-    /**
-     * Creates the cells for the headers of the label columns.
-     * @param DOMElement $row
-     * @param int $rowIdx
-     * @throws DOMException
-     */
-    protected function headerLabelCells(DOMElement $row, int $rowIdx): void
-    {
-        for ($k = 0; $k < $this->numLabelCols; $k++) {
-            $label = null;
-            $scope = null;
-
-            if ($rowIdx === $this->numHeaderRows - 1) { // last header row
-                $id = $this->reader->getDimensionId($this->numOneDim + $k);
-                $label = $this->reader->getDimensionLabel($id);
-                $scope = 'col';
-            }
-            $this->headerCell($row, $label, $scope);
-        }
-    }
-
-    /**
-     * Creates the cells for the headers of the value columns.
-     * @param DOMElement $row
-     * @param int $rowIdx
-     * @throws DOMException
-     */
-    protected function headerValueCells(DOMElement $row, int $rowIdx): void
-    {
-        if (count($this->colDims) === 0) {
-            $this->headerCell($row);
-
-            return;
-        }
-
-        // remember: we render two rows with headings per column dimension, e.g.
-        //      one for the dimension label and one for the category label
-        $dimIdx = $this->numRowDim + (int)floor($rowIdx / 2);
-        $stride = $this->strides[$dimIdx];
-        $product = $this->shape[$dimIdx] * $stride;
-        for ($i = 0; $i < $this->numValueCols; $i++) {
-            $z = $rowIdx % 2;
-            $id = $this->reader->getDimensionId($this->numOneDim + $dimIdx);
-            if ($z === 0) { // set attributes for dimension label cell
-                $label = $this->reader->getDimensionLabel($id);
-                $colspan = $product > 1 ? $product : null;
-            } else {    // set attributes for category label cell
-                $catIdx = floor(($i % $product) / $stride);
-                $catId = $this->reader->getCategoryId($id, $catIdx);
-                $label = $this->reader->getCategoryLabel($id, $catId);
-                $colspan = $stride > 1 ? $stride : null;
-            }
-            if ($colspan) {
-                $scope = 'colgroup';
-                $i += $colspan - 1; // skip colspan - 1 cells
-            } else {
-                $scope = 'col';
-            }
-            $cell = $this->headerCell($row, $label, $scope, $colspan);
-            $row->appendChild($cell);
-        }
-    }
-
-    /**
-     * Appends cells with labels to the row.
-     * Inserts the label as a HTMLTableHeaderElement at the end of the row.
-     * @param DOMElement $row HTMLTableRow
-     * @param int $rowIdxBody row index
-     * @throws DOMException
-     */
-    protected function labelCells(DOMElement $row, int $rowIdxBody): void
-    {
-        $rowStrides = UtilArray::getStrides($this->rowDims);
-        for ($i = 0; $i < $this->numLabelCols; $i++) {
-            $dimIdx = $i;
-            $stride = $rowStrides[$dimIdx];
-            $product = $this->shape[$dimIdx] * $stride;
-            $label = null;
-            $scope = $stride > 1 ? 'rowgroup' : 'row';
-            $rowspan = $this->useRowSpans && $stride > 1 ? $stride : null;
-            if ($rowIdxBody % $stride === 0) {
-                $catIdx = floor($rowIdxBody % $product / $stride);
-                $id = $this->reader->getDimensionId($this->numOneDim + $dimIdx);
-                $labelId = $this->reader->getCategoryId($id, $catIdx);
-                $label = $this->reader->getCategoryLabel($id, $labelId);
-            }
-            if ($this->useRowSpans === false || $rowIdxBody % $stride === 0) {
-                $cell = $this->headerCell($row, $label, $scope, null, $rowspan);
-                $this->labelCellCss($cell, $i, $rowIdxBody, $stride);
-                $row->appendChild($cell);
-            }
-        }
-    }
-
-    /**
-     * Sets the css class of the body row
-     * @param DOMElement $cell
-     * @param int $cellIdx
-     * @param int $rowIdxBody
-     * @param int $rowStride
-     */
-    protected function labelCellCss(DOMElement $cell, int $cellIdx, int $rowIdxBody, int $rowStride): void
-    {
-        $cl = new ClassList($cell);
-        $product = $this->shape[$cellIdx] * $rowStride;
-        $css = 'rowdim' . ($cellIdx + 1);
-        $modulo = $rowIdxBody % $product;
-        if ($rowIdxBody % $rowStride === 0) {
-            $cl->add($css);
-        }
-        if ($modulo === 0) {
-            $cl->add($css, 'first');
-        } elseif ($modulo === $product - $rowStride) {
-            $cl->add($css, 'last');
-        }
-    }
-
-    /**
-     * Appends cells with values to the row.
-     * Inserts a HTMLTableCellElement at the end of the row with a value taken from the values at given offset.
-     * @param DOMElement $row
-     * @param int $offset
-     * @return DOMNode the created table cell
-     * @throws DOMException
-     */
-    protected function valueCell(DOMElement $row, int $offset): DOMNode
-    {
-        $cell = $this->table->doc->createElement('td');
-        $val = $this->reader->data->value[$offset];
-        $val = $this->formatValueCell($val, $offset);
-        $cell->appendChild($this->table->doc->createTextNode($val));
-        $row->appendChild($cell);
-
-        return $cell;
-    }
-
-    /**
-     * Create and returns a header cell element.
-     * @param DOMElement $row
-     * @param ?String $str cell content
-     * @param ?String $scope scope of cell
-     * @param ?String $colspan number of columns to span
-     * @param ?String $rowspan number of rows to span
-     * @return DOMNode
-     * @throws DOMException
-     */
-    protected function headerCell(
-        DOMElement $row,
-        ?string    $str = null,
-        ?string    $scope = null,
-        ?string    $colspan = null,
-        ?string    $rowspan = null
-    ): DOMNode
-    {
-        $cell = $this->table->doc->createElement('th');
-        if ($scope !== null) {
-            $cell->setAttribute('scope', $scope);
-        }
-        if ($colspan !== null) {
-            $cell->setAttribute('colspan', $colspan);
-        }
-        if ($rowspan !== null) {
-            $cell->setAttribute('rowspan', $rowspan);
-        }
-        $str = $this->formatHeaderCell($str);
-        $cell->appendChild($this->table->doc->createTextNode($str));
-
-        return $row->appendChild($cell);
     }
 
     /**
@@ -432,35 +249,18 @@ class RendererTable
     }
 
     /**
-     * Format a data cell <td>.
-     * Format a cell used for the JSON-stat value property.
-     * @param string|int|float|null $val
-     * @param int $offset
-     * @return string
+     * Returns the dimensions that can be used for rows or cols.
+     * Constant dimensions (e.g. of length 1) are excluded.
+     * @param array $dims
+     * @param int $type 'row' or 'col' possible values are RendererTable::DIM_TYPE_ROW or RendererTable::DIM_TYPE_COL
+     * @return array
      */
-    protected function formatValueCell(null|string|int|float $val, int $offset): string
+    protected function extractDims(array $dims, int $type = RendererTable::DIM_TYPE_ROW): array
     {
-        $stat = $this->reader;
-        $dimIdx = count($this->shape) - 1;  // count($stat->data->id) does not take numOneDims into account
-        $dimId = $stat->getDimensionId($dimIdx);
-        if ($stat->hasDecimal($dimId)) {
-            $categoryId = $stat->getCategoryId($dimId, $offset % $this->shape[$dimIdx]);
-            $decimals = $stat->getDecimal($dimId, $categoryId);
-            $val = Formatter::formatDecimal($val, $decimals);
+        if ($type === self::DIM_TYPE_ROW) {
+            return array_slice($dims, 0, $this->numRowDim);
         }
-        $val = Formatter::formatNull($val);
 
-        return $val;
-    }
-
-    /**
-     * Format a head cell <th>
-     * Format cells used as a header for group of columns or rows (headings).
-     * @param string|null $str
-     * @return string
-     */
-    protected function formatHeaderCell(null|string $str): string
-    {
-        return Formatter::formatNull($str);
+        return array_slice($dims, $this->numRowDim);
     }
 }
