@@ -147,7 +147,7 @@ class RendererTable
 
         $domNode = $this->table->get();
         $css = new ClassList($domNode);
-        $css->add('jst-viz', 'numRowDims'.$numRowDims, 'lastDimSize'.$lastDimSize);
+        $css->add('jst-viz', 'numRowDims' . $numRowDims, 'lastDimSize' . $lastDimSize);
         $domNode->setAttribute('data-shape', $shape);
         $domNode->setAttribute('data-num-row-dim', $numRowDims);
     }
@@ -274,8 +274,7 @@ class RendererTable
             if ($colspan) {
                 $scope = 'colgroup';
                 $i += $colspan - 1; // skip colspan - 1 cells
-            }
-            else {
+            } else {
                 $scope = 'col';
             }
             $cell = $this->headerCell($row, $label, $scope, $colspan);
@@ -325,7 +324,7 @@ class RendererTable
     {
         $cl = new ClassList($cell);
         $product = $this->shape[$cellIdx] * $rowStride;
-        $css = 'rowdim'.($cellIdx + 1);
+        $css = 'rowdim' . ($cellIdx + 1);
         $modulo = $rowIdxBody % $product;
         if ($rowIdxBody % $rowStride === 0) {
             $cl->add($css);
@@ -347,13 +346,9 @@ class RendererTable
      */
     protected function valueCell(DOMElement $row, int $offset): DOMNode
     {
-        $stat = $this->reader;
         $cell = $this->table->doc->createElement('td');
-        $val = $stat->data->value[$offset];
-        if ($val === null) {
-            // create empty text node, otherwise <td/> is created, which is invalid on a non-void element
-            $val = '';
-        }
+        $val = $this->reader->data->value[$offset];
+        $val = $this->formatValueCell($val, $offset);
         $cell->appendChild($this->table->doc->createTextNode($val));
         $row->appendChild($cell);
 
@@ -372,11 +367,12 @@ class RendererTable
      */
     protected function headerCell(
         DOMElement $row,
-        ?string $str = null,
-        ?string $scope = null,
-        ?string $colspan = null,
-        ?string $rowspan = null
-    ): DOMNode {
+        ?string    $str = null,
+        ?string    $scope = null,
+        ?string    $colspan = null,
+        ?string    $rowspan = null
+    ): DOMNode
+    {
         $cell = $this->table->doc->createElement('th');
         if ($scope !== null) {
             $cell->setAttribute('scope', $scope);
@@ -387,10 +383,7 @@ class RendererTable
         if ($rowspan !== null) {
             $cell->setAttribute('rowspan', $rowspan);
         }
-        if ($str === null) {
-            // create empty text node, otherwise <th/> is created, which is invalid on a non-void element
-            $str = '';
-        }
+        $str = $this->formatHeaderCell($str);
         $cell->appendChild($this->table->doc->createTextNode($str));
 
         return $row->appendChild($cell);
@@ -425,5 +418,38 @@ class RendererTable
         $dims = $this->reader->getDimensionSizes($this->excludeOneDim);
 
         return count($dims) < 3 ? 1 : count(array_slice($dims, 0, count($dims) - 2));
+    }
+
+    /**
+     * Format a data cell <td>.
+     * Format a cell used for the JSON-stat value property.
+     * @param string|int|float|null $val
+     * @param int $offset
+     * @return string
+     */
+    protected function formatValueCell(null|string|int|float $val, int $offset): string
+    {
+        $stat = $this->reader;
+        $dimIdx = count($this->shape) - 1;  // count($stat->data->id) does not take numOneDims into account
+        $dimId = $stat->getDimensionId($dimIdx);
+        if ($stat->hasDecimal($dimId)) {
+            $categoryId = $stat->getCategoryId($dimId, $offset % $this->shape[$dimIdx]);
+            $decimals = $stat->getDecimal($dimId, $categoryId);
+            $val = Formatter::formatDecimal($val, $decimals);
+        }
+        $val = Formatter::formatNull($val);
+
+        return $val;
+    }
+
+    /**
+     * Format a head cell <th>
+     * Format cells used as a header for group of columns or rows (headings).
+     * @param string|null $str
+     * @return string
+     */
+    protected function formatHeaderCell(null|string $str): string
+    {
+        return Formatter::formatNull($str);
     }
 }

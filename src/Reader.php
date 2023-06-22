@@ -36,7 +36,8 @@ class Reader
      * Returns the id of a category label.
      * @param int $categIdx index of the category label
      */
-    #[Pure] public function getCategoryId(string $dimId, int $categIdx) {
+    #[Pure] public function getCategoryId(string $dimId, int $categIdx): null|string
+    {
         $dim = $this->data->dimension->{$dimId};
         if (property_exists($dim->category, 'index')) {
             $index = $dim->category->index;
@@ -107,6 +108,29 @@ class Reader
     }
 
     /**
+     * Return the number of decimal places.
+     * Returns the number of decimal places of the last dimension "concept".
+     * @return int
+     */
+    public function getDecimal(string $dimId, string $unitId): int
+    {
+        $dim = $this->data->dimension->{$dimId};
+
+        return $dim->category->unit->{$unitId}->decimals;
+    }
+
+    /**
+     * According to JSON-stat schema 2.0, when the unit property is present, the decimals property is required.
+     * @return bool
+     */
+    public function hasDecimal($dimId): bool
+    {
+        $dim = $this->data->dimension->{$dimId};
+
+        return property_exists($dim->category, 'unit');
+    }
+
+    /**
      * Returns the label of a category of a dimension by dimension id and category id.
      * @param string $dimId dimension id
      * @param ?string $labelId id of the category label
@@ -117,9 +141,9 @@ class Reader
         $dim = $this->data->dimension->{$dimId};
         if (property_exists($dim->category, 'index')) {
             $label = $dim->category->label->{$labelId} ?? $labelId;
-        } else {  // e.g. constant dimension with a single category and no index, label is required
+        } else {  // e.g. constant dimension with a single category and no index, find name of label property
             $keys = array_keys((array)$dim->category->label);
-            $label = $dim->category->label->{$keys[0]};
+            $label = $dim->category->label->{$keys[0]}; // there is always only one label
         }
 
         return $label;
@@ -129,9 +153,9 @@ class Reader
      * Return the category id by index, when category is an object.
      * @param stdClass $obj category object
      * @param int $labelIdx index of the label
-     * @return string id of the category label
+     * @return string|null id of the category label
      */
-    protected function categoryIdFromObject(stdClass $obj, int $labelIdx): string
+    protected function categoryIdFromObject(stdClass $obj, int $labelIdx): string|null
     {
         foreach ($obj as $key => $value) {
             if ($value === $labelIdx) {
@@ -139,7 +163,7 @@ class Reader
             }
         }
 
-        return $key;
+        return null;
     }
 
     /**
