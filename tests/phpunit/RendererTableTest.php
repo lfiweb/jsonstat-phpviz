@@ -7,9 +7,10 @@ use DOMException;
 use JsonException;
 use jsonstatPhpViz\src\RendererTable;
 use jsonstatPhpViz\tests\phpunit\TestFactory\JsonstatReader;
-use jsonstatPhpViz\tests\phpunit\TestFactory\JsonstatRendererTable;
+use jsonstatPhpViz\tests\phpunit\TestFactory\RendererTable as FactoryRendererTable;
 use PHPUnit\Framework\TestCase;
 use function array_slice;
+use function count;
 
 class RendererTableTest extends TestCase
 {
@@ -64,11 +65,15 @@ class RendererTableTest extends TestCase
     {
         $reader = $this->reader->create(__DIR__ . '/../resources/volume.json');
         $size = $reader->data->size;
+        $len = count($size) + 1;
+        $i = 0;
         $x = [];
-        foreach ($size as $i => $val) {
-            $table = new JsonstatRendererTable($reader, $i);
-            $nlX = $table->getTBodyChildNodes();
-            $nlY = $table->getTheadLastChildNodes();
+        for (; $i < $len; $i++) {
+            $renderer = new RendererTable($reader);
+            $renderer->setNumRowDim($i);
+            $table = $renderer->render(false);
+            $nlX = FactoryRendererTable::getTBodyChildNodes($table);
+            $nlY = FactoryRendererTable::getTheadLastChildNodes($table);
             self::assertSame(array_product($x), $nlX->length);
             self::assertSame(array_product($size) + $i, $nlY->length);
             $x[] = array_shift($size);
@@ -105,9 +110,11 @@ class RendererTableTest extends TestCase
         $size = $reader->data->size;
         $x = array_slice($size, 0, 4);
         $y = array_slice($size, 4);
-        $table = new JsonstatRendererTable($reader, 2, true);
-        $nlX = $table->getTBodyChildNodes();
-        $nlY = $table->getTheadLastChildNodes();
+        $renderer = new RendererTable($reader, 2);
+        $renderer->excludeOneDim = true;
+        $table = $renderer->render(false);
+        $nlX = FactoryRendererTable::getTBodyChildNodes($table);
+        $nlY = FactoryRendererTable::getTheadLastChildNodes($table);
         self::assertSame(array_product($x), $nlX->length);
         self::assertSame(array_product($y) + 2, $nlY->length);
     }
