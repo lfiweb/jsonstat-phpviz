@@ -102,7 +102,7 @@ class RendererTable
         $this->table = new Table();
         $this->numRowDim = $numRowDim;
         $this->initCaption();
-        $this->rendererCell = new RendererCell($this);
+        $this->initRendererCell();
     }
 
     /**
@@ -164,6 +164,15 @@ class RendererTable
         if (property_exists($this->reader->data, 'label')) {
             $this->caption = UtilHtml::escape($this->reader->data->label);
         }
+    }
+
+    /**
+     * Instantiate the RendererCell class.
+     * @return void
+     */
+    protected function initRendererCell(): void
+    {
+        $this->rendererCell = new RendererCell($this, new Formatter());
     }
 
     /**

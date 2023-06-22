@@ -16,12 +16,16 @@ class RendererCell
     private DOMDocument $doc;
     protected Formatter $formatter;
 
-    public function __construct(RendererTable $rendererTable)
+    /**
+     * @param RendererTable $rendererTable
+     * @param Formatter $cellFormatter
+     */
+    public function __construct(RendererTable $rendererTable, Formatter $cellFormatter)
     {
         $this->table = $rendererTable;
         $this->reader = $this->table->reader;
         $this->doc = $this->table->table->doc;
-        $this->formatter = new Formatter();
+        $this->formatter = $cellFormatter;
     }
 
     /**
