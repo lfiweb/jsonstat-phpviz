@@ -13,7 +13,7 @@ class Formatter
      * Null values have to be replaced with an empty string in the table cells,
      * otherwise a void element <td/> is created, wich is invalid html.
      */
-    public static string $nullLabel = '';
+    public string $nullLabel = '';
 
     /**
      * Format the value
@@ -22,7 +22,7 @@ class Formatter
      * @param int $decimals the number of digits printed after the decimal point
      * @return null|string
      */
-    public static function formatDecimal(null|string|int|float $val, int $decimals): null|string
+    public function formatDecimal(null|string|int|float $val, int $decimals): null|string
     {
         if (is_int($val) || is_float($val)) {
             $val = sprintf('%.' . $decimals . 'f', $val);   // note: sprintf() creates a string
@@ -35,8 +35,8 @@ class Formatter
      * @param string|int|float|null $val
      * @return string
      */
-    public static function formatNull(null|string|int|float $val): string
+    public function formatNull(null|string|int|float $val): string
     {
-        return $val ?? self::$nullLabel;
+        return $val ?? $this->nullLabel;
     }
 }

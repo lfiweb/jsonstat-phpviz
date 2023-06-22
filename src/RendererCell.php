@@ -14,12 +14,14 @@ class RendererCell
     private RendererTable $table;
     private Reader $reader;
     private DOMDocument $doc;
+    protected Formatter $formatter;
 
     public function __construct(RendererTable $rendererTable)
     {
         $this->table = $rendererTable;
         $this->reader = $this->table->reader;
         $this->doc = $this->table->table->doc;
+        $this->formatter = new Formatter();
     }
 
     /**
@@ -207,7 +209,7 @@ class RendererCell
      */
     public function formatHeaderCell(null|string $str): string
     {
-        return Formatter::formatNull($str);
+        return $this->formatter->formatNull($str);
     }
 
     /**
@@ -225,9 +227,9 @@ class RendererCell
         if ($stat->hasDecimal($dimId)) {
             $categoryId = $stat->getCategoryId($dimId, $offset % $this->table->shape[$dimIdx]);
             $decimals = $stat->getDecimal($dimId, $categoryId);
-            $val = Formatter::formatDecimal($val, $decimals);
+            $val = $this->formatter->formatDecimal($val, $decimals);
         }
 
-        return Formatter::formatNull($val);
+        return $this->formatter->formatNull($val);
     }
 }
