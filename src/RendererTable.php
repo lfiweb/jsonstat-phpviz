@@ -89,7 +89,7 @@ class RendererTable
     /** @var array strides of the array */
     public array $strides;
 
-    private RendererCell $rendererCell;
+    protected RendererCell $rendererCell;
 
     /**
      * Instantiates the class.
