@@ -99,10 +99,7 @@ class RendererTable
         $this->reader = $jsonStatReader;
         $this->table = new Table();
         $this->numRowDim = $numRowDim;
-        if (property_exists($this->reader->data, 'label')) {
-            // since html content is allowed in caption when set explicitly, we have to escape it when set via json-stat to prevent html content
-            $this->caption = UtilHtml::escape($this->reader->data->label);
-        }
+        $this->initCaption();
     }
 
     /**
@@ -150,6 +147,20 @@ class RendererTable
         $css->add('jst-viz', 'numRowDims' . $numRowDims, 'lastDimSize' . $lastDimSize);
         $domNode->setAttribute('data-shape', $shape);
         $domNode->setAttribute('data-num-row-dim', $numRowDims);
+    }
+
+    /**
+     * Automatically sets the caption.
+     * Sets the caption from the optional JSON-stat label property. HTML from the JSON-stat is escaped.
+     * @return void
+     */
+    protected function initCaption(): void
+    {
+        // since html content is allowed in caption when the property is set explicitly,
+        // we have to escape it when set via json-stat to prevent html content from the untrusted source
+        if (property_exists($this->reader->data, 'label')) {
+            $this->caption = UtilHtml::escape($this->reader->data->label);
+        }
     }
 
     /**
