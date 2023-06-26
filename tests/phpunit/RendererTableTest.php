@@ -1,13 +1,13 @@
 <?php
 declare(strict_types=1);
 
-namespace jsonstatPhpViz\tests\phpunit;
+namespace jsonstatPhpViz\Test;
 
 use DOMException;
 use JsonException;
-use jsonstatPhpViz\src\RendererTable;
-use jsonstatPhpViz\tests\phpunit\TestFactory\JsonstatReader;
-use jsonstatPhpViz\tests\phpunit\TestFactory\RendererTable as FactoryRendererTable;
+use jsonstatPhpViz\RendererTable;
+use jsonstatPhpViz\Test\TestFactory\JsonstatReader;
+use jsonstatPhpViz\Test\TestFactory\RendererTable as FactoryRendererTable;
 use PHPUnit\Framework\TestCase;
 use function array_slice;
 use function count;

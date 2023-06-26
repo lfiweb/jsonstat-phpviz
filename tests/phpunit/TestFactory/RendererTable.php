@@ -1,6 +1,6 @@
 <?php
 
-namespace jsonstatPhpViz\tests\phpunit\TestFactory;
+namespace jsonstatPhpViz\Test\TestFactory;
 
 use DOMElement;
 use DOMNodeList;

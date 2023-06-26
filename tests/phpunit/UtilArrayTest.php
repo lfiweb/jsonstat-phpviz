@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace jsonstatPhpViz\tests\phpunit;
+namespace jsonstatPhpViz\Test;
 
-use jsonstatPhpViz\src\UtilArray;
-use jsonstatPhpViz\tests\phpunit\TestFactory\UtilArrayFactory;
+use jsonstatPhpViz\UtilArray;
+use jsonstatPhpViz\Test\TestFactory\UtilArrayFactory;
 use PHPUnit\Framework\TestCase;
 
 class UtilArrayTest extends TestCase

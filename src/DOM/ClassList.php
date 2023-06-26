@@ -1,7 +1,7 @@
 <?php
 
 
-namespace jsonstatPhpViz\src\DOM;
+namespace jsonstatPhpViz\DOM;
 
 
 use DOMElement;

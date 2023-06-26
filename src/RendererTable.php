@@ -1,12 +1,12 @@
 <?php
 
-namespace jsonstatPhpViz\src;
+namespace jsonstatPhpViz;
 
 use DOMElement;
 use DOMException;
 use DOMNode;
-use jsonstatPhpViz\src\DOM\ClassList;
-use jsonstatPhpViz\src\DOM\Table;
+use jsonstatPhpViz\DOM\ClassList;
+use jsonstatPhpViz\DOM\Table;
 use function array_slice;
 use function count;
 

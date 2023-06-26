@@ -1,6 +1,6 @@
 <?php
 
-namespace jsonstatPhpViz\src;
+namespace jsonstatPhpViz;
 
 
 use function is_float;

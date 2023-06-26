@@ -23,7 +23,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "jsonstatPhpViz\\": "./tests/phpunit"
+      "jsonstatPhpViz\\Test\\": "./tests/phpunit"
     }
   },
   "config": {

@@ -1,12 +1,12 @@
 <?php
 
-namespace jsonstatPhpViz\src;
+namespace jsonstatPhpViz;
 
 use DOMDocument;
 use DOMElement;
 use DOMException;
 use DOMNode;
-use jsonstatPhpViz\src\DOM\ClassList;
+use jsonstatPhpViz\DOM\ClassList;
 use function count;
 
 class RendererCell

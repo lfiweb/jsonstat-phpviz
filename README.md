@@ -21,8 +21,8 @@ Two dimensions are automatically used to group the rows:
 ```php
 <?php
 
-use jsonstatPhpViz\src\Reader;
-use jsonstatPhpViz\src\RendererTable;
+use jsonstatPhpViz\Reader;
+use jsonstatPhpViz\RendererTable;
 
 require_once __DIR__.'/../vendor/autoload.php';
 

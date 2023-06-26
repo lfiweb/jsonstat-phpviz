@@ -1,10 +1,10 @@
 <?php
 
-namespace jsonstatPhpViz\tests\phpunit;
+namespace jsonstatPhpViz\Test;
 
 use DOMDocument;
 use DOMException;
-use jsonstatPhpViz\src\UtilHtml;
+use jsonstatPhpViz\UtilHtml;
 use PHPUnit\Framework\TestCase;
 
 class UtilHtmlTest extends TestCase

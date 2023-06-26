@@ -1,12 +1,12 @@
 <?php
 
-namespace jsonstatPhpViz\tests\phpunit;
+namespace jsonstatPhpViz\Test;
 
 use DOMException;
 use JsonException;
-use jsonstatPhpViz\src\Reader;
-use jsonstatPhpViz\src\RendererTable;
-use jsonstatPhpViz\tests\phpunit\TestFactory\JsonstatReader;
+use jsonstatPhpViz\Reader;
+use jsonstatPhpViz\RendererTable;
+use jsonstatPhpViz\Test\TestFactory\JsonstatReader;
 use PHPUnit\Framework\TestCase;
 
 class ReaderTest extends TestCase

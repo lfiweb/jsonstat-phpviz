@@ -1,15 +1,15 @@
 <?php
 
-namespace jsonstatPhpViz\tests\phpunit\TestFactory;
+namespace jsonstatPhpViz\Test\TestFactory;
 
 use JsonException;
-use jsonstatPhpViz\src\Reader;
+use jsonstatPhpViz\Reader;
 
 class JsonstatReader
 {
 
     /**
-     * Returns an instance of the jsonstatPhpViz\src\Reader class.
+     * Returns an instance of the jsonstatPhpViz\Reader class.
      * Directly loads the JSON-stat and instantiates the reader with it.
      * @param string $path
      * @return Reader
