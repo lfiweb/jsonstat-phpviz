@@ -25,6 +25,9 @@ use function count;
  * Setting the property noLabelLastDim will skip the row in the table heading containing the labels of the last
  * dimension.
  *
+ * Note: In the context of JSON-stat, the word value is used. In the context of html, data is used.
+ * So we speak either of value cells and label cells, or of data cells and header cells.
+ *
  * @see www.json-stat.org
  */
 class RendererTable
