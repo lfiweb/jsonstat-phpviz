@@ -22,4 +22,9 @@ class JsonstatReader
 
         return new Reader($jsonstat);
     }
+
+    public function getJsonstat($reader) {
+
+        return json_encode($reader->data, JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR);
+    }
 }

@@ -2,12 +2,11 @@
 
 namespace jsonstatPhpViz\Test;
 
-use DOMException;
 use JsonException;
 use jsonstatPhpViz\Reader;
-use jsonstatPhpViz\RendererTable;
 use jsonstatPhpViz\Test\TestFactory\JsonstatReader;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 class ReaderTest extends TestCase
 {
@@ -18,53 +17,88 @@ class ReaderTest extends TestCase
      */
     public function setUp(): void
     {
-        $reader = new JsonstatReader();
-        $this->reader = $reader->create(__DIR__ . '/../resources/volume.json');
+        $factory = new JsonstatReader();
+        $this->reader = $factory->create(__DIR__ . '/../resources/oecd.json');
     }
 
     /**
-     * Tests, that the JSON-stat was correctly transposed.
-     * @throws DOMException
+     * Test, that the JSON-stat was correctly transposed.
+     * @throws JsonException
      */
     public function testTranspose(): void
     {
-        $this->reader->transpose([0, 1, 2, 4, 3, 5]);
-        $table = new RendererTable($this->reader, 2);
-        $table->excludeOneDim = true;
-        $html = file_get_contents(__DIR__ . '/../resources/volume-transposed.html');
-        self::assertSame($html, $table->render());
+        $factory = new JsonstatReader();
+        $reader = $factory->create(__DIR__ . '/../resources/volume.json');
+
+        $reader->transpose([0, 1, 4, 3, 2, 5]);
+        $file = __DIR__ . '/../resources/volume-transposed.json';
+        self::assertJsonStringEqualsJsonFile($file, $factory->getJsonstat($reader));
 
         // transpose back
-        $this->reader->transpose([0, 1, 2, 4, 3, 5]);
+        $reader->transpose([0, 1, 4, 3, 2, 5]);
+        $file = __DIR__ . '/../resources/volume.json';
+        self::assertJsonStringEqualsJsonFile($file, $factory->getJsonstat($reader));
 
-        // transpose dimension of size one
-        $this->reader->transpose([0, 4, 2, 3, 1, 5]);
-        $table = new RendererTable($this->reader, 3);
-        $table->excludeOneDim = true;
-        $html = file_get_contents(__DIR__ . '/../resources/volume-onedim-transposed.html');
-        self::assertSame($html, $table->render());
+        // this time, transpose a dimension of size one
+        $reader->transpose([0, 4, 2, 3, 1, 5]);
+        $file = __DIR__ . '/../resources/volume-onedim-transposed.json';
+        self::assertJsonStringEqualsJsonFile($file, $factory->getJsonstat($reader));
     }
 
+    /**
+     * Test, that all JSON-stat schema variants of the category label property are handled correctly.
+     * @throws JsonException
+     */
     public function testGetCategoryLabel(): void
     {
-        $label = $this->reader->getCategoryLabel('BHDKL', '3');
-        self::assertSame('36-51 cm', $label);
-        $label = $this->reader->getCategoryLabel('N4P12345');
-        self::assertSame('grid NFI4 2009-2013', $label);
+        // dimension of size one with a category.label property, but without a category.index property
+        $label = $this->reader->getCategoryLabel('concept', 'UNR');
+        self::assertSame('unemployment rate', $label);
+
+        // dimension, without a category.label property, where the category.index property is an object
+        $label = $this->reader->getCategoryLabel('year', '2006');
+        self::assertSame('2006', $label);
+
+        // dimension, where the category label property is provided and the category index is an object
+        $label = $this->reader->getCategoryLabel('area', 'CH');
+        self::assertSame('Switzerland', $label);
+
+        $factory = new JsonstatReader();
+        $reader = $factory->create(__DIR__ . '/../resources/volume.json');
+
+        // dimension of size one without a category.label property, but a category.index object
+        unset($reader->data->dimension->{'period'}->category->label);
+        $obj = new stdClass();
+        $obj->{'2003'} = 0;
+        $reader->data->dimension->{'period'}->category->index = $obj;
+        $label = $reader->getCategoryLabel('period', '2003');
+        self::assertSame('2003', $label);
+
+        // dimension, where the category label property is provided and the category index is an array
+        $label = $reader->getCategoryLabel('2', '3');
+        self::assertSame('Voralpen', $label);
     }
 
+    /**
+     * Test getting the dimension label.
+     * @return void
+     */
     public function testGetDimensionLabel(): void
     {
-        $label = $this->reader->getDimensionLabel('BHDKL');
-        self::assertSame('diameter classes', $label);
+        $label = $this->reader->getDimensionLabel('year');
+        self::assertSame('2003-2014', $label);
     }
 
+    /**
+     * Test returning the dimension sizes.
+     * @return void
+     */
     public function testGetDimensionSizes(): void
     {
         $size = $this->reader->getDimensionSizes(false);
-        self::assertSame([1, 1, 6, 3, 6, 2], $size);
+        self::assertSame([1, 36, 12], $size);
         $size = $this->reader->getDimensionSizes();
-        self::assertSame([6, 3, 6, 2], $size);
+        self::assertSame([36, 12], $size);
     }
 
     /**
@@ -75,32 +109,33 @@ class ReaderTest extends TestCase
     public function testGetCategoryId(): void
     {
         // test id from array
-        $id = $this->reader->getCategoryId('BHDKL', 5);
-        self::assertSame('999999', $id);
+        $id = $this->reader->getCategoryId('area', 30);
+        self::assertSame('CH', $id);
 
         // test id from object
-        $obj = json_decode('{
-            "0": 0,
-            "1": 1,
-            "2": 2,
-            "3": 3,
-            "4": 4,
-            "999999": 5
-        }', false, 512, JSON_THROW_ON_ERROR);
-        $this->reader->data->dimension->{'BHDKL'}->category->index = $obj;
-        $id = $this->reader->getCategoryId('BHDKL', 5);
-        self::assertSame('999999', $id);
+        $arr = json_decode('["AU", "AT", "BE", "CA", "CL", "CZ", "DK"]', false, 512, JSON_THROW_ON_ERROR);
+        $this->reader->data->dimension->{'area'}->category->index = $arr;
+        $id = $this->reader->getCategoryId('area', 2);
+        self::assertSame('BE', $id);
     }
 
+    /**
+     * Test returning the dimension id.
+     * @return void
+     */
     public function testGetDimensionId(): void
     {
-        $id = $this->reader->getDimensionId(4);
-        self::assertSame('PRODREG', $id);
+        $id = $this->reader->getDimensionId(0);
+        self::assertSame('concept', $id);
     }
 
+    /**
+     * Test calculating the number of items in the value array.
+     * @return void
+     */
     public function testGetNumValues(): void
     {
         $num = $this->reader->getNumValues();
-        self::assertSame(216, $num);
+        self::assertSame(432, $num);
     }
 }

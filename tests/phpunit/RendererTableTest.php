@@ -39,6 +39,35 @@ class RendererTableTest extends TestCase
     }
 
     /**
+     * Test, that the JSON-stat was correctly transposed.
+     * @throws DOMException|JsonException
+     */
+    public function testRendererTransposed(): void
+    {
+        // transpose a dimension having size > 1 while excluding dimensions of size one
+        $reader = $this->reader->create(__DIR__ . '/../resources/volume.json');
+        $reader->transpose([0, 1, 2, 4, 3, 5]);
+        $table = new RendererTable($reader);
+        $table->excludeOneDim = true;
+        $path = __DIR__ . '/../resources/volume-transposed.html';
+        self::assertStringEqualsFile($path, $table->render());
+
+        // transpose back
+        $reader->transpose([0, 1, 2, 4, 3, 5]);
+
+        // transpose a dimension of size one while excluding dimensions of size one
+        //  note: this time, the transposed is of size one and should not be excluded since it is not at the beginning
+        //      of the sizes array, which gives the order of rendering.
+        // also we test setting the number of row dimensions to three
+        $numRowDim = 3;
+        $reader->transpose([0, 4, 2, 3, 1, 5]);
+        $table = new RendererTable($reader, $numRowDim);
+        $table->excludeOneDim = true;
+        $path = __DIR__ . '/../resources/volume-onedim-transposed.html';
+        self::assertStringEqualsFile($path, $table->render());
+    }
+
+    /**
      * Test, that the renderer handles null values (in the JSON-stat) correctly.
      * @return void
      * @throws DOMException
@@ -168,7 +197,8 @@ class RendererTableTest extends TestCase
      * @throws DOMException
      * @throws JsonException
      */
-    public function testNoLabelLastDim() {
+    public function testNoLabelLastDim(): void
+    {
         $reader = $this->reader->create(__DIR__ . '/../resources/integer.json');
         $table = new RendererTable($reader, 2);
         $table->noLabelLastDim = true;
