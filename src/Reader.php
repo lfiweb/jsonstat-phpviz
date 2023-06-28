@@ -33,22 +33,6 @@ class Reader
     }
 
     /**
-     * Returns the id of a category label.
-     * @param int $categIdx index of the category label
-     */
-    #[Pure] public function getCategoryId(string $dimId, int $categIdx): null|string
-    {
-        $dim = $this->data->dimension->{$dimId};
-        if (property_exists($dim->category, 'index')) {
-            $index = $dim->category->index;
-
-            return is_array($index) ? $index[$categIdx] : $this->categoryIdFromObject($index, $categIdx);
-        }
-
-        return null;
-    }
-
-    /**
      * Returns the label of a dimension by its id.
      * @param string $dimId dimension id
      * @return string dimension label
@@ -133,20 +117,41 @@ class Reader
     /**
      * Returns the label of a category of a dimension by dimension id and category id.
      * @param string $dimId dimension id
-     * @param ?string $labelId id of the category label
+     * @param string $labelId id of the category label
      * @return string label
      */
-    public function getCategoryLabel(string $dimId, ?string $labelId = null): string
+    public function getCategoryLabel(string $dimId, string $labelId): string
     {
         $dim = $this->data->dimension->{$dimId};
-        if (property_exists($dim->category, 'index')) {
-            $label = $dim->category->label->{$labelId} ?? $labelId;
-        } else {  // e.g. constant dimension with a single category and no index, find name of label property
-            $keys = array_keys((array)$dim->category->label);
-            $label = $dim->category->label->{$keys[0]}; // there is always only one label
+        if (property_exists($dim->category, 'label')) {
+            $label = $dim->category->label->{$labelId};
+        }
+        else {  // if there is no label property, the index property is an object where the keys are the label (ids).
+            $label = $labelId;
         }
 
         return $label;
+    }
+
+    /**
+     * Returns the id of a category label.
+     * @param string $dimId dimension id
+     * @param int $categIdx index of the category label
+     * @return string
+     */
+    #[Pure] public function getCategoryId(string $dimId, int $categIdx): string
+    {
+        $dim = $this->data->dimension->{$dimId};
+        if (property_exists($dim->category, 'index')) {
+            $index = $dim->category->index;
+            $id = is_array($index) ? $index[$categIdx] : $this->categoryIdFromObject($index, $categIdx);
+        }
+        // if there is no index property, we can safely assume that we are dealing with a dimension of size one
+        else {
+            return key((array)$dim->category->label);
+        }
+
+        return $id;
     }
 
     /**
