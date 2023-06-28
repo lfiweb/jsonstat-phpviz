@@ -18,12 +18,12 @@
   },
   "autoload": {
     "psr-4": {
-      "jsonstatPhpViz\\": "./src"
+      "jsonstatPhpViz\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "jsonstatPhpViz\\Test\\": "./tests/phpunit"
+      "jsonstatPhpViz\\Test\\": "tests/phpunit/"
     }
   },
   "config": {
