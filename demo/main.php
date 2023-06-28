@@ -33,28 +33,19 @@ $filename = '../tests/resources/volume.json';
 $json = file_get_contents($filename);
 $jsonstat = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
 $reader = new Reader($jsonstat);
-
 $table = new RendererTable($reader);
+$table->excludeOneDim = true;
 $table->noLabelLastDim = true;
 $html4 = $table->render();
 
-$axes = [0, 4, 2, 3, 1, 5];
-$reader->transpose($axes);
-$table = new RendererTable($reader, 3);
-$table->excludeOneDim = true;
-$table->caption = 'Integers transposed: the second dimension PRODREG is swapped with the fifth dimension,
- the first dimension (of size one) is not rendered.';
-$html5 = $table->render();
-
-
 // JSON-stat testdata
-$filename = '../tests/resources/canada.json';
+$filename = '../tests/resources/oecd.json';
 $json = file_get_contents($filename);
 $jsonstat = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
 $reader = new Reader($jsonstat);
-$table = new RendererTable($reader, 3);
-$html6 = $table->render();
-
+$table = new RendererTable($reader);
+$table->excludeOneDim = true;
+$html5 = $table->render();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -71,8 +62,7 @@ $html .
 $html2 .
 $html3 .
 $html4 .
-$html5 .
-$html6
+$html5;
 ?>
 </body>
 </html>
