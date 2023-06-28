@@ -1,6 +1,5 @@
 <?php
 
-
 namespace jsonstatPhpViz\DOM;
 
 
@@ -12,7 +11,6 @@ use function in_array;
 
 /**
  * Class HTMLTableElement
- * @package jsonstatPhpViz
  *
  * Simplified from PhpGt DOM
  * @see https://github.com/PhpGt/Dom/blob/facade/src/HTMLElement/HTMLTableElement.php
@@ -170,9 +168,6 @@ class Table
             case 'thead':
                 $this->placeThead($node);
                 break;
-            case 'tfoot':
-                $this->placeTFoot($node);
-                break;
         }
     }
 
@@ -209,18 +204,6 @@ class Table
     {
         if ($tbody !== null) {
             $this->insertChildAfter($tbody, ['caption', 'colgroup', 'thead', 'tbody']);
-        }
-    }
-
-    /**
-     * Inserts a tfoot element.
-     * @param DOMElement|null $tfoot
-     * @return void
-     */
-    private function placeTFoot(?DOMElement $tfoot): void
-    {
-        if ($tfoot !== null) {
-            $this->domNode->appendChild($tfoot);
         }
     }
 
