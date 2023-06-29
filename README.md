@@ -89,10 +89,10 @@ The renderer applies the following rules when generating a html table:
 The renderer (or rather the DOMDocument) escapes all html contained in the JSON-stat when inserting it into the DOM.
 If you want to allow HTML inside the table cells, you need to override the RendererTable as follows:
 ```php
-class RendererHtml extends RendererTable
+class RendererCellHtml extends RendererCell
 {
-    // render html inside label cells
-    protected function headerCell(DOMElement $row, ?string $str = null, ?string $scope = null, ?string $colspan = null, ?string $rowspan = null): DOMElement
+    // render html inside label (header) cells
+    public function headerCell(DOMElement $row, ?string $str = null, ?string $scope = null, ?string $colspan = null, ?string $rowspan = null): DOMElement
     {
         $cell = parent::headerCell($row, $str, $scope, $colspan, $rowspan);
         $cell->textContent = '';
@@ -101,8 +101,8 @@ class RendererHtml extends RendererTable
         return $cell;
     }
 
-    // render html inside value cells
-    protected function valueCell(DOMElement $row, int $offset): DOMNode
+    // render html inside value (data) cells
+    public function valueCell(DOMElement $row, int $offset): DOMNode
     {
         $cell = parent::valueCell($row, $offset);
         $cell->textContent = '';
