@@ -17,6 +17,13 @@
             </list>
           </settings>
         </remote-mappings>
+        <remote-mappings server-id="php@b5cfaea6-501b-4379-9f5e-a5c793d7dd89">
+          <settings>
+            <list>
+              <mapping local-root="$PROJECT_DIR$" remote-root="/var/www/html/jsonstat-phpviz" />
+            </list>
+          </settings>
+        </remote-mappings>
       </list>
     </list>
   </component>

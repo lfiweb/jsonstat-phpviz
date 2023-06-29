@@ -5,6 +5,7 @@
       <sourceFolder url="file://$MODULE_DIR$/test/phpunit" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/tests/phpunit" isTestSource="true" packagePrefix="jsonstatPhpViz\Test\" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" packagePrefix="jsonstatPhpViz\" />
+      <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/composer" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/myclabs/deep-copy" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/nikic/php-parser" />
