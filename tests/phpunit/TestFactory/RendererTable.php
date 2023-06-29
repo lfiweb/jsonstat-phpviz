@@ -28,4 +28,9 @@ class RendererTable
 
         return $table->getElementsByTagName('tbody')->item(0)->childNodes;
     }
+
+    public static function getValueCell(DOMElement $table, $offset)
+    {
+        return $table->getElementsByTagName('td')->item($offset);
+    }
 }
