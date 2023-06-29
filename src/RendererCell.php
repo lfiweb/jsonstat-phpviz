@@ -11,9 +11,9 @@ use function count;
 
 class RendererCell
 {
-    private RendererTable $table;
-    private Reader $reader;
-    private DOMDocument $doc;
+    protected RendererTable $table;
+    protected Reader $reader;
+    protected DOMDocument $doc;
     protected Formatter $formatter;
 
     /**
@@ -63,7 +63,7 @@ class RendererCell
     {
         $doc = $this->doc;
         $cell = $doc->createElement('td');
-        $val = $this->table->reader->data->value[$offset];
+        $val = $this->reader->data->value[$offset];
         $val = $this->formatValueCell($val, $offset);
         $cell->appendChild($doc->createTextNode($val));
         $row->appendChild($cell);
