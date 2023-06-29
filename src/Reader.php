@@ -94,6 +94,8 @@ class Reader
     /**
      * Return the number of decimal places.
      * Returns the number of decimal places of the last dimension "concept".
+     * @param string $dimId dimension id
+     * @param string $unitId unit id
      * @return int
      */
     public function getDecimal(string $dimId, string $unitId): int
@@ -104,10 +106,12 @@ class Reader
     }
 
     /**
+     * Check if the dimension has a decimals property.
      * According to JSON-stat schema 2.0, when the unit property is present, the decimals property is required.
+     * @param string $dimId dimension id
      * @return bool
      */
-    public function hasDecimal($dimId): bool
+    public function hasDecimal(string $dimId): bool
     {
         $dim = $this->data->dimension->{$dimId};
 
