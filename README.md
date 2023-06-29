@@ -92,7 +92,7 @@ If you want to allow HTML inside the table cells, you need to override the Rende
 class MyRendererTable extends RendererTable
 {
     /**
-     * Override with a html cell renderer.
+     * Override with the new html cell renderer.
      * @return void
      */
     protected function initRendererCell(): void
