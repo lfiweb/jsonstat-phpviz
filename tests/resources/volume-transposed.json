@@ -94,7 +94,7 @@
         "unit": {
           "2": {
             "label": "1",
-            "decimals": "1",
+            "decimals": 1,
             "multiplier": 0,
             "mode": "rfmt"
           },
