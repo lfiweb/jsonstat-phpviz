@@ -219,6 +219,7 @@ class RendererCell
     /**
      * Format a data cell <td>.
      * Format a cell used for the JSON-stat value property.
+     * Note: If value is an int or float, the number of decimals from the unit of the category is used if available.
      * @param string|int|float|null $val
      * @param int $offset
      * @return string
@@ -226,10 +227,10 @@ class RendererCell
     public function formatValueCell(null|string|int|float $val, int $offset): string
     {
         $stat = $this->reader;
-        $dimIdx = count($this->table->shape) - 1;  // count($stat->data->id) does not take numOneDims into account
-        $dimId = $stat->getDimensionId($dimIdx);
+        $idxLastDim = count($stat->data->id) - 1;
+        $dimId = $stat->getDimensionId($idxLastDim);
         if ($stat->hasDecimal($dimId)) {
-            $categoryId = $stat->getCategoryId($dimId, $offset % $this->table->shape[$dimIdx]);
+            $categoryId = $stat->getCategoryId($dimId, $offset % $stat->data->size[$idxLastDim]);
             $decimals = $stat->getDecimal($dimId, $categoryId);
             $val = $this->formatter->formatDecimal($val, $decimals);
         }
