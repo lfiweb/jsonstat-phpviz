@@ -23,7 +23,11 @@ class JsonstatReader
         return new Reader($jsonstat);
     }
 
-    public function getJsonstat($reader) {
+    /**
+     * @throws JsonException
+     */
+    public function getJsonstat(Reader $reader): bool|string
+    {
 
         return json_encode($reader->data, JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR);
     }
