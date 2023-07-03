@@ -126,7 +126,7 @@ class RendererTable
         $this->shape = $this->reader->getDimensionSizes($this->excludeOneDim);
         $this->strides = UtilArray::getStrides($this->shape);
         $this->numRowDim = $this->numRowDim ?? $this->numRowDimAuto();
-        $this->rowDims = $this->extractDims($this->shape, self::DIM_TYPE_ROW);
+        $this->rowDims = $this->extractDims($this->shape);
         $this->colDims = $this->extractDims($this->shape, self::DIM_TYPE_COL);
         $this->initTable();
         // cache some often used numbers before rendering table
