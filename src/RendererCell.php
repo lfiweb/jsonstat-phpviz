@@ -94,8 +94,8 @@ class RendererCell
                 $reader = $this->reader;
                 $catIdx = floor($rowIdxBody % $product / $stride);
                 $id = $reader->getDimensionId($table->numOneDim + $dimIdx);
-                $labelId = $reader->getCategoryId($id, $catIdx);
-                $label = $reader->getCategoryLabel($id, $labelId);
+                $categId = $reader->getCategoryId($id, $catIdx);
+                $label = $reader->getCategoryLabel($id, $categId);
             }
             if ($table->useRowSpans === false || $rowIdxBody % $stride === 0) {
                 $cell = $this->headerCell($row, $label, $scope, null, $rowspan);

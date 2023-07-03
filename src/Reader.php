@@ -121,17 +121,17 @@ class Reader
     /**
      * Returns the label of a category of a dimension by dimension id and category id.
      * @param string $dimId dimension id
-     * @param string $labelId id of the category label
+     * @param string $categId id of the category label
      * @return string label
      */
-    public function getCategoryLabel(string $dimId, string $labelId): string
+    public function getCategoryLabel(string $dimId, string $categId): string
     {
         $dim = $this->data->dimension->{$dimId};
         if (property_exists($dim->category, 'label')) {
-            $label = $dim->category->label->{$labelId};
+            $label = $dim->category->label->{$categId};
         }
         else {  // if there is no label property, the index property is an object where the keys are the label (ids).
-            $label = $labelId;
+            $label = $categId;
         }
 
         return $label;
@@ -161,13 +161,13 @@ class Reader
     /**
      * Return the category id by index, when category is an object.
      * @param stdClass $obj category object
-     * @param int $labelIdx index of the label
+     * @param int $categIdx index of the label
      * @return string|null id of the category label
      */
-    protected function categoryIdFromObject(stdClass $obj, int $labelIdx): string|null
+    protected function categoryIdFromObject(stdClass $obj, int $categIdx): string|null
     {
         foreach ($obj as $key => $value) {
-            if ($value === $labelIdx) {
+            if ($value === $categIdx) {
                 return $key;
             }
         }
