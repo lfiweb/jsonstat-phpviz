@@ -7,7 +7,6 @@ namespace jsonstatPhpViz\DOM;
 use DOMElement;
 use function call_user_func;
 use function call_user_func_array;
-use function in_array;
 
 
 /**
