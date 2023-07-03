@@ -19,7 +19,7 @@ class RendererTableTest extends TestCase
     /**
      * This method is called before each test.
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->factory = new JsonstatReader();
     }

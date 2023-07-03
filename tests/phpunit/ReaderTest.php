@@ -15,7 +15,7 @@ class ReaderTest extends TestCase
     /**
      * @throws JsonException
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         $factory = new JsonstatReader();
         $this->reader = $factory->create(__DIR__ . '/../resources/oecd.json');
