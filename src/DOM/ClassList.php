@@ -41,8 +41,7 @@ class ClassList
      * The add() method of the DOMTokenList interface adds the given token
      * to the list.
      *
-     * @param string ...$tokens A DOMString representing the token (or
-     * tokens) to add to the tokenList.
+     * @param string ...$tokens A DOMString representing the token (or tokens) to add to the tokenList.
      * @link https://developer.mozilla.org/en-US/docs/Web/API/DOMTokenList/add
      */
     public function add(string...$tokens): void

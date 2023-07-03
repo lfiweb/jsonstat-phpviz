@@ -1,5 +1,5 @@
 # jsonstat-phpviz
-Render [JSON-stat v2.0 data](https://json-stat.org/) with any number of dimensions as a HTML table using PHP.
+Render [JSON-stat v2.0 data](https://json-stat.org/) with any number of dimensions as an HTML table using PHP.
 
 ## Features
 - render any number of dimensions of any size as an HTML table (e.g. theoretically limited only by memory).
@@ -8,7 +8,7 @@ Render [JSON-stat v2.0 data](https://json-stat.org/) with any number of dimensio
 - structures the table with `<thead>` and `<tbody>` elements
 - creates a table `<caption>` automatically from the JSON-stat.
 - renders column and row headers using the attributes `scope`, `colspan` and `rowspan` to provide
-screenreader support for visually impaired users
+screen reader support for visually impaired users
 - sets CSS classes (`first` and `last`) to identify the start and end of row groups (e.g. row totals)
 - exclude dimensions of size one (when ordered continuously from index 0) from rendering when wanted
 ### not implemented
