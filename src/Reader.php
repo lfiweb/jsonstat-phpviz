@@ -52,9 +52,9 @@ class Reader
      */
     public function getDimensionSizes(bool $excludeSizeOne = true): array
     {
-        $size = 0;
         $dimensions = $this->data->size;
-        $arr = array_filter($dimensions, static function ($value, $idx) use ($excludeSizeOne, $dimensions, $size) {
+        $arr = array_filter($dimensions, static function ($value, $idx) use ($excludeSizeOne, $dimensions) {
+            $size = 0;
             if ($excludeSizeOne && self::continuous($dimensions, $idx)) {
                 $size = 1;
             }
