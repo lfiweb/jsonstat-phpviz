@@ -87,7 +87,7 @@ The renderer applies the following rules when generating a html table:
 **Caution**: Do this only if you trust the origin of the JSON-stat.
 
 The renderer (or rather the DOMDocument) escapes all html contained in the JSON-stat when inserting it into the DOM.
-If you want to allow HTML inside the table cells, you need to override the RendererTable as follows:
+If you want to allow HTML inside the table cells, you need to override the classes `RendererTable` and `RendererCell` as follows:
 ```php
 class MyRendererTable extends RendererTable
 {
