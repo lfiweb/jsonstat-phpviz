@@ -5,7 +5,7 @@ namespace jsonstatPhpViz\Test;
 
 use DOMException;
 use JsonException;
-use jsonstatPhpViz\RendererTable;
+use jsonstatPhpViz\Html\RendererTable;
 use jsonstatPhpViz\Test\TestFactory\JsonstatReader;
 use jsonstatPhpViz\Test\TestFactory\RendererTable as FactoryRendererTable;
 use PHPUnit\Framework\TestCase;

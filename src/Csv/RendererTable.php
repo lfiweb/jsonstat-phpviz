@@ -1,12 +1,11 @@
 <?php
 
-namespace jsonstatPhpViz;
+namespace jsonstatPhpViz\Csv;
 
-use DOMElement;
 use DOMException;
-use DOMNode;
-use jsonstatPhpViz\DOM\ClassList;
-use jsonstatPhpViz\DOM\Table;
+use jsonstatPhpViz\Formatter;
+use jsonstatPhpViz\Reader;
+use jsonstatPhpViz\UtilArray;
 use function array_slice;
 use function count;
 
@@ -59,22 +58,25 @@ class RendererTable
     /** @var int|null number of dimensions to be used for rows */
     public ?int $numRowDim;
 
-    /** @var DOMNode|Table */
-    public Table|DOMNode $table;
+    /** @var string */
+    public string $csv;
 
     /** @var int|float number of row headers */
     public int|float $numHeaderRows;
 
-    /** @var bool render the row with labels of last dimension? default = true */
+    /**
+     * Do not render the row with the labels of the last dimension?
+     * default = false
+     * @var bool
+     */
     public bool $noLabelLastDim = false;
 
     /**
-     * Render the table with rowspans ?
+     * Do not render dimension labels?
      * default = true
-     * Note: When this is set to false, empty row headers might be created, which are an accessibility problem.
-     * @var bool $useRowSpans
+     * @var bool
      */
-    public bool $useRowSpans = true;
+    public bool $noLabelDim = true;
 
     /**
      * Exclude dimensions of size one from rendering.
@@ -83,8 +85,8 @@ class RendererTable
      */
     public ?bool $excludeOneDim = false;
 
-    /** @var null|string|DOMNode caption of the table */
-    public null|string|DOMNode $caption;
+    /** @var string|null caption of the table */
+    public null|string $caption;
 
     /** @var array shape of the json-stat value array */
     public array $shape;
@@ -94,6 +96,8 @@ class RendererTable
 
     protected RendererCell $rendererCell;
 
+    private string $separatorRow = "\n";
+
     /**
      * Instantiates the class.
      * @param Reader $jsonStatReader
@@ -102,7 +106,7 @@ class RendererTable
     public function __construct(Reader $jsonStatReader, ?int $numRowDim = null)
     {
         $this->reader = $jsonStatReader;
-        $this->table = new Table();
+        $this->csv = '';
         $this->numRowDim = $numRowDim;
         $this->initCaption();
         $this->initRendererCell();
@@ -128,7 +132,7 @@ class RendererTable
         $this->numRowDim = $this->numRowDim ?? $this->numRowDimAuto();
         $this->rowDims = $this->extractDims($this->shape);
         $this->colDims = $this->extractDims($this->shape, self::DIM_TYPE_COL);
-        $this->initTable();
+
         // cache some often used numbers before rendering table
         $dimsAll = $this->reader->getDimensionSizes(false);
         $this->numOneDim = count($dimsAll) - count($this->rowDims) - count($this->colDims);
@@ -139,33 +143,14 @@ class RendererTable
     }
 
     /**
-     * Set the attributes of the table element.
-     * @return void
-     */
-    protected function initTable(): void
-    {
-        $numRowDims = count($this->rowDims);
-        $shape = implode(',', $this->shape);
-        $lastDimSize = $this->shape[count($this->shape) - 1];
-
-        $domNode = $this->table->get();
-        $css = new ClassList($domNode);
-        $css->add('jst-viz', 'numRowDims' . $numRowDims, 'lastDimSize' . $lastDimSize);
-        $domNode->setAttribute('data-shape', $shape);
-        $domNode->setAttribute('data-num-row-dim', $numRowDims);
-    }
-
-    /**
      * Automatically sets the caption.
      * Sets the caption from the optional JSON-stat label property. HTML from the JSON-stat is escaped.
      * @return void
      */
     protected function initCaption(): void
     {
-        // since html content is allowed in caption when the property is set explicitly,
-        // we have to escape it when set via json-stat to prevent html content from the untrusted source
         if (property_exists($this->reader->data, 'label')) {
-            $this->caption = UtilHtml::escape($this->reader->data->label);
+            $this->caption = $this->reader->data->label;
         }
     }
 
@@ -181,68 +166,54 @@ class RendererTable
     /**
      * Renders the data as a html table.
      * Reads the value array and renders it as a table.
-     * @param bool $asHtml return html or DOMElement?
-     * @return DOMElement|string table
-     * @throws DOMException
+     * @return string csv
      */
-    public function render(bool $asHtml = true): string|DOMElement
+    public function render(): string
     {
         $this->init();
         $this->caption();
         $this->headers();
         $this->rows();
 
-        return $asHtml ? $this->table->toHtml() : $this->table->get();
+        return $this->csv;
     }
 
     /**
      * Creates the table head and appends header cells, row by row to it.
-     * @throws DOMException
      */
     protected function headers(): void
     {
-        $tHead = $this->table->createTHead();
         for ($rowIdx = 0; $rowIdx < $this->numHeaderRows; $rowIdx++) {
             if ($this->noLabelLastDim === false || $rowIdx !== $this->numHeaderRows - 2) {
-                $row = $this->table->appendRow($tHead);
-                $this->rendererCell->headerLabelCells($row, $rowIdx);
-                $this->rendererCell->headerValueCells($row, $rowIdx);
+                $this->rendererCell->headerLabelCells($rowIdx);
+                $this->rendererCell->headerValueCells($rowIdx);
             }
         }
     }
 
     /**
      * Creates the table body and appends table cells row by row to it.
-     * @throws DOMException
      */
     protected function rows(): void
     {
         $rowIdx = 0;
-        $tBody = $this->table->createTBody();
         for ($offset = 0, $len = $this->reader->getNumValues(); $offset < $len; $offset++) {
             if ($offset % $this->numValueCols === 0) {
-                $row = $this->table->appendRow($tBody);
-                $this->rendererCell->labelCells($row, $rowIdx);
+                $this->csv.= $this->separatorRow;
+                $this->rendererCell->labelCells($rowIdx);
                 $rowIdx++;
             }
-            $this->rendererCell->valueCell($row, $offset);
+            $this->rendererCell->valueCell($offset);
         }
     }
 
     /**
      * Creates and inserts a caption.
-     * @return DOMNode|string|null
-     * @throws DOMException
+     * @return string|null
      */
-    protected function caption(): DOMNode|string|null
+    protected function caption(): ?string
     {
-        if ($this->caption) {
-            $caption = $this->table->insertCaption();
-            $fragment = $this->table->doc->createDocumentFragment();
-            $fragment->appendXML($this->caption);
-            $caption->appendChild($fragment);
-            $this->caption = $caption;
-        }
+        $this->csv .= $this->caption.$this->separatorRow;
 
         return $this->caption;
     }

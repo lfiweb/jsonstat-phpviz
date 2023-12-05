@@ -1,12 +1,15 @@
 <?php
 
-namespace jsonstatPhpViz;
+namespace jsonstatPhpViz\Html;
 
 use DOMDocument;
 use DOMElement;
 use DOMException;
 use DOMNode;
 use jsonstatPhpViz\DOM\ClassList;
+use jsonstatPhpViz\Formatter;
+use jsonstatPhpViz\Reader;
+use jsonstatPhpViz\UtilArray;
 use function count;
 
 class RendererCell
@@ -39,7 +42,7 @@ class RendererCell
     {
         $cl = new ClassList($cell);
         $product = $this->table->shape[$cellIdx] * $rowStride;
-        $css = 'rowdim' . ($cellIdx + 1);
+        $css = 'rowdim'.($cellIdx + 1);
         $modulo = $rowIdxBody % $product;
         if ($rowIdxBody % $rowStride === 0) {
             $cl->add($css);

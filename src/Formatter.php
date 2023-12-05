@@ -6,6 +6,9 @@ namespace jsonstatPhpViz;
 use function is_float;
 use function is_int;
 
+/**
+ * Handle formatting of values.
+ */
 class Formatter
 {
 
@@ -16,7 +19,7 @@ class Formatter
     public string $nullLabel = '';
 
     /**
-     * Format the value
+     * Format the value.
      * Formats according to the format defined in the json-stat by parameter Zahlenformat (power and decimal places).
      * @param string|int|float|null $val
      * @param int $decimals the number of digits printed after the decimal point
@@ -32,6 +35,8 @@ class Formatter
     }
 
     /**
+     * Render a null value as a special character.
+     * Renders the null value as the nullLabel character, which is set to an empty string.
      * @param string|int|float|null $val
      * @return string
      */

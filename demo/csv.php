@@ -1,7 +1,7 @@
 <?php
 
+use jsonstatPhpViz\Csv\RendererTable;
 use jsonstatPhpViz\Reader;
-use jsonstatPhpViz\RendererTable;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -57,12 +57,10 @@ $html5 = $table->render();
 </head>
 <body class="theme1">
 <h1>Demo of rendering JSON-stat as html tables</h1>
-<?=
-$html .
-$html2 .
-$html3 .
-$html4 .
-$html5;
-?>
+<p><code><?= nl2br($html) ?></code></p>
+<p><code><?= nl2br($html2) ?></code></p>
+<p><code><?= nl2br($html3) ?></code></p>
+<p><code><?= nl2br($html4) ?></code></p>
+<p><code><?= nl2br($html5) ?></code></p>
 </body>
 </html>

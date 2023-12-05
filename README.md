@@ -18,11 +18,11 @@ screen reader support for visually impaired users
 ### Example 1
 Render a table from JSON-stat data having 4 dimensions with sizes `[3,2,4,2]` (= shape).
 Two dimensions are automatically used to group the rows:
+
 ```php
 <?php
 
-use jsonstatPhpViz\Reader;
-use jsonstatPhpViz\RendererTable;
+use jsonstatPhpViz\Html\RendererTable;use jsonstatPhpViz\Reader;
 
 require_once __DIR__.'/../vendor/autoload.php';
 
