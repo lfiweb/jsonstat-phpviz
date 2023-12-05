@@ -52,10 +52,10 @@
   </component>
   <component name="PhpInterpreters">
     <interpreters>
-      <interpreter id="b5cfaea6-501b-4379-9f5e-a5c793d7dd89" name="developer@192.168.56.205:22" home="sshConfig://DATA" false="false" debugger_id="php.debugger.XDebug">
+      <interpreter id="b5cfaea6-501b-4379-9f5e-a5c793d7dd89" name="developer@192.168.56.205:22" home="sshConfig://DATA" auto="false" debugger_id="php.debugger.XDebug">
         <remote_data INTERPRETER_PATH="/usr/bin/php8.1" HELPERS_PATH="/home/developer/.phpstorm_helpers" VALID="true" RUN_AS_ROOT_VIA_SUDO="false" SSH_CONFIG_ID="df045ca3-a48e-4fa4-9a2d-4bb1ddadb9b5" SSH_CONFIG_NAME="developer@192.168.56.205:22 password" SSH_CREDENTIALS_ID="sshConfig://developer@192.168.56.205:22 password" />
       </interpreter>
-      <interpreter id="c57b5265-6c37-4589-a0a4-e702bfdcba1e" name="developer@192.168.56.205:22 password (project level)" home="sshConfig://DATA" false="false" debugger_id="php.debugger.XDebug">
+      <interpreter id="c57b5265-6c37-4589-a0a4-e702bfdcba1e" name="developer@192.168.56.205:22 password (project level)" home="sshConfig://DATA" auto="false" debugger_id="php.debugger.XDebug">
         <remote_data INTERPRETER_PATH="/usr/bin/php" HELPERS_PATH="/home/developer/.phpstorm_helpers" VALID="true" RUN_AS_ROOT_VIA_SUDO="false" SSH_CONFIG_ID="df045ca3-a48e-4fa4-9a2d-4bb1ddadb9b5" SSH_CONFIG_NAME="developer@192.168.56.205:22 password" SSH_CREDENTIALS_ID="sshConfig://developer@192.168.56.205:22 password" />
       </interpreter>
     </interpreters>
@@ -203,7 +203,7 @@
   <component name="PhpUnit">
     <phpunit_settings>
       <phpunit_by_interpreter interpreter_id="c57b5265-6c37-4589-a0a4-e702bfdcba1e" configuration_file_path="/var/www/html/jsonstat-phpviz/phpunit.xml" custom_loader_path="/var/www/html/jsonstat-phpviz/vendor/autoload.php" phpunit_phar_path="" use_configuration_file="true" />
-      <PhpUnitSettings configuration_file_path="$PROJECT_DIR$/phpunit.xml" custom_loader_path="$PROJECT_DIR$/vendor/autoload.php" use_configuration_file="true" />
+      <PhpUnitSettings configuration_file_path="$PROJECT_DIR$/phpunit.xml" custom_loader_path="$PROJECT_DIR$/vendor/autoload.php" phpunit_phar_path="" use_configuration_file="true" />
     </phpunit_settings>
   </component>
   <component name="PsalmOptionsConfiguration">
