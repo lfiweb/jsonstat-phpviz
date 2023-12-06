@@ -1,27 +1,20 @@
 <?php
 
-namespace jsonstatPhpViz\Csv;
+namespace jsonstatPhpViz\Tsv;
 
-use jsonstatPhpViz\Formatter;
-use jsonstatPhpViz\Reader;
+use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\UtilArray;
-use function count;
 
 class RendererCell
 {
     protected RendererTable $table;
-    protected Reader $reader;
-
-    protected Formatter $formatter;
-    /*private string $separator = "\t";*/
-    private string $separatorCol = ",";
-
+    private FormatterCell $formatter;
 
     /**
      * @param RendererTable $rendererTable
-     * @param Formatter $cellFormatter
+     * @param FormatterCell $cellFormatter
      */
-    public function __construct(RendererTable $rendererTable, Formatter $cellFormatter)
+    public function __construct(RendererTable $rendererTable, FormatterCell $cellFormatter)
     {
         $this->table = $rendererTable;
         $this->reader = $this->table->reader;
@@ -37,10 +30,8 @@ class RendererCell
     public function valueCell(int $offset): string
     {
         $val = $this->reader->data->value[$offset];
-        $val = $this->formatValueCell($val, $offset);
-        $this->table->csv .= $val.$this->separatorCol;
 
-        return $val;
+        return $this->formatter->formatValueCell($val, $offset);
     }
 
     /**
@@ -62,25 +53,19 @@ class RendererCell
             $id = $reader->getDimensionId($table->numOneDim + $dimIdx);
             $categId = $reader->getCategoryId($id, $catIdx);
             $label = $reader->getCategoryLabel($id, $categId);
-            $this->table->csv .= $this->formatHeaderCell($label).$this->separatorCol;
+            $this->table->tsv .= $this->formatter->formatHeaderCell($label).$this->table->separatorCol;
         }
     }
 
-
     /**
      * Creates the cells for the headers of the label columns.
-     * @param int $rowIdx
      */
-    public function headerLabelCells(int $rowIdx): void
+    public function headerLabelCells(): void
     {
         for ($k = 0; $k < $this->table->numLabelCols; $k++) {
-            $label = null;
-
-            if ($rowIdx === $this->table->numHeaderRows - 1) { // last header row
-                $id = $this->reader->getDimensionId($this->table->numOneDim + $k);
-                $label = $this->reader->getDimensionLabel($id);
-            }
-            $this->table->csv .= $this->formatHeaderCell($label).$this->separatorCol;
+            $id = $this->reader->getDimensionId($this->table->numOneDim + $k);
+            $label = $this->reader->getDimensionLabel($id);
+            $this->table->tsv .= $this->formatter->formatHeaderCell($label).$this->table->separatorCol;
         }
     }
 
@@ -92,14 +77,14 @@ class RendererCell
     {
         $table = $this->table;
         $reader = $this->reader;
-
+        $csv = '';
         // remember: we render two rows with headings per column dimension, e.g.
         //      one for the dimension label and one for the category label
         $dimIdx = $table->numRowDim + (int)floor($rowIdx / 2);
         $stride = $table->strides[$dimIdx];
+        $z = $rowIdx % 2;
         $product = $table->shape[$dimIdx] * $stride;
         for ($i = 0; $i < $table->numValueCols; $i++) {
-            $z = $rowIdx % 2;
             $id = $reader->getDimensionId($table->numOneDim + $dimIdx);
             if ($z === 0) { // set attributes for dimension label cell
                 $label = $reader->getDimensionLabel($id);
@@ -108,40 +93,8 @@ class RendererCell
                 $catId = $reader->getCategoryId($id, $catIdx);
                 $label = $reader->getCategoryLabel($id, $catId);
             }
-            $this->table->csv .= $this->formatHeaderCell($label).$this->separatorCol;
+            $csv .= $this->formatter->formatHeaderCell($label).$this->table->separatorCol;
         }
-    }
-
-    /**
-     * Format a head cell <th>
-     * Format cells used as a header for group of columns or rows (headings).
-     * @param string|null $str
-     * @return string
-     */
-    public function formatHeaderCell(null|string $str): string
-    {
-        return $this->formatter->formatNull($str);
-    }
-
-    /**
-     * Format a data cell <td>.
-     * Format a cell used for the JSON-stat value property.
-     * Note: If value is an int or float, the number of decimals from the unit of the category is used if available.
-     * @param string|int|float|null $val
-     * @param int $offset
-     * @return string
-     */
-    public function formatValueCell(null|string|int|float $val, int $offset): string
-    {
-        $stat = $this->reader;
-        $idxLastDim = count($stat->data->id) - 1;
-        $dimId = $stat->getDimensionId($idxLastDim);
-        if ($stat->hasDecimal($dimId)) {
-            $categoryId = $stat->getCategoryId($dimId, $offset % $stat->data->size[$idxLastDim]);
-            $decimals = $stat->getDecimal($dimId, $categoryId);
-            $val = $this->formatter->formatDecimal($val, $decimals);
-        }
-
-        return $this->formatter->formatNull($val);
+        $this->table->tsv .= rtrim($csv, $this->table->separatorCol);
     }
 }

@@ -8,6 +8,7 @@ use DOMNode;
 use jsonstatPhpViz\DOM\ClassList;
 use jsonstatPhpViz\DOM\Table;
 use jsonstatPhpViz\Formatter;
+use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
 use jsonstatPhpViz\UtilArray;
 use jsonstatPhpViz\UtilHtml;
@@ -183,7 +184,7 @@ class RendererTable
      */
     protected function initRendererCell(): void
     {
-        $this->rendererCell = new RendererCell($this, new Formatter());
+        $this->rendererCell = new RendererCell($this, new FormatterCell($this->reader, new Formatter()));
     }
 
     /**

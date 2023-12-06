@@ -4,7 +4,6 @@
 }
 
 .theme1 {
-	font-family: "Noto Sans", serif;
 	font-size: 0.8em;
 }
 
@@ -17,6 +16,7 @@
 .theme1 caption {
 	font-weight: bold;
 	text-align: left;
+	margin-top: 2em;
 	margin-bottom: 1em;
 }
 

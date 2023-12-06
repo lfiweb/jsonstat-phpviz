@@ -1,16 +1,16 @@
 <?php
 
-namespace jsonstatPhpViz\Csv;
+namespace jsonstatPhpViz\Tsv;
 
-use DOMException;
 use jsonstatPhpViz\Formatter;
+use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
 use jsonstatPhpViz\UtilArray;
 use function array_slice;
 use function count;
 
 /**
- * Renders json-stat data as a html table.
+ * Renders json-stat data as a tab separated table.
  *
  * A table consists of a number of dimensions that are used to define the rows of the two-dimensional table
  * (referred to as row dimensions) and a number of dimensions that are used to define the columns of the table
@@ -58,18 +58,14 @@ class RendererTable
     /** @var int|null number of dimensions to be used for rows */
     public ?int $numRowDim;
 
-    /** @var string */
-    public string $csv;
+    /**
+     * Holds the tab separated data.
+     * @var string
+     */
+    public string $tsv;
 
     /** @var int|float number of row headers */
     public int|float $numHeaderRows;
-
-    /**
-     * Do not render the row with the labels of the last dimension?
-     * default = false
-     * @var bool
-     */
-    public bool $noLabelLastDim = false;
 
     /**
      * Do not render dimension labels?
@@ -96,7 +92,9 @@ class RendererTable
 
     protected RendererCell $rendererCell;
 
-    private string $separatorRow = "\n";
+    public string $separatorRow = "\n";
+
+    public string $separatorCol = "\t";
 
     /**
      * Instantiates the class.
@@ -106,7 +104,7 @@ class RendererTable
     public function __construct(Reader $jsonStatReader, ?int $numRowDim = null)
     {
         $this->reader = $jsonStatReader;
-        $this->csv = '';
+        $this->tsv = '';
         $this->numRowDim = $numRowDim;
         $this->initCaption();
         $this->initRendererCell();
@@ -160,7 +158,7 @@ class RendererTable
      */
     protected function initRendererCell(): void
     {
-        $this->rendererCell = new RendererCell($this, new Formatter());
+        $this->rendererCell = new RendererCell($this, new FormatterCell($this->reader, new Formatter()));
     }
 
     /**
@@ -175,7 +173,7 @@ class RendererTable
         $this->headers();
         $this->rows();
 
-        return $this->csv;
+        return $this->tsv;
     }
 
     /**
@@ -184,9 +182,10 @@ class RendererTable
     protected function headers(): void
     {
         for ($rowIdx = 0; $rowIdx < $this->numHeaderRows; $rowIdx++) {
-            if ($this->noLabelLastDim === false || $rowIdx !== $this->numHeaderRows - 2) {
+            if (!$this->noLabelDim || $rowIdx % 2 === 1) {
                 $this->rendererCell->headerLabelCells($rowIdx);
                 $this->rendererCell->headerValueCells($rowIdx);
+                $this->tsv .= $this->separatorRow;
             }
         }
     }
@@ -199,11 +198,11 @@ class RendererTable
         $rowIdx = 0;
         for ($offset = 0, $len = $this->reader->getNumValues(); $offset < $len; $offset++) {
             if ($offset % $this->numValueCols === 0) {
-                $this->csv.= $this->separatorRow;
+                $this->tsv = rtrim($this->tsv, $this->separatorCol).($rowIdx > 0 ? $this->separatorRow : '');
                 $this->rendererCell->labelCells($rowIdx);
                 $rowIdx++;
             }
-            $this->rendererCell->valueCell($offset);
+            $this->tsv .= $this->rendererCell->valueCell($offset).$this->separatorCol;
         }
     }
 
@@ -213,7 +212,7 @@ class RendererTable
      */
     protected function caption(): ?string
     {
-        $this->csv .= $this->caption.$this->separatorRow;
+        $this->tsv .= $this->caption.$this->separatorRow.$this->separatorRow;
 
         return $this->caption;
     }
