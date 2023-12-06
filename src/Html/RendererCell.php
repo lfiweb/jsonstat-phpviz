@@ -185,9 +185,9 @@ class RendererCell
         $dimIdx = $table->numRowDim + (int)floor($rowIdx / 2);
         $stride = $table->strides[$dimIdx];
         $product = $table->shape[$dimIdx] * $stride;
+        $z = $rowIdx % 2;
+        $id = $reader->getDimensionId($table->numOneDim + $dimIdx);
         for ($i = 0; $i < $table->numValueCols; $i++) {
-            $z = $rowIdx % 2;
-            $id = $reader->getDimensionId($table->numOneDim + $dimIdx);
             if ($z === 0) { // set attributes for dimension label cell
                 $label = $reader->getDimensionLabel($id);
                 $colspan = $product > 1 ? $product : null;
