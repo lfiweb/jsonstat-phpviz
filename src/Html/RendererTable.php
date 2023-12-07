@@ -2,6 +2,7 @@
 
 namespace jsonstatPhpViz\Html;
 
+use DOMDocument;
 use DOMElement;
 use DOMException;
 use DOMNode;
@@ -10,7 +11,6 @@ use jsonstatPhpViz\DOM\Table;
 use jsonstatPhpViz\Formatter;
 use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
-use jsonstatPhpViz\UtilArray;
 use jsonstatPhpViz\UtilHtml;
 use function array_slice;
 use function count;
@@ -35,47 +35,11 @@ use function count;
  *
  * @see www.json-stat.org
  */
-class RendererTable
+class RendererTable extends \jsonstatPhpViz\RendererTable implements \jsonstatPhpViz\IRendererTable
 {
-    /** @var int dimension of type row */
-    public const DIM_TYPE_ROW = 1;
-
-    /** @var int dimensions of type col */
-    public const DIM_TYPE_COL = 2;
-
-    /** @var Reader */
-    public Reader $reader;
-
-    /* @var array $colDims dimensions used for columns containing values */
-    public array $colDims;
-
-    /* @var array $rowDims dimensions used for rows containing labels, that make up the rows */
-    public array $rowDims;
-
-    /** @var int number of dimensions of size one */
-    public int $numOneDim;
-
-    /** @var int number of columns with values */
-    public int $numValueCols;
-
-    /** @var int number of columns with labels */
-    public int $numLabelCols;
-
-    /** @var int|null number of dimensions to be used for rows */
-    public ?int $numRowDim;
 
     /** @var DOMNode|Table */
-    public Table|DOMNode $table;
-
-    /** @var int|float number of row headers */
-    public int|float $numHeaderRows;
-
-    /**
-     * Do not render the row with the labels of the last dimension?
-     * default = false
-     * @var bool
-     */
-    public bool $noLabelLastDim = false;
+    protected Table|DOMNode $table;
 
     /**
      * Render the table with rowspans ?
@@ -85,21 +49,8 @@ class RendererTable
      */
     public bool $useRowSpans = true;
 
-    /**
-     * Exclude dimensions of size one from rendering.
-     * Only excludes continuous dimensions of size one, e.g. when each dimension with a lower index is also of size one.
-     * @var bool
-     */
-    public ?bool $excludeOneDim = false;
-
     /** @var null|string|DOMNode caption of the table */
     public null|string|DOMNode $caption;
-
-    /** @var array shape of the json-stat value array */
-    public array $shape;
-
-    /** @var array strides of the array */
-    public array $strides;
 
     protected RendererCell $rendererCell;
 
@@ -110,20 +61,9 @@ class RendererTable
      */
     public function __construct(Reader $jsonStatReader, ?int $numRowDim = null)
     {
-        $this->reader = $jsonStatReader;
+        parent::__construct($jsonStatReader, $numRowDim);
         $this->table = new Table();
-        $this->numRowDim = $numRowDim;
-        $this->initCaption();
-        $this->initRendererCell();
-    }
 
-    /**
-     * Set the number of dimensions to be used for rows.
-     * @param int $numRowDim
-     */
-    public function setNumRowDim(int $numRowDim): void
-    {
-        $this->numRowDim = $numRowDim;
     }
 
     /**
@@ -132,19 +72,8 @@ class RendererTable
      */
     protected function init(): void
     {
-        $this->shape = $this->reader->getDimensionSizes($this->excludeOneDim);
-        $this->strides = UtilArray::getStrides($this->shape);
-        $this->numRowDim = $this->numRowDim ?? $this->numRowDimAuto();
-        $this->rowDims = $this->extractDims($this->shape);
-        $this->colDims = $this->extractDims($this->shape, self::DIM_TYPE_COL);
+        parent::init();
         $this->initTable();
-        // cache some often used numbers before rendering table
-        $dimsAll = $this->reader->getDimensionSizes(false);
-        $this->numOneDim = count($dimsAll) - count($this->rowDims) - count($this->colDims);
-        $this->numValueCols = count($this->colDims) > 0 ? array_product($this->colDims) : 1;
-        $this->numLabelCols = count($this->rowDims);
-        // add an additional row to label each dimension
-        $this->numHeaderRows = count($this->colDims) > 0 ? count($this->colDims) * 2 : 1;
     }
 
     /**
@@ -159,7 +88,7 @@ class RendererTable
 
         $domNode = $this->table->get();
         $css = new ClassList($domNode);
-        $css->add('jst-viz', 'numRowDims' . $numRowDims, 'lastDimSize' . $lastDimSize);
+        $css->add('jst-viz', 'numRowDims'.$numRowDims, 'lastDimSize'.$lastDimSize);
         $domNode->setAttribute('data-shape', $shape);
         $domNode->setAttribute('data-num-row-dim', $numRowDims);
     }
@@ -189,19 +118,48 @@ class RendererTable
 
     /**
      * Renders the data as a html table.
-     * Reads the value array and renders it as a table.
-     * @param bool $asHtml return html or DOMElement?
-     * @return DOMElement|string table
+     * Reads the value array and renders it as a html table.
      * @throws DOMException
      */
-    public function render(bool $asHtml = true): string|DOMElement
+    public function render(): string
+    {
+        $this->build();
+
+        return $this->table->toHtml();
+    }
+
+    /**
+     * Creates the internal structure of the table.
+     * @return void
+     * @throws DOMException
+     */
+    protected function build(): void
     {
         $this->init();
         $this->caption();
         $this->headers();
         $this->rows();
+    }
 
-        return $asHtml ? $this->table->toHtml() : $this->table->get();
+    /**
+     * Render the table and return the DOM
+     * @return DOMElement
+     * @throws DOMException
+     */
+    public function renderDom(): DOMElement
+    {
+        $this->build();
+
+        return $this->table->get();
+    }
+
+    /**
+     * Return the DOMDocument.
+     * @return DOMDocument
+     */
+    public function getDoc(): DOMDocument
+    {
+        return $this->table->doc;
     }
 
     /**
@@ -254,34 +212,5 @@ class RendererTable
         }
 
         return $this->caption;
-    }
-
-    /**
-     * Returns the default number of dimensions used for rendering rows.
-     * By default, a table is rendered using all dimensions for rows expect the last two dimensions are used for columns.
-     * When there are fewer than 3 dimensions, only the first dimension is used for rows.
-     * @return int
-     */
-    public function numRowDimAuto(): int
-    {
-        $dims = $this->reader->getDimensionSizes($this->excludeOneDim);
-
-        return count($dims) < 3 ? 1 : count(array_slice($dims, 0, count($dims) - 2));
-    }
-
-    /**
-     * Returns the dimensions that can be used for rows or cols.
-     * Constant dimensions (e.g. of length 1) are excluded.
-     * @param array $dims
-     * @param int $type 'row' or 'col' possible values are RendererTable::DIM_TYPE_ROW or RendererTable::DIM_TYPE_COL
-     * @return array
-     */
-    protected function extractDims(array $dims, int $type = RendererTable::DIM_TYPE_ROW): array
-    {
-        if ($type === self::DIM_TYPE_ROW) {
-            return array_slice($dims, 0, $this->numRowDim);
-        }
-
-        return array_slice($dims, $this->numRowDim);
     }
 }

@@ -37,7 +37,7 @@ class RendererCell
     /**
      * Appends cells with labels to the row.
      * Inserts the label as a HTMLTableHeaderElement at the end of the row.
-     * @param int $rowIdxBody row index
+     * @param int $rowIdxBody the row index of the body rows only
      */
     public function labelCells(int $rowIdxBody): void
     {
@@ -45,12 +45,11 @@ class RendererCell
         $rowStrides = UtilArray::getStrides($table->rowDims);
 
         for ($i = 0; $i < $table->numLabelCols; $i++) {
-            $dimIdx = $i;
-            $stride = $rowStrides[$dimIdx];
-            $product = $table->shape[$dimIdx] * $stride;
+            $stride = $rowStrides[$i];
+            $product = $table->shape[$i] * $stride;
             $reader = $this->reader;
             $catIdx = floor($rowIdxBody % $product / $stride);
-            $id = $reader->getDimensionId($table->numOneDim + $dimIdx);
+            $id = $reader->getDimensionId($table->numOneDim + $i);
             $categId = $reader->getCategoryId($id, $catIdx);
             $label = $reader->getCategoryLabel($id, $categId);
             $this->table->tsv .= $this->formatter->formatHeaderCell($label).$this->table->separatorCol;
@@ -71,7 +70,7 @@ class RendererCell
 
     /**
      * Creates the cells for the headers of the value columns.
-     * @param int $rowIdx
+     * @param int $rowIdx row index
      */
     public function headerValueCells(int $rowIdx): void
     {

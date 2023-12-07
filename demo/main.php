@@ -72,8 +72,14 @@ $table->excludeOneDim = true;
 $table->noLabelLastDim = true;
 $html4 = $table->render();
 $html4 .= download($html4, $format, 4);
+// render as csv
+$reader = new Reader($jsonstat);
+$table = new \jsonstatPhpViz\Tsv\RendererTable($reader);
+$table->excludeOneDim = true;
+$table->separatorCol = ',';
+$html6 = nl2br($table->render());
 
-// JSON-stat testdata
+// JSON-stat OECD testdata
 $filename = '../tests/resources/oecd.json';
 $json = file_get_contents($filename);
 $jsonstat = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
@@ -98,7 +104,8 @@ $html1.
 $html2.
 $html3.
 $html4.
-$html5;
+$html5.
+'<code>'.$html6.'</code>'
 ?>
 </body>
 </html>

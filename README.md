@@ -11,6 +11,8 @@ Render [JSON-stat v2.0 data](https://json-stat.org/) with any number of dimensio
 screen reader support for visually impaired users
 - sets CSS classes (`first` and `last`) to identify the start and end of row groups (e.g. row totals)
 - exclude dimensions of size one (when ordered continuously from index 0) from rendering when wanted
+- export (render) the table as tab separated values (tsv) or any character (csv) of your choosing.
+
 ### not implemented
 - `child` property, e.g. hierarchical relationships between different categories
 
@@ -59,7 +61,7 @@ See [NumPy transpose](https://numpy.org/doc/stable/reference/generated/numpy.tra
 
 ### Example 4
 Real-world example with [data from the Swiss NFI](https://www.lfi.ch/resultate/sammlungenliste-en.php?prodNr=32&prodItNr=189147&lang=en) having a caption, column units and row totals as well as
-two dimensions of size one, excluded from rendering.
+two dimensions of size one, excluded from rendering:
 ```php
 $reader = new Reader($jsonstat);
 $table = new RendererTable($reader);
@@ -69,6 +71,15 @@ $html = $table->render();
 ```
 ![screenshot-04](demo/screenshot-04.png)
 
+### Example 5
+Render the table as comma separated values (csv):
+
+```php
+$reader = new Reader($jsonstat);
+$table = new \jsonstatPhpViz\Tsv\RendererTable($reader);
+$table->separatorCol = ",";
+$html = $table->render();
+```
 ## Installation
 Install with `composer require lfiweb/jsonstat-phpviz` or add it to your composer.json
 

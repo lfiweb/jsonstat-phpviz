@@ -12,11 +12,13 @@ use jsonstatPhpViz\Reader;
 use jsonstatPhpViz\UtilArray;
 use function count;
 
+/**
+ * Handles rendering of table cells.
+ */
 class RendererCell
 {
     protected RendererTable $table;
     protected Reader $reader;
-    protected DOMDocument $doc;
     protected FormatterCell $formatter;
 
     /**
@@ -27,7 +29,6 @@ class RendererCell
     {
         $this->table = $rendererTable;
         $this->reader = $this->table->reader;
-        $this->doc = $this->table->table->doc;
         $this->formatter = $cellFormatter;
     }
 
@@ -64,7 +65,7 @@ class RendererCell
      */
     public function valueCell(DOMElement $row, int $offset): DOMElement
     {
-        $doc = $this->doc;
+        $doc = $this->table->getDoc();
         $cell = $doc->createElement('td');
         $val = $this->reader->data->value[$offset];
         $val = $this->formatter->formatValueCell($val, $offset);
@@ -126,7 +127,8 @@ class RendererCell
         ?string    $rowspan = null
     ): DOMNode
     {
-        $cell = $this->doc->createElement('th');
+        $doc = $this->table->getDoc();
+        $cell = $doc->createElement('th');
         if ($scope !== null) {
             $cell->setAttribute('scope', $scope);
         }
@@ -137,7 +139,7 @@ class RendererCell
             $cell->setAttribute('rowspan', $rowspan);
         }
         $str = $this->formatter->formatHeaderCell($str);
-        $cell->appendChild($this->doc->createTextNode($str));
+        $cell->appendChild($doc->createTextNode($str));
 
         return $row->appendChild($cell);
     }
