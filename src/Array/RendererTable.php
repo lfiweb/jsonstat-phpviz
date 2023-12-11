@@ -2,8 +2,10 @@
 
 namespace jsonstatPhpViz\Array;
 
+use jsonstatPhpViz\DOM\Table;
 use jsonstatPhpViz\Formatter;
 use jsonstatPhpViz\FormatterCell;
+use jsonstatPhpViz\Reader;
 
 /**
  * Renders json-stat data as a tab separated table.
@@ -70,7 +72,8 @@ class RendererTable extends \jsonstatPhpViz\RendererTable
      */
     public function initRendererCell(): void
     {
-        $this->rendererCell = new RendererCell($this, new FormatterCell($this->reader, new Formatter()));
+        $formatter = new FormatterCell($this->reader, new Formatter());
+        $this->rendererCell = new RendererCell($formatter, $this->reader, $this);
     }
 
     /**

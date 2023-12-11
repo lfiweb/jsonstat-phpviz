@@ -62,7 +62,6 @@ class RendererTable extends \jsonstatPhpViz\RendererTable
     {
         parent::__construct($jsonStatReader, $numRowDim);
         $this->table = new Table();
-
     }
 
     /**
@@ -112,7 +111,8 @@ class RendererTable extends \jsonstatPhpViz\RendererTable
      */
     public function initRendererCell(): void
     {
-        $this->rendererCell = new RendererCell($this, new FormatterCell($this->reader, new Formatter()));
+        $formatter = new FormatterCell($this->reader, new Formatter());
+        $this->rendererCell = new RendererCell($formatter, $this->reader, $this);
     }
 
     /**
@@ -175,7 +175,8 @@ class RendererTable extends \jsonstatPhpViz\RendererTable
                 $this->rendererCell->labelCells($row, $rowIdx);
                 $rowIdx++;
             }
-            $this->rendererCell->valueCell($row, $offset);
+            $cell = $this->rendererCell->valueCell($offset);
+            $row->appendChild($cell);
         }
     }
 

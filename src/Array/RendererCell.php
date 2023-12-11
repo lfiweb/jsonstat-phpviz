@@ -6,21 +6,19 @@ use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
 use jsonstatPhpViz\UtilArray;
 
-class RendererCell
+class RendererCell extends \jsonstatPhpViz\RendererCell
 {
     protected RendererTable $table;
-    protected Reader $reader;
-    protected FormatterCell $formatter;
 
     /**
-     * @param RendererTable $rendererTable
      * @param FormatterCell $cellFormatter
+     * @param Reader $reader
+     * @param RendererTable $rendererTable
      */
-    public function __construct(RendererTable $rendererTable, FormatterCell $cellFormatter)
+    public function __construct(FormatterCell $cellFormatter, Reader $reader, RendererTable $rendererTable)
     {
+        parent::__construct($cellFormatter, $reader);
         $this->table = $rendererTable;
-        $this->reader = $this->table->reader;
-        $this->formatter = $cellFormatter;
     }
 
     /**

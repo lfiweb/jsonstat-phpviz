@@ -2,11 +2,6 @@
 
 namespace jsonstatPhpViz;
 
-use DOMException;
-use DOMNode;
-use jsonstatPhpViz\Html\RendererCell;
-use jsonstatPhpViz\Html\RendererTable;
-
 interface IRendererTable
 {
     /**
