@@ -25,7 +25,7 @@ class UtilArray
         // note: using $stride[$i] = $size instead of $stride[] = $size in the loop below,
         // we could do away with the array_reverse() in the return, since we are setting the correct keys, but the
         // actual order would be inverted and turn out wrong, when using implode() or a 'for loop' instead of foreach,
-        // e.g shape[4,2,3,2] --> [3 => 1, 2 => 2, 1 => 6, 0 => 12] looking like [12,6,2,1], but imploding to '1,2,6,12'
+        // e.g. shape[4,2,3,2] --> [3 => 1, 2 => 2, 1 => 6, 0 => 12] looking like [12,6,2,1], but imploding to '1,2,6,12'
         for (; $i >= 0; --$i) {
             $stride[] = $size;
             $size *= $shape[$i];
