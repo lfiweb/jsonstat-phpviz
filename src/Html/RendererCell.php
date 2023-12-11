@@ -124,7 +124,6 @@ class RendererCell
             if ($table->useRowSpans === false || $rowIdx % $stride === 0) {
                 $cell = $this->headerCell($row, $label, $scope, null, $rowspan);
                 $this->labelCellCss($cell, $i, $rowIdx, $stride);
-                $row->appendChild($cell);
             }
         }
     }
