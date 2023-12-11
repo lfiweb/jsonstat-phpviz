@@ -100,7 +100,6 @@ class RendererCell
             if ($table->useRowSpans === false || $rowIdxBody % $stride === 0) {
                 $cell = $this->headerCell($row, $label, $scope, null, $rowspan);
                 $this->labelCellCss($cell, $i, $rowIdxBody, $stride);
-                $row->appendChild($cell);
             }
         }
     }
@@ -200,8 +199,7 @@ class RendererCell
             } else {
                 $scope = 'col';
             }
-            $cell = $this->headerCell($row, $label, $scope, $colspan);
-            $row->appendChild($cell);
+            $this->headerCell($row, $label, $scope, $colspan);
         }
     }
 
