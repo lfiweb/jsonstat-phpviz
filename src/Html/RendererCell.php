@@ -183,6 +183,7 @@ class RendererCell extends \jsonstatPhpViz\RendererCell
     {
         $table = $this->table;
         $rowStrides = UtilArray::getStrides($table->rowDims);
+        $reader = $this->reader;
 
         for ($i = 0; $i < $table->numLabelCols; $i++) {
             $dimIdx = $i;
@@ -192,7 +193,6 @@ class RendererCell extends \jsonstatPhpViz\RendererCell
             $scope = $stride > 1 ? 'rowgroup' : 'row';
             $rowspan = $table->useRowSpans && $stride > 1 ? $stride : null;
             if ($rowIdx % $stride === 0) {
-                $reader = $this->reader;
                 $catIdx = floor($rowIdx % $product / $stride);
                 $id = $reader->getDimensionId($table->numOneDim + $dimIdx);
                 $categId = $reader->getCategoryId($id, $catIdx);

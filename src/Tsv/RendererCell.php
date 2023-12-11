@@ -42,12 +42,12 @@ class RendererCell extends \jsonstatPhpViz\RendererCell
     public function labelCells(int $rowIdx): void
     {
         $table = $this->table;
+        $reader = $this->reader;
         $rowStrides = UtilArray::getStrides($table->rowDims);
 
         for ($i = 0; $i < $table->numLabelCols; $i++) {
             $stride = $rowStrides[$i];
             $product = $table->shape[$i] * $stride;
-            $reader = $this->reader;
             $catIdx = floor($rowIdx % $product / $stride);
             $id = $reader->getDimensionId($table->numOneDim + $i);
             $categId = $reader->getCategoryId($id, $catIdx);
