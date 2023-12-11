@@ -5,8 +5,6 @@ namespace jsonstatPhpViz\Tsv;
 use jsonstatPhpViz\Formatter;
 use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
-use function array_slice;
-use function count;
 
 /**
  * Renders json-stat data as a tab separated table.
@@ -52,6 +50,12 @@ class RendererTable extends \jsonstatPhpViz\RendererTable
     public string $separatorRow = "\n";
 
     public string $separatorCol = "\t";
+
+    /**
+     * Repeat column labels
+     * @var bool
+     */
+    public bool $repeatLabels = true;
 
     /**
      * Instantiates the class.

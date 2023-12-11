@@ -47,19 +47,17 @@ class RendererCell extends \jsonstatPhpViz\RendererCell
     {
         $table = $this->table;
         $rowStrides = UtilArray::getStrides($table->rowDims);
+        $reader = $this->reader;
         $x = $rowIdx + $table->numHeaderRows;
 
         for ($y = 0; $y < $table->numLabelCols; $y++) {
             $stride = $rowStrides[$y];
             $product = $table->shape[$y] * $stride;
-            $reader = $this->reader;
             $catIdx = floor($rowIdx % $product / $stride);
             $id = $reader->getDimensionId($table->numOneDim + $y);
             $categId = $reader->getCategoryId($id, $catIdx);
-            if ($table->repeatLabels === true || $rowIdx % $stride === 0) {
-                $label = $reader->getCategoryLabel($id, $categId);
-            }
-            else {
+            $label = $reader->getCategoryLabel($id, $categId);
+            if ($table->repeatLabels === false && $this->hasSameLabel($label, $x, $y)) {
                 $label = '';
             }
             $this->headerCell($label, $x, $y);
@@ -116,5 +114,10 @@ class RendererCell extends \jsonstatPhpViz\RendererCell
             }
             $this->headerCell($label, $rowIdx, $y);
         }
+    }
+
+    private function hasSameLabel(string $label, int $x, int $y) {
+
+        return $this->table->data[$x - 1][$y] === $label;
     }
 }

@@ -2,10 +2,8 @@
 
 namespace jsonstatPhpViz\Array;
 
-use jsonstatPhpViz\DOM\Table;
 use jsonstatPhpViz\Formatter;
 use jsonstatPhpViz\FormatterCell;
-use jsonstatPhpViz\Reader;
 
 /**
  * Renders json-stat data as a tab separated table.

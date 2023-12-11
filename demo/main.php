@@ -14,19 +14,18 @@ function getRenderer(Reader $reader, $format): \jsonstatPhpViz\Tsv\RendererTable
     return $renderer;
 }
 
-function download(string $table, string $format, int $id)
+function linkOrDownload(string $table, string $format, int $id)
 {
     if ($format === 'html') {
-        return '<p>download as: <a href="main.php?f=tsv&id='.$id.'">tab separated (tsv)</a></p>';
+        return '<p>download as: <a href="main.php?f=tsv&id='.$id.'">tab separated</a> (tsv)</p>';
     }
 
     if ($format === 'tsv' && (int)$_GET['id'] === $id) {
         header('Content-Type: text/plain; charset=utf-8');
         header('Content-Disposition: attachment; filename="table'.$id.'.tsv"');
         echo $table;
-        exit;
+        exit();
     }
-
 }
 
 $format = 'html';
@@ -43,14 +42,14 @@ $reader = new Reader($jsonstat);
 $table = getRenderer($reader, $format);
 $table->caption .= ', dimension A and B are used as row dimensions.';
 $html1 = $table->render();
-$html1 .= download($html1, $format, 1);
+$html1 .= linkOrDownload($html1, $format, 1);
 
 
 // Render the table with 3 dimensions used for the row grouping instead of 2 (default):
 $table = getRenderer($reader, $format);
 $table->caption .= ', dimension A, B and C are used as row dimensions.';
 $html2 = $table->render();
-$html2 .= download($html2, $format, 2);
+$html2 .= linkOrDownload($html2, $format, 2);
 
 // Transpose table by permutating dimension A with dimension D. Also hide label of dimension A:
 $axes = [3, 1, 2, 0];
@@ -59,7 +58,7 @@ $table = getRenderer($reader, $format);
 $table->noLabelLastDim = true;
 $table->caption = 'Integers transposed: dimension A is permutated with Dimension D';
 $html3 = $table->render();
-$html3 .= download($html3, $format, 3);
+$html3 .= linkOrDownload($html3, $format, 3);
 
 // Real-world example with data from the Swiss NFI having a caption, column units and row totals as well as
 // two dimensions of size one excluded from rendering.
@@ -71,7 +70,7 @@ $table = getRenderer($reader, $format);
 $table->excludeOneDim = true;
 $table->noLabelLastDim = true;
 $html4 = $table->render();
-$html4 .= download($html4, $format, 4);
+$html4 .= linkOrDownload($html4, $format, 4);
 // render as csv
 $reader = new Reader($jsonstat);
 $table = new \jsonstatPhpViz\Tsv\RendererTable($reader);
@@ -93,7 +92,7 @@ $reader = new Reader($jsonstat);
 $table = getRenderer($reader, $format);
 $table->excludeOneDim = true;
 $html5 = $table->render();
-$html5 .= download($html5, $format, 5);
+$html5 .= linkOrDownload($html5, $format, 5);
 ?>
 <!DOCTYPE html>
 <html lang="en">

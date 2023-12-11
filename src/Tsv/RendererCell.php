@@ -45,11 +45,11 @@ class RendererCell extends \jsonstatPhpViz\RendererCell
         $reader = $this->reader;
         $rowStrides = UtilArray::getStrides($table->rowDims);
 
-        for ($i = 0; $i < $table->numLabelCols; $i++) {
-            $stride = $rowStrides[$i];
-            $product = $table->shape[$i] * $stride;
+        for ($dimIdx = 0; $dimIdx < $table->numLabelCols; $dimIdx++) {
+            $stride = $rowStrides[$dimIdx];
+            $product = $table->shape[$dimIdx] * $stride;
             $catIdx = floor($rowIdx % $product / $stride);
-            $id = $reader->getDimensionId($table->numOneDim + $i);
+            $id = $reader->getDimensionId($table->numOneDim + $dimIdx);
             $categId = $reader->getCategoryId($id, $catIdx);
             $label = $reader->getCategoryLabel($id, $categId);
             $this->headerCell($label);
