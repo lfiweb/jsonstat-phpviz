@@ -95,7 +95,8 @@ class RendererTableTest extends TestCase
         $reader = $this->factory->create(__DIR__ . '/../resources/volume.json');
         $rendererTable = new RendererTable($reader);
         $rendererTable->excludeOneDim = false;
-        $table = $rendererTable->renderDom();
+        $rendererTable->render();
+        $table = $rendererTable->getDom();
         $cell = FactoryRendererTable::getValueCell($table, 0);
         self::assertEquals('3.8', $cell->textContent);
         $cell = FactoryRendererTable::getValueCell($table, 1);
@@ -105,7 +106,7 @@ class RendererTableTest extends TestCase
 
         $rendererTable = new RendererTable($reader);
         $rendererTable->excludeOneDim = true;
-        $table = $rendererTable->renderDom();
+        $rendererTable->render();
         $cell = FactoryRendererTable::getValueCell($table, 44);
         self::assertEquals('7.0', $cell->textContent);
     }
@@ -125,9 +126,9 @@ class RendererTableTest extends TestCase
         for (; $i < $len; $i++) {
             $renderer = new RendererTable($reader);
             $renderer->setNumRowDim($i);
-            $table = $renderer->renderDom();
-            $nlX = FactoryRendererTable::getTBodyChildNodes($table);
-            $nlY = FactoryRendererTable::getTheadLastChildNodes($table);
+            $renderer->render();
+            $nlX = FactoryRendererTable::getTBodyChildNodes($renderer->getDom());
+            $nlY = FactoryRendererTable::getTheadLastChildNodes($renderer->getDom());
             self::assertSame(array_product($x), $nlX->length);
             self::assertSame(array_product($size) + $i, $nlY->length);
             $x[] = array_shift($size);
@@ -166,9 +167,9 @@ class RendererTableTest extends TestCase
         $y = array_slice($size, 4);
         $renderer = new RendererTable($reader, 2);
         $renderer->excludeOneDim = true;
-        $table = $renderer->renderDom();
-        $nlX = FactoryRendererTable::getTBodyChildNodes($table);
-        $nlY = FactoryRendererTable::getTheadLastChildNodes($table);
+        $renderer->render();
+        $nlX = FactoryRendererTable::getTBodyChildNodes($renderer->getDom());
+        $nlY = FactoryRendererTable::getTheadLastChildNodes($renderer->getDom());
         self::assertSame(array_product($x), $nlX->length);
         self::assertSame(array_product($y) + 2, $nlY->length);
     }
@@ -225,10 +226,10 @@ class RendererTableTest extends TestCase
     public function testNoLabelLastDim(): void
     {
         $reader = $this->factory->create(__DIR__ . '/../resources/integer.json');
-        $table = new RendererTable($reader, 2);
-        $table->noLabelLastDim = true;
-        $domTable = $table->renderDom();
-        $num = $domTable->getElementsByTagName('thead')->item(0)->childNodes->length;
+        $renderer = new RendererTable($reader, 2);
+        $renderer->noLabelLastDim = true;
+        $renderer->render();
+        $num = $renderer->getDom()->getElementsByTagName('thead')->item(0)->childNodes->length;
         self::assertSame(3, $num);
     }
 }

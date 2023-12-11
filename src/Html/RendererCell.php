@@ -2,7 +2,6 @@
 
 namespace jsonstatPhpViz\Html;
 
-use DOMDocument;
 use DOMElement;
 use DOMException;
 use DOMNode;
@@ -14,6 +13,26 @@ use function count;
 
 /**
  * Handles rendering of table cells.
+ *
+ * There are four types of cells to render:
+ *
+ * |---------------------------------------|
+ * | header label cell | header value cell |
+ * |-------------------|-------------------|
+ * |     label cell    |     value cell    |
+ * |-------------------|-------------------|
+ *
+ * e.g.:
+ *
+ * |---------------------------------------|
+ * |    OECD country   |     year 2003     |
+ * |-------------------|-------------------|
+ * |       Sweden      |    6.56574156     |
+ * |-------------------|-------------------|
+ * |     Switzerland   |    4.033356027    |
+ * |-------------------|-------------------|
+ * |         ...       |         ...       |
+ * |-------------------|-------------------|
  */
 class RendererCell
 {
@@ -56,8 +75,9 @@ class RendererCell
     }
 
     /**
-     * Appends cells with values to the row.
-     * Inserts a HTMLTableCellElement at the end of the row with a value taken from the values at given offset.
+     * Append a value cell to the row.
+     * Inserts a HTMLTableCellElement at the end of the row
+     * with a value taken from the JSON-stat values attribute at the given offset.
      * @param DOMElement $row
      * @param int $offset
      * @return DOMElement the created table cell
@@ -79,10 +99,10 @@ class RendererCell
      * Appends cells with labels to the row.
      * Inserts the label as a HTMLTableHeaderElement at the end of the row.
      * @param DOMElement $row HTMLTableRow
-     * @param int $rowIdxBody row index
+     * @param int $rowIdx row index
      * @throws DOMException
      */
-    public function labelCells(DOMElement $row, int $rowIdxBody): void
+    public function labelCells(DOMElement $row, int $rowIdx): void
     {
         $table = $this->table;
         $rowStrides = UtilArray::getStrides($table->rowDims);
@@ -94,24 +114,24 @@ class RendererCell
             $label = null;
             $scope = $stride > 1 ? 'rowgroup' : 'row';
             $rowspan = $table->useRowSpans && $stride > 1 ? $stride : null;
-            if ($rowIdxBody % $stride === 0) {
+            if ($rowIdx % $stride === 0) {
                 $reader = $this->reader;
-                $catIdx = floor($rowIdxBody % $product / $stride);
+                $catIdx = floor($rowIdx % $product / $stride);
                 $id = $reader->getDimensionId($table->numOneDim + $dimIdx);
                 $categId = $reader->getCategoryId($id, $catIdx);
                 $label = $reader->getCategoryLabel($id, $categId);
             }
-            if ($table->useRowSpans === false || $rowIdxBody % $stride === 0) {
+            if ($table->useRowSpans === false || $rowIdx % $stride === 0) {
                 $cell = $this->headerCell($row, $label, $scope, null, $rowspan);
-                $this->labelCellCss($cell, $i, $rowIdxBody, $stride);
+                $this->labelCellCss($cell, $i, $rowIdx, $stride);
                 $row->appendChild($cell);
             }
         }
     }
 
     /**
-     * Create and returns a header cell element.
-     * @param DOMElement $row
+     * Create, add and return a header cell element.
+     * @param DOMElement $row row to append the cell to
      * @param ?String $str cell content
      * @param ?String $scope scope of cell
      * @param ?String $colspan number of columns to span
@@ -119,13 +139,7 @@ class RendererCell
      * @return DOMElement
      * @throws DOMException
      */
-    public function headerCell(
-        DOMElement $row,
-        ?string    $str = null,
-        ?string    $scope = null,
-        ?string    $colspan = null,
-        ?string    $rowspan = null
-    ): DOMNode
+    public function headerCell(DOMElement $row, ?string $str = null, ?string $scope = null, ?string $colspan = null, ?string $rowspan = null): DOMNode
     {
         $doc = $this->table->getDoc();
         $cell = $doc->createElement('th');

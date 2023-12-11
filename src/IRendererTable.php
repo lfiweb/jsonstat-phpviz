@@ -2,6 +2,11 @@
 
 namespace jsonstatPhpViz;
 
+use DOMException;
+use DOMNode;
+use jsonstatPhpViz\Html\RendererCell;
+use jsonstatPhpViz\Html\RendererTable;
+
 interface IRendererTable
 {
     /**
@@ -24,7 +29,6 @@ interface IRendererTable
      */
     public function render(): string;
 
-
     /**
      * Returns the default number of dimensions used for rendering rows.
      * By default, a table is rendered using all dimensions for rows expect the last two dimensions are used for columns.
@@ -33,4 +37,37 @@ interface IRendererTable
      */
     public function numRowDimAuto(): int;
 
+    /**
+     * Creates the internal structure of the table.
+     * @return void
+     */
+    public function build(): void;
+
+    /**
+     * Automatically sets the caption.
+     * Sets the caption from the optional JSON-stat label property. HTML from the JSON-stat is escaped.
+     * @return void
+     */
+    public function initCaption(): void;
+
+    /**
+     * Instantiate the RendererCell class.
+     * @return void
+     */
+    public function initRendererCell(): void;
+
+    /**
+     * Creates the table body and appends table cells row by row to it.
+     */
+    public function rows(): void;
+
+    /**
+     * Creates the table head and appends header cells, row by row to it.
+     */
+    public function headers(): void;
+
+    /**
+     * Creates and inserts a caption.
+     */
+    public function caption(): void;
 }

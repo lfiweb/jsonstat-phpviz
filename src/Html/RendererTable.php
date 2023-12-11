@@ -12,7 +12,6 @@ use jsonstatPhpViz\Formatter;
 use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
 use jsonstatPhpViz\UtilHtml;
-use function array_slice;
 use function count;
 
 /**
@@ -35,7 +34,7 @@ use function count;
  *
  * @see www.json-stat.org
  */
-class RendererTable extends \jsonstatPhpViz\RendererTable implements \jsonstatPhpViz\IRendererTable
+class RendererTable extends \jsonstatPhpViz\RendererTable
 {
 
     /** @var DOMNode|Table */
@@ -98,7 +97,7 @@ class RendererTable extends \jsonstatPhpViz\RendererTable implements \jsonstatPh
      * Sets the caption from the optional JSON-stat label property. HTML from the JSON-stat is escaped.
      * @return void
      */
-    protected function initCaption(): void
+    public function initCaption(): void
     {
         // since html content is allowed in caption when the property is set explicitly,
         // we have to escape it when set via json-stat to prevent html content from the untrusted source
@@ -111,7 +110,7 @@ class RendererTable extends \jsonstatPhpViz\RendererTable implements \jsonstatPh
      * Instantiate the RendererCell class.
      * @return void
      */
-    protected function initRendererCell(): void
+    public function initRendererCell(): void
     {
         $this->rendererCell = new RendererCell($this, new FormatterCell($this->reader, new Formatter()));
     }
@@ -129,31 +128,6 @@ class RendererTable extends \jsonstatPhpViz\RendererTable implements \jsonstatPh
     }
 
     /**
-     * Creates the internal structure of the table.
-     * @return void
-     * @throws DOMException
-     */
-    protected function build(): void
-    {
-        $this->init();
-        $this->caption();
-        $this->headers();
-        $this->rows();
-    }
-
-    /**
-     * Render the table and return the DOM
-     * @return DOMElement
-     * @throws DOMException
-     */
-    public function renderDom(): DOMElement
-    {
-        $this->build();
-
-        return $this->table->get();
-    }
-
-    /**
      * Return the DOMDocument.
      * @return DOMDocument
      */
@@ -163,10 +137,19 @@ class RendererTable extends \jsonstatPhpViz\RendererTable implements \jsonstatPh
     }
 
     /**
+     * Return the table element.
+     * @return DOMElement
+     */
+    public function getDom(): DOMElement
+    {
+        return $this->table->get();
+    }
+
+    /**
      * Creates the table head and appends header cells, row by row to it.
      * @throws DOMException
      */
-    protected function headers(): void
+    public function headers(): void
     {
         $tHead = $this->table->createTHead();
         for ($rowIdx = 0; $rowIdx < $this->numHeaderRows; $rowIdx++) {
@@ -182,7 +165,7 @@ class RendererTable extends \jsonstatPhpViz\RendererTable implements \jsonstatPh
      * Creates the table body and appends table cells row by row to it.
      * @throws DOMException
      */
-    protected function rows(): void
+    public function rows(): void
     {
         $rowIdx = 0;
         $tBody = $this->table->createTBody();
@@ -198,10 +181,9 @@ class RendererTable extends \jsonstatPhpViz\RendererTable implements \jsonstatPh
 
     /**
      * Creates and inserts a caption.
-     * @return DOMNode|string|null
      * @throws DOMException
      */
-    protected function caption(): DOMNode|string|null
+    public function caption(): void
     {
         if ($this->caption) {
             $caption = $this->table->insertCaption();
@@ -210,7 +192,5 @@ class RendererTable extends \jsonstatPhpViz\RendererTable implements \jsonstatPh
             $caption->appendChild($fragment);
             $this->caption = $caption;
         }
-
-        return $this->caption;
     }
 }

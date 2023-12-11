@@ -1,6 +1,6 @@
 <?php
 
-namespace jsonstatPhpViz\Tsv;
+namespace jsonstatPhpViz\Array;
 
 use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
@@ -27,15 +27,17 @@ class RendererCell
      * Appends cells with values to the row.
      * Inserts a HTMLTableCellElement at the end of the row with a value taken from the values at given offset.
      * @param int $offset
-     * @return string the content of the cell
+     * @param int $rowIdx
+     * @return void the content of the cell
      */
-    public function valueCell(int $offset): string
+    public function valueCell(int $offset, int $rowIdx): void
     {
+        $cellIdx = $offset % $this->table->numValueCols;
+        $x = $rowIdx + $this->table->numHeaderRows;
+        $y = $cellIdx + $this->table->numLabelCols;
         $val = $this->reader->data->value[$offset];
-        $val = $this->formatter->formatValueCell($val, $offset);
-        $this->table->tsv .= $val;
 
-        return $val;
+        $this->table->data[$x][$y] = $this->formatter->formatValueCell($val, $offset);
     }
 
     /**
@@ -47,41 +49,46 @@ class RendererCell
     {
         $table = $this->table;
         $rowStrides = UtilArray::getStrides($table->rowDims);
+        $x = $rowIdx + $table->numHeaderRows;
 
-        for ($i = 0; $i < $table->numLabelCols; $i++) {
-            $stride = $rowStrides[$i];
-            $product = $table->shape[$i] * $stride;
+        for ($y = 0; $y < $table->numLabelCols; $y++) {
+            $stride = $rowStrides[$y];
+            $product = $table->shape[$y] * $stride;
             $reader = $this->reader;
             $catIdx = floor($rowIdx % $product / $stride);
-            $id = $reader->getDimensionId($table->numOneDim + $i);
+            $id = $reader->getDimensionId($table->numOneDim + $y);
             $categId = $reader->getCategoryId($id, $catIdx);
-            $label = $reader->getCategoryLabel($id, $categId);
-            $this->headerCell($label);
+            if ($table->repeatLabels === true || $rowIdx % $stride === 0) {
+                $label = $reader->getCategoryLabel($id, $categId);
+            }
+            else {
+                $label = '';
+            }
+            $this->headerCell($label, $x, $y);
         }
     }
 
     /**
-     * Append the header cell to the internal tab separated string.
+     * Add the header cell to the 2dim-array.
      * @param string $label
-     * @return string
+     * @param float|int $x
+     * @param int $y
+     * @return void
      */
-    public function headerCell(string $label): string
+    public function headerCell(string $label, float|int $x, int $y): void
     {
-        $val = $this->formatter->formatHeaderCell($label).$this->table->separatorCol;
-        $this->table->tsv .= $val;
-
-        return $val;
+        $this->table->data[$x][$y] = $this->formatter->formatHeaderCell($label);
     }
 
     /**
      * Creates the cells for the headers of the label columns.
      */
-    public function headerLabelCells(): void
+    public function headerLabelCells(int $rowIdx): void
     {
-        for ($k = 0; $k < $this->table->numLabelCols; $k++) {
-            $id = $this->reader->getDimensionId($this->table->numOneDim + $k);
+        for ($y = 0; $y < $this->table->numLabelCols; $y++) {
+            $id = $this->reader->getDimensionId($this->table->numOneDim + $y);
             $label = $this->reader->getDimensionLabel($id);
-            $this->headerCell($label);
+            $this->headerCell($label, $rowIdx, $y);
         }
     }
 
@@ -93,7 +100,6 @@ class RendererCell
     {
         $table = $this->table;
         $reader = $this->reader;
-        $csv = '';
         // remember: we render two rows with headings per column dimension, e.g.
         //      one for the dimension label and one for the category label
         $dimIdx = $table->numRowDim + (int)floor($rowIdx / 2);
@@ -101,6 +107,7 @@ class RendererCell
         $z = $rowIdx % 2;
         $product = $table->shape[$dimIdx] * $stride;
         for ($i = 0; $i < $table->numValueCols; $i++) {
+            $y = $i + $table->numLabelCols;
             $id = $reader->getDimensionId($table->numOneDim + $dimIdx);
             if ($z === 0) { // set attributes for dimension label cell
                 $label = $reader->getDimensionLabel($id);
@@ -109,9 +116,7 @@ class RendererCell
                 $catId = $reader->getCategoryId($id, $catIdx);
                 $label = $reader->getCategoryLabel($id, $catId);
             }
-            $this->headerCell($label);
+            $this->headerCell($label, $rowIdx, $y);
         }
-        $this->table->tsv = rtrim($this->table->tsv, $this->table->separatorCol);
     }
-
 }

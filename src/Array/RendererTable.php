@@ -1,12 +1,9 @@
 <?php
 
-namespace jsonstatPhpViz\Tsv;
+namespace jsonstatPhpViz\Array;
 
 use jsonstatPhpViz\Formatter;
 use jsonstatPhpViz\FormatterCell;
-use jsonstatPhpViz\Reader;
-use function array_slice;
-use function count;
 
 /**
  * Renders json-stat data as a tab separated table.
@@ -33,9 +30,9 @@ class RendererTable extends \jsonstatPhpViz\RendererTable
 
     /**
      * Holds the tab separated data.
-     * @var string
+     * @var array
      */
-    public string $tsv;
+    public array $data = [];
 
     /**
      * Do not render dimension labels?
@@ -47,22 +44,13 @@ class RendererTable extends \jsonstatPhpViz\RendererTable
     /** @var string|null caption of the table */
     public null|string $caption;
 
-    protected RendererCell $rendererCell;
-
-    public string $separatorRow = "\n";
-
-    public string $separatorCol = "\t";
-
     /**
-     * Instantiates the class.
-     * @param Reader $jsonStatReader
-     * @param int|null $numRowDim
+     * Repeat column labels
+     * @var bool
      */
-    public function __construct(Reader $jsonStatReader, ?int $numRowDim = null)
-    {
-        parent::__construct($jsonStatReader, $numRowDim);
-        $this->tsv = '';
-    }
+    public bool $repeatLabels = true;
+
+    protected RendererCell $rendererCell;
 
     /**
      * Automatically sets the caption.
@@ -93,8 +81,18 @@ class RendererTable extends \jsonstatPhpViz\RendererTable
     public function render(): string
     {
         $this->build();
+        $arr = [];
+        foreach ($this->data as $row) {
+            $arr[] = implode(',', $row);
+        }
+        return implode(',', $arr);
+    }
 
-        return $this->tsv;
+    public function getData()
+    {
+        $this->build();
+
+        return $this->data;
     }
 
     /**
@@ -104,9 +102,8 @@ class RendererTable extends \jsonstatPhpViz\RendererTable
     {
         for ($rowIdx = 0; $rowIdx < $this->numHeaderRows; $rowIdx++) {
             if (!$this->noLabelDim || $rowIdx % 2 === 1) {
-                $this->rendererCell->headerLabelCells();
+                $this->rendererCell->headerLabelCells($rowIdx);
                 $this->rendererCell->headerValueCells($rowIdx);
-                $this->tsv .= $this->separatorRow;
             }
         }
     }
@@ -117,22 +114,23 @@ class RendererTable extends \jsonstatPhpViz\RendererTable
     public function rows(): void
     {
         $rowIdx = 0;
+        $lastCol = $this->numValueCols - 1;
         for ($offset = 0, $len = $this->reader->getNumValues(); $offset < $len; $offset++) {
             if ($offset % $this->numValueCols === 0) {
-                $this->tsv = rtrim($this->tsv, $this->separatorCol).($rowIdx > 0 ? $this->separatorRow : '');
                 $this->rendererCell->labelCells($rowIdx);
+            }
+            $this->rendererCell->valueCell($offset, $rowIdx);
+            if ($offset % $this->numValueCols === $lastCol) {
                 $rowIdx++;
             }
-            $this->rendererCell->valueCell($offset).$this->separatorCol;
         }
     }
 
     /**
      * Creates and inserts a caption.
-     * @return string|null
      */
     public function caption(): void
     {
-        $this->tsv .= $this->caption.$this->separatorRow.$this->separatorRow;
+        $this->data[] = [$this->caption];
     }
 }

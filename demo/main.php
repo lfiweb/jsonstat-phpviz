@@ -78,6 +78,12 @@ $table = new \jsonstatPhpViz\Tsv\RendererTable($reader);
 $table->excludeOneDim = true;
 $table->separatorCol = ',';
 $html6 = nl2br($table->render());
+// as 2dim-array
+$reader = new Reader($jsonstat);
+$table = new \jsonstatPhpViz\Array\RendererTable($reader);
+$table->excludeOneDim = true;
+$table->repeatLabels = false;
+var_dump($table->getData());
 
 // JSON-stat OECD testdata
 $filename = '../tests/resources/oecd.json';

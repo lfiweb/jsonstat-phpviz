@@ -2,10 +2,11 @@
 
 namespace jsonstatPhpViz;
 
+use DOMException;
 use function array_slice;
 use function count;
 
-class RendererTable
+abstract class RendererTable implements IRendererTable
 {
     /** @var int dimension of type row */
     public const DIM_TYPE_ROW = 1;
@@ -102,7 +103,6 @@ class RendererTable
         $this->numHeaderRows = count($this->colDims) > 0 ? count($this->colDims) * 2 : 1;
     }
 
-
     /**
      * Returns the default number of dimensions used for rendering rows.
      * By default, a table is rendered using all dimensions for rows expect the last two dimensions are used for columns.
@@ -130,5 +130,17 @@ class RendererTable
         }
 
         return array_slice($dims, $this->numRowDim);
+    }
+
+    /**
+     * Creates the internal structure of the table.
+     * @return void
+     */
+    public function build(): void
+    {
+        $this->init();
+        $this->caption();
+        $this->headers();
+        $this->rows();
     }
 }
