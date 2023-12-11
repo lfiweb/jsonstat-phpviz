@@ -82,16 +82,15 @@ class RendererCell
     {
         $table = $this->table;
         $rowStrides = UtilArray::getStrides($table->rowDims);
+        $reader = $this->reader;
 
-        for ($i = 0; $i < $table->numLabelCols; $i++) {
-            $dimIdx = $i;
+        for ($dimIdx = 0; $dimIdx < $table->numLabelCols; $dimIdx++) {
             $stride = $rowStrides[$dimIdx];
             $product = $table->shape[$dimIdx] * $stride;
             $label = null;
             $scope = $stride > 1 ? 'rowgroup' : 'row';
             $rowspan = $table->useRowSpans && $stride > 1 ? $stride : null;
             if ($rowIdxBody % $stride === 0) {
-                $reader = $this->reader;
                 $catIdx = floor($rowIdxBody % $product / $stride);
                 $id = $reader->getDimensionId($table->numOneDim + $dimIdx);
                 $categId = $reader->getCategoryId($id, $catIdx);
@@ -99,7 +98,7 @@ class RendererCell
             }
             if ($table->useRowSpans === false || $rowIdxBody % $stride === 0) {
                 $cell = $this->headerCell($row, $label, $scope, null, $rowspan);
-                $this->labelCellCss($cell, $i, $rowIdxBody, $stride);
+                $this->labelCellCss($cell, $dimIdx, $rowIdxBody, $stride);
             }
         }
     }
