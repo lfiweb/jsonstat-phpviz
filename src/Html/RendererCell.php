@@ -185,8 +185,7 @@ class RendererCell extends \jsonstatPhpViz\RendererCell
         $rowStrides = UtilArray::getStrides($table->rowDims);
         $reader = $this->reader;
 
-        for ($i = 0; $i < $table->numLabelCols; $i++) {
-            $dimIdx = $i;
+        for ($dimIdx = 0; $dimIdx < $table->numLabelCols; $dimIdx++) {
             $stride = $rowStrides[$dimIdx];
             $product = $table->shape[$dimIdx] * $stride;
             $label = null;
@@ -201,7 +200,7 @@ class RendererCell extends \jsonstatPhpViz\RendererCell
             if ($table->useRowSpans === false || $rowIdx % $stride === 0) {
                 $cell = $this->headerCell($label);
                 $this->headerCellAttr($cell, $scope, null, $rowspan);
-                $this->labelCellCss($cell, $i, $rowIdx, $stride);
+                $this->labelCellCss($cell, $dimIdx, $rowIdx, $stride);
                 $row->appendChild($cell);
             }
         }
