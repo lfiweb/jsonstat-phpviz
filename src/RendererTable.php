@@ -41,6 +41,7 @@ abstract class RendererTable implements IRendererTable
      * @var bool
      */
     public bool $noLabelLastDim = false;
+
     /**
      * Exclude dimensions of size one from rendering.
      * Only excludes continuous dimensions of size one, e.g. when each dimension with a lower index is also of size one.
