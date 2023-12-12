@@ -1,6 +1,6 @@
 <?php
 
-namespace jsonstatPhpViz\Html;
+namespace jsonstatPhpViz\Renderer;
 
 use DOMElement;
 use DOMException;
@@ -11,19 +11,44 @@ use jsonstatPhpViz\Reader;
 use jsonstatPhpViz\UtilArray;
 use function count;
 
-
-class RendererCell extends \jsonstatPhpViz\RendererCell
+/**
+ * Handles rendering of table cells.
+ *
+ * There are four types of cells to render:
+ *
+ * |---------------------------------------|
+ * | header label cell | header value cell |
+ * |===================|===================|
+ * |     label cell    |     value cell    |
+ * |-------------------|-------------------|
+ *
+ * e.g.:
+ *
+ * |---------------------------------------|
+ * |    OECD country   |     year 2003     |
+ * |===================|===================|
+ * |       Sweden      |    6.56574156     |
+ * |-------------------|-------------------|
+ * |     Switzerland   |    4.033356027    |
+ * |-------------------|-------------------|
+ * |         ...       |         ...       |
+ * |-------------------|-------------------|
+ */
+class CellHtml
 {
-    protected RendererTable $table;
+    protected Reader $reader;
+    protected FormatterCell $formatter;
+    protected AbstractTable $table;
 
     /**
      * @param FormatterCell $cellFormatter
      * @param Reader $reader
-     * @param RendererTable $rendererTable
+     * @param AbstractTable $rendererTable
      */
-    public function __construct(FormatterCell $cellFormatter, Reader $reader, RendererTable $rendererTable)
+    public function __construct(FormatterCell $cellFormatter, Reader $reader, AbstractTable $rendererTable)
     {
-        parent::__construct($cellFormatter, $reader);
+        $this->reader = $reader;
+        $this->formatter = $cellFormatter;
         $this->table = $rendererTable;
     }
 
@@ -173,8 +198,7 @@ class RendererCell extends \jsonstatPhpViz\RendererCell
     }
 
     /**
-     * Appends cells with labels to the row.
-     * Inserts the label as a HTMLTableHeaderElement at the end of the row.
+     * Add cells with labels to the row.
      * @param DOMElement $row HTMLTableRow
      * @param int $rowIdx row index
      * @throws DOMException

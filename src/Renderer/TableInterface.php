@@ -1,8 +1,10 @@
 <?php
 
-namespace jsonstatPhpViz;
+namespace jsonstatPhpViz\Renderer;
 
-interface IRendererTable
+use jsonstatPhpViz\Reader;
+
+interface TableInterface
 {
     /**
      * Instantiates the class.

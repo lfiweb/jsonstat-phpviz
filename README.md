@@ -24,7 +24,7 @@ Two dimensions are automatically used to group the rows:
 ```php
 <?php
 
-use jsonstatPhpViz\Html\RendererTable;use jsonstatPhpViz\Reader;
+use jsonstatPhpViz\Reader;use jsonstatPhpViz\Renderer\TableHtml;
 
 require_once __DIR__.'/../vendor/autoload.php';
 
@@ -33,7 +33,7 @@ $json = file_get_contents($filename);
 $jsonstat = json_decode($json);
 
 $reader = new Reader($jsonstat);
-$table = new RendererTable($reader);
+$table = new TableHtml($reader);
 $html = $table->render();
 ```
 ![screenshot-01](demo/screenshot-01.png)
@@ -76,7 +76,7 @@ Render the table as comma separated values (csv):
 
 ```php
 $reader = new Reader($jsonstat);
-$table = new \jsonstatPhpViz\Tsv\RendererTable($reader);
+$table = new \jsonstatPhpViz\Renderer\TableTsv($reader);
 $table->separatorCol = ",";
 $html = $table->render();
 ```

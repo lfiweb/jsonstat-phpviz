@@ -5,7 +5,7 @@ namespace jsonstatPhpViz\Test;
 
 use DOMException;
 use JsonException;
-use jsonstatPhpViz\Html\RendererTable;
+use jsonstatPhpViz\Renderer\TableHtml;
 use jsonstatPhpViz\Test\TestFactory\JsonstatReader;
 use jsonstatPhpViz\Test\TestFactory\RendererTable as FactoryRendererTable;
 use PHPUnit\Framework\TestCase;
@@ -33,7 +33,7 @@ class RendererTableTest extends TestCase
     {
         $reader = $this->factory->create(__DIR__ . '/../resources/integer.json');
         $fileHtml = __DIR__ . '/../resources/integer.html';
-        $table = new RendererTable($reader);
+        $table = new TableHtml($reader);
         $htmlTable = $table->render();
         self::assertStringEqualsFile($fileHtml, $htmlTable);
     }
@@ -47,7 +47,7 @@ class RendererTableTest extends TestCase
         // transpose a dimension having size > 1 while excluding dimensions of size one
         $reader = $this->factory->create(__DIR__ . '/../resources/volume.json');
         $reader->transpose([0, 1, 2, 4, 3, 5]);
-        $table = new RendererTable($reader);
+        $table = new TableHtml($reader);
         $table->excludeOneDim = true;
         $path = __DIR__ . '/../resources/volume-transposed.html';
         self::assertStringEqualsFile($path, $table->render());
@@ -61,7 +61,7 @@ class RendererTableTest extends TestCase
         // also we test setting the number of row dimensions to three
         $numRowDim = 3;
         $reader->transpose([0, 4, 2, 3, 1, 5]);
-        $table = new RendererTable($reader, $numRowDim);
+        $table = new TableHtml($reader, $numRowDim);
         $table->excludeOneDim = true;
         $path = __DIR__ . '/../resources/volume-onedim-transposed.html';
         self::assertStringEqualsFile($path, $table->render());
@@ -78,7 +78,7 @@ class RendererTableTest extends TestCase
         // note: top-left header cell never has content, no need to set anything to null for testing
         $reader = $this->factory->create(__DIR__ . '/../resources/integer.json');
         $reader->data->value[1] = null; // inject a null value
-        $table = new RendererTable($reader);
+        $table = new TableHtml($reader);
         $htmlTable = $table->render();
 
         self::assertStringNotContainsString('<td/>', $htmlTable);   // this would be invalid on a non-void element
@@ -93,7 +93,7 @@ class RendererTableTest extends TestCase
     public function testRenderDecimals(): void
     {
         $reader = $this->factory->create(__DIR__ . '/../resources/volume.json');
-        $rendererTable = new RendererTable($reader);
+        $rendererTable = new TableHtml($reader);
         $rendererTable->excludeOneDim = false;
         $rendererTable->render();
         $table = $rendererTable->getDom();
@@ -104,7 +104,7 @@ class RendererTableTest extends TestCase
         $cell = FactoryRendererTable::getValueCell($table, 44);
         self::assertEquals('7.0', $cell->textContent);
 
-        $rendererTable = new RendererTable($reader);
+        $rendererTable = new TableHtml($reader);
         $rendererTable->excludeOneDim = true;
         $rendererTable->render();
         $cell = FactoryRendererTable::getValueCell($table, 44);
@@ -124,7 +124,7 @@ class RendererTableTest extends TestCase
         $i = 0;
         $x = [];
         for (; $i < $len; $i++) {
-            $renderer = new RendererTable($reader);
+            $renderer = new TableHtml($reader);
             $renderer->setNumRowDim($i);
             $renderer->render();
             $nlX = FactoryRendererTable::getTBodyChildNodes($renderer->getDom());
@@ -143,13 +143,13 @@ class RendererTableTest extends TestCase
     public function testNumRowDimAuto(): void
     {
         $reader = $this->factory->create(__DIR__ . '/../resources/volume.json');
-        $table = new RendererTable($reader);
+        $table = new TableHtml($reader);
         self::assertSame(4, $table->numRowDimAuto());
         $table->excludeOneDim = true;
         self::assertSame(2, $table->numRowDimAuto());
 
         $reader = $this->factory->create(__DIR__ . '/../resources/oecd.json');
-        $table = new RendererTable($reader);
+        $table = new TableHtml($reader);
         self::assertSame(1, $table->numRowDimAuto());
         $table->excludeOneDim = true;
         self::assertSame(1, $table->numRowDimAuto());
@@ -165,7 +165,7 @@ class RendererTableTest extends TestCase
         $size = $reader->data->size;
         $x = array_slice($size, 0, 4);
         $y = array_slice($size, 4);
-        $renderer = new RendererTable($reader, 2);
+        $renderer = new TableHtml($reader, 2);
         $renderer->excludeOneDim = true;
         $renderer->render();
         $nlX = FactoryRendererTable::getTBodyChildNodes($renderer->getDom());
@@ -188,7 +188,7 @@ class RendererTableTest extends TestCase
         $reader->data->value[3] = $html;
         $reader->data->dimension->{'A'}->label = $html;
 
-        $table = new RendererTable($reader);
+        $table = new TableHtml($reader);
         $htmlTable = $table->render();
         self::assertStringNotContainsString($html, $htmlTable);
         self::assertStringContainsString($htmlEncoded, $htmlTable);
@@ -207,7 +207,7 @@ class RendererTableTest extends TestCase
         $reader = $this->factory->create(__DIR__ . '/../resources/integer.json');
         $reader->data->label = $html;
 
-        $table = new RendererTable($reader);
+        $table = new TableHtml($reader);
         $htmlTable = $table->render();
         // html in JSON-stat should get encoded:
         self::assertStringContainsString($htmlEncoded, $htmlTable);
@@ -226,7 +226,7 @@ class RendererTableTest extends TestCase
     public function testNoLabelLastDim(): void
     {
         $reader = $this->factory->create(__DIR__ . '/../resources/integer.json');
-        $renderer = new RendererTable($reader, 2);
+        $renderer = new TableHtml($reader, 2);
         $renderer->noLabelLastDim = true;
         $renderer->render();
         $num = $renderer->getDom()->getElementsByTagName('thead')->item(0)->childNodes->length;

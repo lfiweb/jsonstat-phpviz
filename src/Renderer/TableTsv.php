@@ -1,6 +1,6 @@
 <?php
 
-namespace jsonstatPhpViz\Tsv;
+namespace jsonstatPhpViz\Renderer;
 
 use jsonstatPhpViz\Formatter;
 use jsonstatPhpViz\FormatterCell;
@@ -9,24 +9,9 @@ use jsonstatPhpViz\Reader;
 /**
  * Renders json-stat data as a tab separated table.
  *
- * A table consists of a number of dimensions that are used to define the rows of the two-dimensional table
- * (referred to as row dimensions) and a number of dimensions that are used to define the columns of the table
- * (referred to as col dimensions). Each row dimension creates its own pre column, containing only category labels,
- * whereas the column dimensions contain the actual values.
- *
- * Setting the property numRowDim (number of row dimensions) defines how many of the dimensions are use for the rows,
- * beginning at the start of the ordered size array of the json-stat schema. Remaining dimensions are used for columns.
- * Dimensions of length one can be excluded from rendering with property excludeOneDim.
- *
- * Setting the property noLabelLastDim will skip the row in the table heading containing the labels of the last
- * dimension.
- *
- * Note: In the context of JSON-stat, the word value is used. In the context of html, data is used.
- * So we speak either of value cells and label cells, or of data cells and header cells.
- *
- * @see www.json-stat.org
+ * @see TableHtml class for more info
  */
-class RendererTable extends \jsonstatPhpViz\RendererTable
+class TableTsv extends AbstractTable
 {
 
     /**
@@ -45,14 +30,15 @@ class RendererTable extends \jsonstatPhpViz\RendererTable
     /** @var string|null caption of the table */
     public null|string $caption;
 
-    protected RendererCell $rendererCell;
+    protected CellTsv $rendererCell;
 
     public string $separatorRow = "\n";
 
     public string $separatorCol = "\t";
 
     /**
-     * Repeat column labels
+     * Repeat column labels ?
+     * default = true
      * @var bool
      */
     public bool $repeatLabels = true;
@@ -87,7 +73,7 @@ class RendererTable extends \jsonstatPhpViz\RendererTable
     public function initRendererCell(): void
     {
         $formatter = new FormatterCell($this->reader, new Formatter());
-        $this->rendererCell = new RendererCell($formatter, $this->reader, $this);
+        $this->rendererCell = new CellTsv($formatter, $this->reader, $this);
     }
 
     /**
@@ -109,7 +95,7 @@ class RendererTable extends \jsonstatPhpViz\RendererTable
     {
         for ($rowIdx = 0; $rowIdx < $this->numHeaderRows; $rowIdx++) {
             if (!$this->noLabelDim || $rowIdx % 2 === 1) {
-                $this->rendererCell->headerLabelCells();
+                $this->rendererCell->headerLabelCells($rowIdx);
                 $this->rendererCell->headerValueCells($rowIdx);
                 $this->tsv .= $this->separatorRow;
             }

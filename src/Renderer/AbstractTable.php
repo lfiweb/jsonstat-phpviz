@@ -1,12 +1,13 @@
 <?php
 
-namespace jsonstatPhpViz;
+namespace jsonstatPhpViz\Renderer;
 
-use DOMException;
+use jsonstatPhpViz\Reader;
+use jsonstatPhpViz\UtilArray;
 use function array_slice;
 use function count;
 
-abstract class RendererTable implements IRendererTable
+abstract class AbstractTable implements TableInterface
 {
     /** @var int dimension of type row */
     public const DIM_TYPE_ROW = 1;

@@ -1,6 +1,6 @@
 <?php
 
-namespace jsonstatPhpViz\Html;
+namespace jsonstatPhpViz\Renderer;
 
 use DOMDocument;
 use DOMElement;
@@ -34,7 +34,7 @@ use function count;
  *
  * @see www.json-stat.org
  */
-class RendererTable extends \jsonstatPhpViz\RendererTable
+class TableHtml extends AbstractTable
 {
 
     /** @var DOMNode|Table */
@@ -51,7 +51,7 @@ class RendererTable extends \jsonstatPhpViz\RendererTable
     /** @var null|string|DOMNode caption of the table */
     public null|string|DOMNode $caption;
 
-    protected RendererCell $rendererCell;
+    protected CellHtml $rendererCell;
 
     /**
      * Instantiates the class.
@@ -112,7 +112,7 @@ class RendererTable extends \jsonstatPhpViz\RendererTable
     public function initRendererCell(): void
     {
         $formatter = new FormatterCell($this->reader, new Formatter());
-        $this->rendererCell = new RendererCell($formatter, $this->reader, $this);
+        $this->rendererCell = new CellHtml($formatter, $this->reader, $this);
     }
 
     /**

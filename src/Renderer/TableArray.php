@@ -1,6 +1,6 @@
 <?php
 
-namespace jsonstatPhpViz\Array;
+namespace jsonstatPhpViz\Renderer;
 
 use jsonstatPhpViz\Formatter;
 use jsonstatPhpViz\FormatterCell;
@@ -25,7 +25,7 @@ use jsonstatPhpViz\FormatterCell;
  *
  * @see www.json-stat.org
  */
-class RendererTable extends \jsonstatPhpViz\RendererTable
+class TableArray extends AbstractTable
 {
 
     /**
@@ -50,7 +50,7 @@ class RendererTable extends \jsonstatPhpViz\RendererTable
      */
     public bool $repeatLabels = true;
 
-    protected RendererCell $rendererCell;
+    protected CellArray $rendererCell;
 
     /**
      * Automatically sets the caption.
@@ -71,7 +71,7 @@ class RendererTable extends \jsonstatPhpViz\RendererTable
     public function initRendererCell(): void
     {
         $formatter = new FormatterCell($this->reader, new Formatter());
-        $this->rendererCell = new RendererCell($formatter, $this->reader, $this);
+        $this->rendererCell = new CellArray($formatter, $this->reader, $this);
     }
 
     /**
@@ -120,7 +120,10 @@ class RendererTable extends \jsonstatPhpViz\RendererTable
             if ($offset % $this->numValueCols === 0) {
                 $this->rendererCell->labelCells($rowIdx);
             }
-            $this->rendererCell->valueCell($offset, $rowIdx);
+            $cellIdx = $offset % $this->numValueCols;
+            $x = $rowIdx + $this->numHeaderRows;
+            $y = $cellIdx + $this->numLabelCols;
+            $this->data[$x][$y] = $this->rendererCell->valueCell($offset);
             if ($offset % $this->numValueCols === $lastCol) {
                 $rowIdx++;
             }

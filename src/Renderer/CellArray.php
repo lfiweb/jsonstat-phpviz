@@ -1,23 +1,26 @@
 <?php
 
-namespace jsonstatPhpViz\Array;
+namespace jsonstatPhpViz\Renderer;
 
 use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
 use jsonstatPhpViz\UtilArray;
 
-class RendererCell extends \jsonstatPhpViz\RendererCell
+class CellArray
 {
-    protected RendererTable $table;
+    protected Reader $reader;
+    protected FormatterCell $formatter;
+    protected TableArray $table;
 
     /**
      * @param FormatterCell $cellFormatter
      * @param Reader $reader
-     * @param RendererTable $rendererTable
+     * @param TableArray $rendererTable
      */
-    public function __construct(FormatterCell $cellFormatter, Reader $reader, RendererTable $rendererTable)
+    public function __construct(FormatterCell $cellFormatter, Reader $reader, TableArray $rendererTable)
     {
-        parent::__construct($cellFormatter, $reader);
+        $this->reader = $reader;
+        $this->formatter = $cellFormatter;
         $this->table = $rendererTable;
     }
 
@@ -25,23 +28,21 @@ class RendererCell extends \jsonstatPhpViz\RendererCell
      * Appends cells with values to the row.
      * Inserts a HTMLTableCellElement at the end of the row with a value taken from the values at given offset.
      * @param int $offset
-     * @param int $rowIdx
-     * @return void the content of the cell
+     * @return string the content of the cell
      */
-    public function valueCell(int $offset, int $rowIdx): void
+    public function valueCell(int $offset): string
     {
-        $cellIdx = $offset % $this->table->numValueCols;
-        $x = $rowIdx + $this->table->numHeaderRows;
-        $y = $cellIdx + $this->table->numLabelCols;
         $val = $this->reader->data->value[$offset];
 
-        $this->table->data[$x][$y] = $this->formatter->formatValueCell($val, $offset);
+        return $this->formatter->formatValueCell($val, $offset);
     }
 
     /**
      * Appends cells with labels to the row.
      * Inserts the label as a HTMLTableHeaderElement at the end of the row.
      * @param int $rowIdx the row index of the body rows only
+     *
+     * TODO: if we keep Array/RendererCell pull up to share with Tsv/RendererCell
      */
     public function labelCells(int $rowIdx): void
     {
@@ -53,27 +54,25 @@ class RendererCell extends \jsonstatPhpViz\RendererCell
         for ($y = 0; $y < $table->numLabelCols; $y++) {
             $stride = $rowStrides[$y];
             $product = $table->shape[$y] * $stride;
-            $catIdx = floor($rowIdx % $product / $stride);
-            $id = $reader->getDimensionId($table->numOneDim + $y);
-            $categId = $reader->getCategoryId($id, $catIdx);
-            $label = $reader->getCategoryLabel($id, $categId);
-            if ($table->repeatLabels === false && $this->hasSameLabel($label, $x, $y)) {
-                $label = '';
+            $label = '';
+            if ($table->repeatLabels === true || $rowIdx % $stride === 0) {
+                $catIdx = floor($rowIdx % $product / $stride);
+                $id = $reader->getDimensionId($table->numOneDim + $y);
+                $categId = $reader->getCategoryId($id, $catIdx);
+                $label = $reader->getCategoryLabel($id, $categId);
             }
-            $this->headerCell($label, $x, $y);
+            $this->table->data[$x][$y] = $this->headerCell($label);
         }
     }
 
     /**
      * Add the header cell to the 2dim-array.
      * @param string $label
-     * @param float|int $x
-     * @param int $y
-     * @return void
+     * @return string
      */
-    public function headerCell(string $label, float|int $x, int $y): void
+    public function headerCell(string $label): string
     {
-        $this->table->data[$x][$y] = $this->formatter->formatHeaderCell($label);
+        return $this->formatter->formatHeaderCell($label);
     }
 
     /**
@@ -84,7 +83,7 @@ class RendererCell extends \jsonstatPhpViz\RendererCell
         for ($y = 0; $y < $this->table->numLabelCols; $y++) {
             $id = $this->reader->getDimensionId($this->table->numOneDim + $y);
             $label = $this->reader->getDimensionLabel($id);
-            $this->headerCell($label, $rowIdx, $y);
+            $this->table->data[$rowIdx][$y] = $this->headerCell($label);
         }
     }
 
@@ -112,12 +111,7 @@ class RendererCell extends \jsonstatPhpViz\RendererCell
                 $catId = $reader->getCategoryId($id, $catIdx);
                 $label = $reader->getCategoryLabel($id, $catId);
             }
-            $this->headerCell($label, $rowIdx, $y);
+            $this->table->data[$rowIdx][$y] = $this->headerCell($label);
         }
-    }
-
-    private function hasSameLabel(string $label, int $x, int $y) {
-
-        return $this->table->data[$x - 1][$y] === $label;
     }
 }

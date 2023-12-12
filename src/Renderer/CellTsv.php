@@ -1,23 +1,26 @@
 <?php
 
-namespace jsonstatPhpViz\Tsv;
+namespace jsonstatPhpViz\Renderer;
 
 use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
 use jsonstatPhpViz\UtilArray;
 
-class RendererCell extends \jsonstatPhpViz\RendererCell
+class CellTsv
 {
-    protected RendererTable $table;
+    protected Reader $reader;
+    protected FormatterCell $formatter;
+    protected AbstractTable $table;
 
     /**
      * @param FormatterCell $cellFormatter
      * @param Reader $reader
-     * @param RendererTable $rendererTable
+     * @param AbstractTable $rendererTable
      */
-    public function __construct(FormatterCell $cellFormatter, Reader $reader, RendererTable $rendererTable)
+    public function __construct(FormatterCell $cellFormatter, Reader $reader, AbstractTable $rendererTable)
     {
-        parent::__construct($cellFormatter, $reader);
+        $this->reader = $reader;
+        $this->formatter = $cellFormatter;
         $this->table = $rendererTable;
     }
 
@@ -48,11 +51,14 @@ class RendererCell extends \jsonstatPhpViz\RendererCell
         for ($dimIdx = 0; $dimIdx < $table->numLabelCols; $dimIdx++) {
             $stride = $rowStrides[$dimIdx];
             $product = $table->shape[$dimIdx] * $stride;
-            $catIdx = floor($rowIdx % $product / $stride);
-            $id = $reader->getDimensionId($table->numOneDim + $dimIdx);
-            $categId = $reader->getCategoryId($id, $catIdx);
-            $label = $reader->getCategoryLabel($id, $categId);
-            $this->headerCell($label);
+            $label = '';
+            if ($table->repeatLabels === true || $rowIdx % $stride === 0) {
+                $catIdx = floor($rowIdx % $product / $stride);
+                $id = $reader->getDimensionId($table->numOneDim + $dimIdx);
+                $categId = $reader->getCategoryId($id, $catIdx);
+                $label = $reader->getCategoryLabel($id, $categId);
+            }
+            $this->table->tsv .= $this->headerCell($label);
         }
     }
 
@@ -63,21 +69,21 @@ class RendererCell extends \jsonstatPhpViz\RendererCell
      */
     public function headerCell(string $label): string
     {
-        $val = $this->formatter->formatHeaderCell($label).$this->table->separatorCol;
-        $this->table->tsv .= $val;
-
-        return $val;
+        return $this->formatter->formatHeaderCell($label).$this->table->separatorCol;
     }
 
     /**
      * Creates the cells for the headers of the label columns.
      */
-    public function headerLabelCells(): void
+    public function headerLabelCells(int $rowIdx): void
     {
         for ($k = 0; $k < $this->table->numLabelCols; $k++) {
-            $id = $this->reader->getDimensionId($this->table->numOneDim + $k);
-            $label = $this->reader->getDimensionLabel($id);
-            $this->headerCell($label);
+            $label = '';
+            if ($this->table->repeatLabels === true || $rowIdx === $this->table->numHeaderRows - 1) { // last header row
+                $id = $this->reader->getDimensionId($this->table->numOneDim + $k);
+                $label = $this->reader->getDimensionLabel($id);
+            }
+            $this->table->tsv .= $this->headerCell($label);
         }
     }
 
@@ -105,7 +111,7 @@ class RendererCell extends \jsonstatPhpViz\RendererCell
                 $catId = $reader->getCategoryId($id, $catIdx);
                 $label = $reader->getCategoryLabel($id, $catId);
             }
-            $this->headerCell($label);
+            $this->table->tsv .= $this->headerCell($label);
         }
         $this->table->tsv = rtrim($this->table->tsv, $this->table->separatorCol);
     }
