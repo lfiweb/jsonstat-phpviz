@@ -5,21 +5,14 @@ namespace jsonstatPhpViz\Renderer;
 use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
 
-class CellExcel
+class CellExcel extends CellArray
 {
-    protected Reader $reader;
-    protected FormatterCell $formatter;
-    protected TableArray $table;
-
-    /**
-     * @param FormatterCell $cellFormatter
-     * @param Reader $reader
-     * @param TableExcel $rendererTable
-     */
-    public function __construct(FormatterCell $cellFormatter, Reader $reader, TableExcel $rendererTable)
+    public function xxxlabelCells(int $rowIdx): void
     {
-        $this->reader = $reader;
-        $this->formatter = $cellFormatter;
-        $this->table = $rendererTable;
+        parent::labelCells($rowIdx);
+        $spreadsheet = $this->table->xls;
+        foreach ($this->table->data[$rowIdx+ $this->table->numHeaderRows] as $y => $val) {
+            $spreadsheet->getActiveSheet()->setCellValue([$y + 1, $rowIdx + 1], $val);
+        }
     }
 }

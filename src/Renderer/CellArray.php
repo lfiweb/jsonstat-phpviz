@@ -10,14 +10,14 @@ class CellArray
 {
     protected Reader $reader;
     protected FormatterCell $formatter;
-    protected TableArray $table;
+    protected AbstractTable $table;
 
     /**
      * @param FormatterCell $cellFormatter
      * @param Reader $reader
-     * @param TableArray $rendererTable
+     * @param AbstractTable $rendererTable
      */
-    public function __construct(FormatterCell $cellFormatter, Reader $reader, TableArray $rendererTable)
+    public function __construct(FormatterCell $cellFormatter, Reader $reader, AbstractTable $rendererTable)
     {
         $this->reader = $reader;
         $this->formatter = $cellFormatter;
@@ -47,21 +47,21 @@ class CellArray
     public function labelCells(int $rowIdx): void
     {
         $table = $this->table;
-        $rowStrides = UtilArray::getStrides($table->rowDims);
         $reader = $this->reader;
+        $rowStrides = UtilArray::getStrides($table->rowDims);
         $x = $rowIdx + $table->numHeaderRows;
 
-        for ($y = 0; $y < $table->numLabelCols; $y++) {
-            $stride = $rowStrides[$y];
-            $product = $table->shape[$y] * $stride;
+        for ($dimIdx = 0; $dimIdx < $table->numLabelCols; $dimIdx++) {
+            $stride = $rowStrides[$dimIdx];
+            $product = $table->shape[$dimIdx] * $stride;
             $label = '';
             if ($table->repeatLabels === true || $rowIdx % $stride === 0) {
                 $catIdx = floor($rowIdx % $product / $stride);
-                $id = $reader->getDimensionId($table->numOneDim + $y);
+                $id = $reader->getDimensionId($table->numOneDim + $dimIdx);
                 $categId = $reader->getCategoryId($id, $catIdx);
                 $label = $reader->getCategoryLabel($id, $categId);
             }
-            $this->table->data[$x][$y] = $this->headerCell($label);
+            $this->table->data[$x][$dimIdx] = $this->headerCell($label);
         }
     }
 

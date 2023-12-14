@@ -206,8 +206,8 @@ class CellHtml
     public function labelCells(DOMElement $row, int $rowIdx): void
     {
         $table = $this->table;
-        $rowStrides = UtilArray::getStrides($table->rowDims);
         $reader = $this->reader;
+        $rowStrides = UtilArray::getStrides($table->rowDims);
 
         for ($dimIdx = 0; $dimIdx < $table->numLabelCols; $dimIdx++) {
             $stride = $rowStrides[$dimIdx];

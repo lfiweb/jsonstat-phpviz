@@ -116,8 +116,8 @@ class TableHtml extends AbstractTable
     }
 
     /**
-     * Renders the data as a html table.
-     * Reads the value array and renders it as a html table.
+     * Renders the data as an html table.
+     * Reads the value array and renders it as an html table.
      * @throws DOMException
      */
     public function render(): string

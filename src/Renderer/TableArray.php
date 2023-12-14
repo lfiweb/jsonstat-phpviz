@@ -45,12 +45,14 @@ class TableArray extends AbstractTable
     public null|string $caption;
 
     /**
-     * Repeat column labels
+     * Repeat column labels ?
+     * default = true
      * @var bool
      */
     public bool $repeatLabels = true;
 
-    protected CellArray $rendererCell;
+    // TODO: allow type CellExcel only temporary so that TableExcel can extend TableArray for now
+    protected CellArray|CellExcel $rendererCell;
 
     /**
      * Automatically sets the caption.
@@ -75,7 +77,7 @@ class TableArray extends AbstractTable
     }
 
     /**
-     * Renders the data as a html table.
+     * Renders the data as an html table.
      * Reads the value array and renders it as a table.
      * @return string csv
      */
@@ -135,6 +137,6 @@ class TableArray extends AbstractTable
      */
     public function caption(): void
     {
-        $this->data[] = [$this->caption];
+        $this->data[0] = [$this->caption];
     }
 }
