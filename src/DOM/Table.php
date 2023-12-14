@@ -46,7 +46,7 @@ class Table
     }
 
     /**
-     * Return the table as a html string
+     * Return the table as an html string
      * @return false|string html
      */
     public function toHtml(): bool|string
@@ -104,8 +104,8 @@ class Table
     }
 
     /**
-     * Return existing child or create it first if it does not exist.
-     * If the child already exists it is simply returned. If not, it will be created first
+     * Return an existing child or create it first if it does not exist.
+     * If the child already exists, it is simply returned. If not, it will be created first
      * and inserted at the correct place before being returned.
      * @param string $name element name
      * @return DOMElement
