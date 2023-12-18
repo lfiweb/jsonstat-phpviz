@@ -12,6 +12,7 @@ screen reader support for visually impaired users
 - sets CSS classes (`first` and `last`) to identify the start and end of row groups (e.g. row totals)
 - exclude dimensions of size one (when ordered continuously from index 0) from rendering when wanted
 - export (render) the table as tab separated values (tsv) or any character (csv) of your choosing.
+- download (render) the table in the MS Excel format (xlsx)
 
 ### not implemented
 - `child` property, e.g. hierarchical relationships between different categories
@@ -24,7 +25,8 @@ Two dimensions are automatically used to group the rows:
 ```php
 <?php
 
-use jsonstatPhpViz\Reader;use jsonstatPhpViz\Renderer\TableHtml;
+use jsonstatPhpViz\Reader;
+use jsonstatPhpViz\Renderer\TableHtml;
 
 require_once __DIR__.'/../vendor/autoload.php';
 
@@ -42,7 +44,7 @@ $html = $table->render();
 Render a table from the same JSON-stat data, but with 3 dimensions used for the row grouping instead:
 ```php
 $reader = new Reader($jsonstat);
-$table = new RendererTable($reader, 3);
+$table = new TableHtml($reader, 3);
 $html = $table->render();
 ```
 ![screenshot-02](demo/screenshot-02.png)
@@ -53,7 +55,7 @@ Transpose the table by permutating dimension A with dimension D:
 $reader = new Reader($jsonstat);
 $axes = [3, 1, 2, 0];
 $reader->transpose($axes);
-$table = new RendererTable($reader);
+$table = new TableHtml($reader);
 $html = $table->render();
 ```
 See [NumPy transpose](https://numpy.org/doc/stable/reference/generated/numpy.transpose.html) for how to use the axes array.
@@ -64,7 +66,7 @@ Real-world example with [data from the Swiss NFI](https://www.lfi.ch/resultate/s
 two dimensions of size one, excluded from rendering:
 ```php
 $reader = new Reader($jsonstat);
-$table = new RendererTable($reader);
+$table = new TableHtml($reader);
 $table->excludeOneDim = true;
 $table->noLabelLastDim = true;
 $html = $table->render();
@@ -84,7 +86,7 @@ $html = $table->render();
 Install with `composer require lfiweb/jsonstat-phpviz` or add it to your composer.json
 
 ## Dependencies
-none
+none. But if you want to export the table in the MS Excel format, you need PhpSpreadsheet. You can install it with `composer require phpoffice/phpspreadsheet`.
 
 ## JSON-stat rendering rules
 The renderer applies the following rules when generating a html table:
@@ -98,9 +100,9 @@ The renderer applies the following rules when generating a html table:
 **Caution**: Do this only if you trust the origin of the JSON-stat.
 
 The renderer (or rather the DOMDocument) escapes all html contained in the JSON-stat when inserting it into the DOM.
-If you want to allow HTML inside the table cells, you need to override the classes `RendererTable` and `RendererCell` as follows:
+If you want to allow HTML inside the table cells, you need to override the classes `TableHtml` and `CellHtml` as follows:
 ```php
-class MyRendererTable extends RendererTable
+class MyRendererTable extends TableHtml
 {
     /**
      * Override with the new html cell renderer.
@@ -108,11 +110,12 @@ class MyRendererTable extends RendererTable
      */
     protected function initRendererCell(): void
     {
-        $this->rendererCell = new RendererCellHtml($this, new Formatter());
+        $formatter = new FormatterCell($this->reader, new Formatter());
+        $this->rendererCell = new MyRendererCell($formatter, $this->reader, $this);
     }
 }
 
-class RendererCellHtml extends RendererCell
+class MyRendererCell extends CellHtml
 {
     // render html inside label (header) cells
     public function headerCell(DOMElement $row, ?string $str = null, ?string $scope = null, ?string $colspan = null, ?string $rowspan = null): DOMElement
