@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace jsonstatPhpViz\Test;
+namespace jsonstatPhpViz\Test\Renderer;
 
 use DOMException;
 use JsonException;
@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 use function array_slice;
 use function count;
 
-class RendererTableTest extends TestCase
+class TableHtmlTest extends TestCase
 {
     private JsonstatReader $factory;
 
@@ -31,8 +31,8 @@ class RendererTableTest extends TestCase
      */
     public function testRenderHtml(): void
     {
-        $reader = $this->factory->create(__DIR__ . '/../resources/integer.json');
-        $fileHtml = __DIR__ . '/../resources/integer.html';
+        $reader = $this->factory->create(__DIR__ . '/../../resources/integer.json');
+        $fileHtml = __DIR__ . '/../../resources/integer.html';
         $table = new TableHtml($reader);
         $htmlTable = $table->render();
         self::assertStringEqualsFile($fileHtml, $htmlTable);
@@ -45,11 +45,11 @@ class RendererTableTest extends TestCase
     public function testRendererTransposed(): void
     {
         // transpose a dimension having size > 1 while excluding dimensions of size one
-        $reader = $this->factory->create(__DIR__ . '/../resources/volume.json');
+        $reader = $this->factory->create(__DIR__ . '/../../resources/volume.json');
         $reader->transpose([0, 1, 2, 4, 3, 5]);
         $table = new TableHtml($reader);
         $table->excludeOneDim = true;
-        $path = __DIR__ . '/../resources/volume-transposed.html';
+        $path = __DIR__ . '/../../resources/volume-transposed.html';
         self::assertStringEqualsFile($path, $table->render());
 
         // transpose back
@@ -63,7 +63,7 @@ class RendererTableTest extends TestCase
         $reader->transpose([0, 4, 2, 3, 1, 5]);
         $table = new TableHtml($reader, $numRowDim);
         $table->excludeOneDim = true;
-        $path = __DIR__ . '/../resources/volume-onedim-transposed.html';
+        $path = __DIR__ . '/../../resources/volume-onedim-transposed.html';
         self::assertStringEqualsFile($path, $table->render());
     }
 
@@ -76,7 +76,7 @@ class RendererTableTest extends TestCase
     public function testRenderNull(): void
     {
         // note: top-left header cell never has content, no need to set anything to null for testing
-        $reader = $this->factory->create(__DIR__ . '/../resources/integer.json');
+        $reader = $this->factory->create(__DIR__ . '/../../resources/integer.json');
         $reader->data->value[1] = null; // inject a null value
         $table = new TableHtml($reader);
         $htmlTable = $table->render();
@@ -92,22 +92,22 @@ class RendererTableTest extends TestCase
      */
     public function testRenderDecimals(): void
     {
-        $reader = $this->factory->create(__DIR__ . '/../resources/volume.json');
+        $reader = $this->factory->create(__DIR__ . '/../../resources/volume.json');
         $rendererTable = new TableHtml($reader);
         $rendererTable->excludeOneDim = false;
         $rendererTable->render();
-        $table = $rendererTable->getDom();
-        $cell = FactoryRendererTable::getValueCell($table, 0);
+        $domNode = $rendererTable->domNode;
+        $cell = FactoryRendererTable::getValueCell($domNode, 0);
         self::assertEquals('3.8', $cell->textContent);
-        $cell = FactoryRendererTable::getValueCell($table, 1);
+        $cell = FactoryRendererTable::getValueCell($domNode, 1);
         self::assertEquals('9', $cell->textContent);
-        $cell = FactoryRendererTable::getValueCell($table, 44);
+        $cell = FactoryRendererTable::getValueCell($domNode, 44);
         self::assertEquals('7.0', $cell->textContent);
 
         $rendererTable = new TableHtml($reader);
         $rendererTable->excludeOneDim = true;
         $rendererTable->render();
-        $cell = FactoryRendererTable::getValueCell($table, 44);
+        $cell = FactoryRendererTable::getValueCell($domNode, 44);
         self::assertEquals('7.0', $cell->textContent);
     }
 
@@ -118,7 +118,7 @@ class RendererTableTest extends TestCase
      */
     public function testRenderRowDim(): void
     {
-        $reader = $this->factory->create(__DIR__ . '/../resources/volume.json');
+        $reader = $this->factory->create(__DIR__ . '/../../resources/volume.json');
         $size = $reader->data->size;
         $len = count($size) + 1;
         $i = 0;
@@ -127,8 +127,8 @@ class RendererTableTest extends TestCase
             $renderer = new TableHtml($reader);
             $renderer->setNumRowDim($i);
             $renderer->render();
-            $nlX = FactoryRendererTable::getTBodyChildNodes($renderer->getDom());
-            $nlY = FactoryRendererTable::getTheadLastChildNodes($renderer->getDom());
+            $nlX = FactoryRendererTable::getTBodyChildNodes($renderer->domNode);
+            $nlY = FactoryRendererTable::getTheadLastChildNodes($renderer->domNode);
             self::assertSame(array_product($x), $nlX->length);
             self::assertSame(array_product($size) + $i, $nlY->length);
             $x[] = array_shift($size);
@@ -142,13 +142,13 @@ class RendererTableTest extends TestCase
      */
     public function testNumRowDimAuto(): void
     {
-        $reader = $this->factory->create(__DIR__ . '/../resources/volume.json');
+        $reader = $this->factory->create(__DIR__ . '/../../resources/volume.json');
         $table = new TableHtml($reader);
         self::assertSame(4, $table->numRowDimAuto());
         $table->excludeOneDim = true;
         self::assertSame(2, $table->numRowDimAuto());
 
-        $reader = $this->factory->create(__DIR__ . '/../resources/oecd.json');
+        $reader = $this->factory->create(__DIR__ . '/../../resources/oecd.json');
         $table = new TableHtml($reader);
         self::assertSame(1, $table->numRowDimAuto());
         $table->excludeOneDim = true;
@@ -161,15 +161,15 @@ class RendererTableTest extends TestCase
      */
     public function testExcludeOneDim(): void
     {
-        $reader = $this->factory->create(__DIR__ . '/../resources/volume.json');
+        $reader = $this->factory->create(__DIR__ . '/../../resources/volume.json');
         $size = $reader->data->size;
         $x = array_slice($size, 0, 4);
         $y = array_slice($size, 4);
         $renderer = new TableHtml($reader, 2);
         $renderer->excludeOneDim = true;
         $renderer->render();
-        $nlX = FactoryRendererTable::getTBodyChildNodes($renderer->getDom());
-        $nlY = FactoryRendererTable::getTheadLastChildNodes($renderer->getDom());
+        $nlX = FactoryRendererTable::getTBodyChildNodes($renderer->domNode);
+        $nlY = FactoryRendererTable::getTheadLastChildNodes($renderer->domNode);
         self::assertSame(array_product($x), $nlX->length);
         self::assertSame(array_product($y) + 2, $nlY->length);
     }
@@ -184,7 +184,7 @@ class RendererTableTest extends TestCase
     {
         $html = '<i>Test:</i> cell';
         $htmlEncoded = htmlspecialchars($html, ENT_HTML5, 'UTF-8');
-        $reader = $this->factory->create(__DIR__ . '/../resources/integer.json');
+        $reader = $this->factory->create(__DIR__ . '/../../resources/integer.json');
         $reader->data->value[3] = $html;
         $reader->data->dimension->{'A'}->label = $html;
 
@@ -204,7 +204,7 @@ class RendererTableTest extends TestCase
     {
         $html = '<p><b>Test:</b> caption</p>';
         $htmlEncoded = htmlspecialchars($html, ENT_HTML5, 'UTF-8');
-        $reader = $this->factory->create(__DIR__ . '/../resources/integer.json');
+        $reader = $this->factory->create(__DIR__ . '/../../resources/integer.json');
         $reader->data->label = $html;
 
         $table = new TableHtml($reader);
@@ -225,11 +225,11 @@ class RendererTableTest extends TestCase
      */
     public function testNoLabelLastDim(): void
     {
-        $reader = $this->factory->create(__DIR__ . '/../resources/integer.json');
+        $reader = $this->factory->create(__DIR__ . '/../../resources/integer.json');
         $renderer = new TableHtml($reader, 2);
         $renderer->noLabelLastDim = true;
         $renderer->render();
-        $num = $renderer->getDom()->getElementsByTagName('thead')->item(0)->childNodes->length;
+        $num = $renderer->domNode->getElementsByTagName('thead')->item(0)->childNodes->length;
         self::assertSame(3, $num);
     }
 }

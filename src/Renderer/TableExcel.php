@@ -5,12 +5,15 @@ namespace jsonstatPhpViz\Renderer;
 use jsonstatPhpViz\Formatter;
 use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
+use jsonstatPhpViz\UtilHtml;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Exception;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
-class TableExcel extends TableArray
+class TableExcel extends AbstractTable
 {
+
+    public bool $repeatLabels = false;
 
     public Spreadsheet $xls;
 
@@ -24,30 +27,6 @@ class TableExcel extends TableArray
     {
         $formatter = new FormatterCell($this->reader, new Formatter());
         $this->rendererCell = new CellExcel($formatter, $this->reader, $this);
-    }
-
-    public function xxxrows(): void
-    {
-        parent::rows();
-        $spreadsheet = $this->xls->getActiveSheet();
-        foreach ($this->data as $x => $row) {
-            foreach ($row as $y => $val) {
-                $spreadsheet->setCellValue([$y + 1, $x + 1], $val);
-            }
-        }
-    }
-
-
-    public function build(): void
-    {
-        parent::build();
-        $spreadsheet = $this->xls->getActiveSheet();
-        foreach ($this->data as $x => $row) {
-            foreach ($row as $y => $val) {
-                $spreadsheet->setCellValue([$y + 1, $x + 1], $val);
-            }
-        }
-
     }
 
     /**
@@ -90,8 +69,36 @@ class TableExcel extends TableArray
     /**
      * Creates and inserts a caption.
      */
-    public function xxxcaption(): void
+    public function caption(): void
     {
         $this->xls->getActiveSheet()->setCellValue([1, 1], $this->caption);
+    }
+
+    /**
+     * Automatically sets the caption.
+     * Sets the caption from the optional JSON-stat label property. HTML from the JSON-stat is escaped.
+     * @return void
+     */
+    public function initCaption(): void
+    {
+        // since html content is allowed in caption when the property is set explicitly,
+        // we have to escape it when set via json-stat to prevent html content from the untrusted source
+        if (property_exists($this->reader->data, 'label')) {
+            $this->caption = $this->reader->data->label;
+        }
+    }
+
+
+    /**
+     * Creates the table head and appends header cells, row by row to it.
+     */
+    public function headers(): void
+    {
+        for ($rowIdx = 0; $rowIdx < $this->numHeaderRows; $rowIdx++) {
+            if (!$this->noLabelDim || $rowIdx % 2 === 1) {
+                $this->rendererCell->headerLabelCells($rowIdx);
+                $this->rendererCell->headerValueCells($rowIdx);
+            }
+        }
     }
 }

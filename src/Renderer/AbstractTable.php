@@ -62,6 +62,8 @@ abstract class AbstractTable implements TableInterface
      */
     public int $numOneDim;
 
+    public CellInterface $rendererCell;
+
     /**
      * Instantiates the class.
      * @param Reader $jsonStatReader
@@ -82,6 +84,18 @@ abstract class AbstractTable implements TableInterface
     public function setNumRowDim(int $numRowDim): void
     {
         $this->numRowDim = $numRowDim;
+    }
+
+    /**
+     * Creates the internal structure of the table.
+     * @return void
+     */
+    public function build(): void
+    {
+        $this->init();
+        $this->caption();
+        $this->headers();
+        $this->rows();
     }
 
     /**
@@ -134,15 +148,34 @@ abstract class AbstractTable implements TableInterface
         return array_slice($dims, $this->numRowDim);
     }
 
-    /**
-     * Creates the internal structure of the table.
-     * @return void
-     */
-    public function build(): void
+    public function headers(): void
     {
-        $this->init();
-        $this->caption();
-        $this->headers();
-        $this->rows();
+        for ($rowIdx = 0; $rowIdx < $this->numHeaderRows; $rowIdx++) {
+            if ($this->noLabelLastDim === false || $rowIdx !== $this->numHeaderRows - 2) {
+
+                $row = $this->table->appendRow($this->head);
+                $this->rendererCell->headerLabelCells($row, $rowIdx);
+                $this->rendererCell->headerValueCells($row, $rowIdx);
+            }
+        }
+    }
+
+    public function rows(): void
+    {
+        $rowIdx = 0;
+        for ($offset = 0, $len = $this->reader->getNumValues(); $offset < $len; $offset++) {
+            if ($offset % $this->numValueCols === 0) {
+                $this->rendererCell->firstCell(0, $rowIdx);
+                for ($i = 1; $i < $this->numLabelCols; $i++) {
+                    $this->rendererCell->labelCell($i, $rowIdx);
+                }
+            }
+            if ($offset % $this->numValueCols < $this->numValueCols - 1) {
+                $this->rendererCell->valueCell($offset);
+            } elseif ($offset % $this->numValueCols === $this->numValueCols - 1) {
+                $this->rendererCell->lastCell($offset, $rowIdx);
+                $rowIdx++;
+            }
+        }
     }
 }

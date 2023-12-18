@@ -30,8 +30,6 @@ class TableTsv extends AbstractTable
     /** @var string|null caption of the table */
     public null|string $caption;
 
-    protected CellTsv $rendererCell;
-
     public string $separatorRow = "\n";
 
     public string $separatorCol = "\t";
@@ -99,22 +97,6 @@ class TableTsv extends AbstractTable
                 $this->rendererCell->headerValueCells($rowIdx);
                 $this->tsv .= $this->separatorRow;
             }
-        }
-    }
-
-    /**
-     * Creates the table body and appends table cells row by row to it.
-     */
-    public function rows(): void
-    {
-        $rowIdx = 0;
-        for ($offset = 0, $len = $this->reader->getNumValues(); $offset < $len; $offset++) {
-            if ($offset % $this->numValueCols === 0) {
-                $this->tsv = rtrim($this->tsv, $this->separatorCol).($rowIdx > 0 ? $this->separatorRow : '');
-                $this->rendererCell->labelCells($rowIdx);
-                $rowIdx++;
-            }
-            $this->tsv .= $this->rendererCell->valueCell($offset).$this->separatorCol;
         }
     }
 

@@ -23,7 +23,7 @@ class Table
     /**
      * @var DOMElement
      */
-    private DOMElement $domNode;
+    public DOMElement $domNode;
 
     /**
      * @throws DOMException
@@ -34,15 +34,6 @@ class Table
         $this->doc->preserveWhiteSpace = false;
         $this->domNode = $this->doc->createElement('table');
         $this->doc->appendChild($this->domNode);
-    }
-
-    /**
-     * Returns the DOMElement of the table.
-     * @return DOMElement
-     */
-    public function get(): DOMElement
-    {
-        return $this->domNode;
     }
 
     /**

@@ -6,7 +6,7 @@ use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
 use jsonstatPhpViz\UtilArray;
 
-class CellArray
+class CellArray implements CellInterface
 {
     protected Reader $reader;
     protected FormatterCell $formatter;
@@ -113,5 +113,20 @@ class CellArray
             }
             $this->table->data[$rowIdx][$y] = $this->headerCell($label);
         }
+    }
+
+    public function firstCell(int $dimIdx, int $rowIdx)
+    {
+        // TODO: Implement firstCell() method.
+    }
+
+    public function labelCell(int $dimIdx, int $rowIdx)
+    {
+        // TODO: Implement labelCell() method.
+    }
+
+    public function lastCell(int $offset, int $rowIdx)
+    {
+        // TODO: Implement lastCell() method.
     }
 }

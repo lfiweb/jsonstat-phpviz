@@ -34,7 +34,7 @@ use function count;
  * |         ...       |         ...       |
  * |-------------------|-------------------|
  */
-class CellHtml
+class CellHtml implements CellInterface
 {
     protected Reader $reader;
     protected FormatterCell $formatter;
@@ -43,88 +43,13 @@ class CellHtml
     /**
      * @param FormatterCell $cellFormatter
      * @param Reader $reader
-     * @param AbstractTable $rendererTable
+     * @param TableHtml $rendererTable
      */
-    public function __construct(FormatterCell $cellFormatter, Reader $reader, AbstractTable $rendererTable)
+    public function __construct(FormatterCell $cellFormatter, Reader $reader, TableHtml $rendererTable)
     {
         $this->reader = $reader;
         $this->formatter = $cellFormatter;
         $this->table = $rendererTable;
-    }
-
-    /**
-     * Sets the css class of the body row
-     * @param DOMElement $cell
-     * @param int $cellIdx
-     * @param int $rowIdxBody
-     * @param int $rowStride
-     */
-    public function labelCellCss(DOMElement $cell, int $cellIdx, int $rowIdxBody, int $rowStride): void
-    {
-        $cl = new ClassList($cell);
-        $product = $this->table->shape[$cellIdx] * $rowStride;
-        $css = 'rowdim'.($cellIdx + 1);
-        $modulo = $rowIdxBody % $product;
-        if ($rowIdxBody % $rowStride === 0) {
-            $cl->add($css);
-        }
-        if ($modulo === 0) {
-            $cl->add($css, 'first');
-        } elseif ($modulo === $product - $rowStride) {
-            $cl->add($css, 'last');
-        }
-    }
-    /**
-     * @param ?String $scope scope of cell
-     * @param ?String $colspan number of columns to span
-     * @param ?String $rowspan number of rows to span
-     */
-    public function headerCellAttr(DOMElement $cell, ?string $scope = null, ?string $colspan = null, ?string $rowspan = null): void
-    {
-        if ($scope !== null) {
-            $cell->setAttribute('scope', $scope);
-        }
-        if ($colspan !== null) {
-            $cell->setAttribute('colspan', $colspan);
-        }
-        if ($rowspan !== null) {
-            $cell->setAttribute('rowspan', $rowspan);
-        }
-    }
-
-    /**
-     * Append a value cell to the row.
-     * Inserts a HTMLTableCellElement at the end of the row
-     * with a value taken from the JSON-stat values attribute at the given offset.
-     * @param int $offset
-     * @return DOMElement the created table cell
-     * @throws DOMException
-     */
-    public function valueCell(int $offset): DOMElement
-    {
-        $doc = $this->table->getDoc();
-        $cell = $doc->createElement('td');
-        $val = $this->reader->data->value[$offset];
-        $val = $this->formatter->formatValueCell($val, $offset);
-        $cell->appendChild($doc->createTextNode($val));
-
-        return $cell;
-    }
-
-    /**
-     * Create, add and return a header cell element.
-     * @param ?String $label cell content
-     * @return DOMElement table cell element
-     * @throws DOMException
-     */
-    public function headerCell(?string $label = null): DOMNode
-    {
-        $doc = $this->table->getDoc();
-        $cell = $doc->createElement('th');
-        $label = $this->formatter->formatHeaderCell($label);
-        $cell->appendChild($doc->createTextNode($label));
-
-        return $cell;
     }
 
     /**
@@ -147,6 +72,41 @@ class CellHtml
             $cell = $this->headerCell($label);
             $this->headerCellAttr($cell, $scope);
             $row->appendChild($cell);
+        }
+    }
+
+    /**
+     * Create, add and return a header cell element.
+     * @param ?String $label cell content
+     * @return DOMElement table cell element
+     * @throws DOMException
+     */
+    public function headerCell(?string $label = null): DOMNode
+    {
+        $doc = $this->table->doc;
+        $cell = $doc->createElement('th');
+        $label = $this->formatter->formatHeaderCell($label);
+        $cell->appendChild($doc->createTextNode($label));
+        //$this->table->body->appendChild($cell);
+
+        return $cell;
+    }
+
+    /**
+     * @param ?String $scope scope of cell
+     * @param ?String $colspan number of columns to span
+     * @param ?String $rowspan number of rows to span
+     */
+    public function headerCellAttr(DOMElement $cell, ?string $scope = null, ?string $colspan = null, ?string $rowspan = null): void
+    {
+        if ($scope !== null) {
+            $cell->setAttribute('scope', $scope);
+        }
+        if ($colspan !== null) {
+            $cell->setAttribute('colspan', $colspan);
+        }
+        if ($rowspan !== null) {
+            $cell->setAttribute('rowspan', $rowspan);
         }
     }
 
@@ -197,36 +157,93 @@ class CellHtml
         }
     }
 
+    public function firstCell(int $dimIdx, int $rowIdx): void
+    {
+        $this->table->table->appendRow($this->table->body);
+        if ($this->table->numLabelCols > 0) {
+            $this->labelCell($dimIdx, $rowIdx);
+        }
+    }
+
     /**
-     * Add cells with labels to the row.
-     * @param DOMElement $row HTMLTableRow
-     * @param int $rowIdx row index
      * @throws DOMException
      */
-    public function labelCells(DOMElement $row, int $rowIdx): void
+    function labelCell(int $dimIdx, int $rowIdx): void
     {
         $table = $this->table;
         $reader = $this->reader;
         $rowStrides = UtilArray::getStrides($table->rowDims);
-
-        for ($dimIdx = 0; $dimIdx < $table->numLabelCols; $dimIdx++) {
-            $stride = $rowStrides[$dimIdx];
-            $product = $table->shape[$dimIdx] * $stride;
-            $label = null;
-            $scope = $stride > 1 ? 'rowgroup' : 'row';
-            $rowspan = $table->useRowSpans && $stride > 1 ? $stride : null;
-            if ($rowIdx % $stride === 0) {
-                $catIdx = floor($rowIdx % $product / $stride);
-                $id = $reader->getDimensionId($table->numOneDim + $dimIdx);
-                $categId = $reader->getCategoryId($id, $catIdx);
-                $label = $reader->getCategoryLabel($id, $categId);
-            }
-            if ($table->useRowSpans === false || $rowIdx % $stride === 0) {
-                $cell = $this->headerCell($label);
-                $this->headerCellAttr($cell, $scope, null, $rowspan);
-                $this->labelCellCss($cell, $dimIdx, $rowIdx, $stride);
-                $row->appendChild($cell);
-            }
+        $stride = $rowStrides[$dimIdx];
+        $product = $table->shape[$dimIdx] * $stride;
+        $label = null;
+        $scope = $stride > 1 ? 'rowgroup' : 'row';
+        $rowspan = $table->useRowSpans && $stride > 1 ? $stride : null;
+        if ($rowIdx % $stride === 0) {
+            $catIdx = floor($rowIdx % $product / $stride);
+            $id = $reader->getDimensionId($table->numOneDim + $dimIdx);
+            $categId = $reader->getCategoryId($id, $catIdx);
+            $label = $reader->getCategoryLabel($id, $categId);
         }
+        if ($table->useRowSpans === false || $rowIdx % $stride === 0) {
+            $cell = $this->headerCell($label);  //
+            $this->headerCellAttr($cell, $scope, null, $rowspan);
+            $this->labelCellCss($cell, $dimIdx, $rowIdx, $stride);
+            $row = $this->getCurrentBodyRow();
+            $row->appendChild($cell);
+        }
+    }
+
+    private function getCurrentBodyRow()
+    {
+        $rows = $this->table->body->getElementsByTagName('tr');
+
+        return $rows->item($rows->length - 1);
+    }
+
+    /**
+     * Sets the css class of the body row
+     * @param DOMElement $cell
+     * @param int $cellIdx
+     * @param int $rowIdxBody
+     * @param int $rowStride
+     */
+    public function labelCellCss(DOMElement $cell, int $cellIdx, int $rowIdxBody, int $rowStride): void
+    {
+        $cl = new ClassList($cell);
+        $product = $this->table->shape[$cellIdx] * $rowStride;
+        $css = 'rowdim' . ($cellIdx + 1);
+        $modulo = $rowIdxBody % $product;
+        if ($rowIdxBody % $rowStride === 0) {
+            $cl->add($css);
+        }
+        if ($modulo === 0) {
+            $cl->add($css, 'first');
+        } elseif ($modulo === $product - $rowStride) {
+            $cl->add($css, 'last');
+        }
+    }
+
+    /**
+     * Append a value cell to the row.
+     * Inserts a HTMLTableCellElement at the end of the row
+     * with a value taken from the JSON-stat values attribute at the given offset.
+     * @param int $offset
+     * @return void the created table cell
+     * @throws DOMException
+     */
+    public function valueCell(int $offset): void
+    {
+        $doc = $this->table->doc;
+        $val = $this->reader->data->value[$offset];
+        $val = $this->formatter->formatValueCell($val, $offset);
+        $cell = $doc->createElement('td');
+        $cell->appendChild($doc->createTextNode($val));
+        $row = $this->getCurrentBodyRow();
+        $row->appendChild($cell);
+    }
+
+    function lastCell(int $offset, int $rowIdx): void
+    {
+        $this->valueCell($offset);
     }
 }

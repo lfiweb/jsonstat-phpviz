@@ -51,8 +51,6 @@ class TableArray extends AbstractTable
      */
     public bool $repeatLabels = true;
 
-    // TODO: allow type CellExcel only temporary so that TableExcel can extend TableArray for now
-    protected CellArray|CellExcel $rendererCell;
 
     /**
      * Automatically sets the caption.
