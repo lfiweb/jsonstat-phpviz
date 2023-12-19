@@ -152,10 +152,13 @@ abstract class AbstractTable implements TableInterface
     {
         for ($rowIdx = 0; $rowIdx < $this->numHeaderRows; $rowIdx++) {
             if ($this->noLabelLastDim === false || $rowIdx !== $this->numHeaderRows - 2) {
-
-                $row = $this->table->appendRow($this->head);
-                $this->rendererCell->headerLabelCells($row, $rowIdx);
-                $this->rendererCell->headerValueCells($row, $rowIdx);
+                $this->rendererCell->addFirstCellHeader($rowIdx);
+                for ($colIdx = 1; $colIdx < $this->numLabelCols; $colIdx++) {
+                    $this->rendererCell->addLabelCellHeader($rowIdx, $colIdx);
+                }
+                for ($colIdx = 0; $colIdx < $this->numValueCols; $colIdx++) {
+                    $this->rendererCell->addValueCellHeader($rowIdx, $colIdx);
+                }
             }
         }
     }
@@ -165,15 +168,15 @@ abstract class AbstractTable implements TableInterface
         $rowIdx = 0;
         for ($offset = 0, $len = $this->reader->getNumValues(); $offset < $len; $offset++) {
             if ($offset % $this->numValueCols === 0) {
-                $this->rendererCell->firstCell(0, $rowIdx);
-                for ($i = 1; $i < $this->numLabelCols; $i++) {
-                    $this->rendererCell->labelCell($i, $rowIdx);
+                $this->rendererCell->addFirstCellBody($rowIdx);
+                for ($colIdx = 1; $colIdx < $this->numLabelCols; $colIdx++) {
+                    $this->rendererCell->addLabelCellBody($rowIdx, $colIdx);
                 }
             }
             if ($offset % $this->numValueCols < $this->numValueCols - 1) {
-                $this->rendererCell->valueCell($offset);
+                $this->rendererCell->addValueCellBody($offset);
             } elseif ($offset % $this->numValueCols === $this->numValueCols - 1) {
-                $this->rendererCell->lastCell($offset, $rowIdx);
+                $this->rendererCell->addLastCellBody($rowIdx, $offset);
                 $rowIdx++;
             }
         }

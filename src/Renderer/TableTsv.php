@@ -94,7 +94,7 @@ class TableTsv extends AbstractTable
         for ($rowIdx = 0; $rowIdx < $this->numHeaderRows; $rowIdx++) {
             if (!$this->noLabelDim || $rowIdx % 2 === 1) {
                 $this->rendererCell->headerLabelCells($rowIdx);
-                $this->rendererCell->headerValueCells($rowIdx);
+                $this->rendererCell->addValueCellHeader($rowIdx, $rowIdx);
                 $this->tsv .= $this->separatorRow;
             }
         }

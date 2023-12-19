@@ -38,7 +38,7 @@ class TableHtml extends AbstractTable
 {
 
     /** @var Table */
-    public Table $table;
+    public Table $dom;
 
     /**
      * Render the table with rowspans ?
@@ -48,14 +48,30 @@ class TableHtml extends AbstractTable
      */
     public bool $useRowSpans = true;
 
-    /** @var null|string|DOMNode caption of the table */
+    /**
+     * the caption element
+     * @var null|string|DOMNode
+     */
     public null|string|DOMNode $caption;
 
-    public CellInterface $rendererCell;
     public DOMDocument $doc;
+
+    /**
+     * the table element
+     * @var DOMElement
+     */
     public DOMElement $domNode;
+
+    /**
+     * the tHead element
+     * @var DOMElement
+     */
     public DOMElement $head;
 
+    /**
+     * the tBody element
+     * @var DOMElement
+     */
     public DOMElement $body;
 
     /**
@@ -66,9 +82,9 @@ class TableHtml extends AbstractTable
     public function __construct(Reader $jsonStatReader, ?int $numRowDim = null)
     {
         parent::__construct($jsonStatReader, $numRowDim);
-        $this->table = new Table();
-        $this->doc = $this->table->doc;
-        $this->domNode = $this->table->domNode;
+        $this->dom = new Table();
+        $this->doc = $this->dom->doc;
+        $this->domNode = $this->dom->domNode;
     }
 
     /**
@@ -95,8 +111,8 @@ class TableHtml extends AbstractTable
         $css->add('jst-viz', 'numRowDims'.$numRowDims, 'lastDimSize'.$lastDimSize);
         $this->domNode->setAttribute('data-shape', $shape);
         $this->domNode->setAttribute('data-num-row-dim', $numRowDims);
-        $this->head = $this->table->createTHead();
-        $this->body = $this->table->createTBody();
+        $this->head = $this->dom->createTHead();
+        $this->body = $this->dom->createTBody();
     }
 
     /**
@@ -132,7 +148,7 @@ class TableHtml extends AbstractTable
     {
         $this->build();
 
-        return $this->table->toHtml();
+        return $this->dom->toHtml();
     }
 
     /**
@@ -143,9 +159,9 @@ class TableHtml extends AbstractTable
     {
         for ($rowIdx = 0; $rowIdx < $this->numHeaderRows; $rowIdx++) {
             if ($this->noLabelLastDim === false || $rowIdx !== $this->numHeaderRows - 2) {
-                $row = $this->table->appendRow($this->head);
+                $row = $this->dom->appendRow($this->head);
                 $this->rendererCell->headerLabelCells($row, $rowIdx);
-                $this->rendererCell->headerValueCells($row, $rowIdx);
+                $this->rendererCell->addValueCellHeader($rowIdx, $row);
             }
         }
     }
@@ -157,7 +173,7 @@ class TableHtml extends AbstractTable
     public function caption(): void
     {
         if ($this->caption) {
-            $caption = $this->table->insertCaption();
+            $caption = $this->dom->insertCaption();
             $fragment = $this->doc->createDocumentFragment();
             $fragment->appendXML($this->caption);
             $caption->appendChild($fragment);

@@ -103,12 +103,12 @@ class CellTsv implements CellInterface
         }
     }
 
-    public function firstCell(int $dimIdx, int $rowIdx): void
+    public function addFirstCellBody(int $dimIdx, int $rowIdx): void
     {
-        $this->labelCell($dimIdx, $rowIdx);
+        $this->addLabelCellBody($rowIdx, $dimIdx);
     }
 
-    public function labelCell(int $dimIdx, int $rowIdx): void
+    public function addLabelCellBody(int $rowIdx, int $dimIdx): void
     {
         $table = $this->table;
         $reader = $this->reader;
@@ -131,14 +131,14 @@ class CellTsv implements CellInterface
      * @param int $offset
      * @return void the content of the cell
      */
-    public function valueCell(int $offset): void
+    public function addValueCellBody(int $offset): void
     {
         $val = $this->reader->data->value[$offset];
 
         $this->table->tsv .= $this->formatter->formatValueCell($val, $offset).$this->table->separatorCol;
     }
 
-    public function lastCell(int $offset, int $rowIdx): void
+    public function addLastCellBody(int $rowIdx, int $offset): void
     {
         $val = rtrim($this->table->tsv, $this->table->separatorCol);
         $this->table->tsv .= $val.$this->table->separatorRow;

@@ -30,7 +30,7 @@ class CellArray implements CellInterface
      * @param int $offset
      * @return string the content of the cell
      */
-    public function valueCell(int $offset): string
+    public function addValueCellBody(int $offset): string
     {
         $val = $this->reader->data->value[$offset];
 
@@ -115,17 +115,17 @@ class CellArray implements CellInterface
         }
     }
 
-    public function firstCell(int $dimIdx, int $rowIdx)
+    public function addFirstCellBody(int $dimIdx, int $rowIdx)
     {
         // TODO: Implement firstCell() method.
     }
 
-    public function labelCell(int $dimIdx, int $rowIdx)
+    public function addLabelCellBody(int $rowIdx, int $dimIdx)
     {
         // TODO: Implement labelCell() method.
     }
 
-    public function lastCell(int $offset, int $rowIdx)
+    public function addLastCellBody(int $rowIdx, int $offset)
     {
         // TODO: Implement lastCell() method.
     }
