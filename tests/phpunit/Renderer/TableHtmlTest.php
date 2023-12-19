@@ -231,5 +231,12 @@ class TableHtmlTest extends TestCase
         $renderer->render();
         $num = $renderer->domNode->getElementsByTagName('thead')->item(0)->childNodes->length;
         self::assertSame(3, $num);
+        $idx = count($reader->data->id) - 1;
+        $dimId = $reader->getDimensionId($idx);
+        $catId = $reader->getCategoryId($dimId, 0);
+        $dimLabel = $reader->getCategoryLabel($dimId, $catId);
+        $tHead = $renderer->domNode->getElementsByTagName('thead')->item(0);
+        $cellLabel = $tHead->getElementsByTagName('tr')->item(2)->childNodes[2]->nodeValue;
+        self::assertSame($dimLabel, $cellLabel);
     }
 }
