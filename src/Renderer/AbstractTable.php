@@ -150,16 +150,17 @@ abstract class AbstractTable implements TableInterface
 
     public function headers(): void
     {
-        for ($rowIdx = 0; $rowIdx < $this->numHeaderRows; $rowIdx++) {
-            if ($this->noLabelLastDim === false || $rowIdx !== $this->numHeaderRows - 2) {
-                $this->rendererCell->addFirstCellHeader($rowIdx);
-                for ($colIdx = 1; $colIdx < $this->numLabelCols; $colIdx++) {
-                    $this->rendererCell->addLabelCellHeader($rowIdx, $colIdx);
-                }
-                for ($colIdx = 0; $colIdx < $this->numValueCols; $colIdx++) {
-                    $this->rendererCell->addValueCellHeader($rowIdx, $colIdx);
-                }
+        $numHeaderRows = $this->noLabelLastDim === true ? $this->numHeaderRows - 1 : $this->numHeaderRows;
+
+        for ($rowIdx = 0; $rowIdx < $numHeaderRows; $rowIdx++) {
+            $this->rendererCell->addFirstCellHeader($rowIdx);
+            for ($colIdx = 1; $colIdx < $this->numLabelCols; $colIdx++) {
+                $this->rendererCell->addLabelCellHeader($rowIdx, $colIdx);
             }
+            for ($colIdx = 0; $colIdx < $this->numValueCols - 1; $colIdx++) {
+                $this->rendererCell->addValueCellHeader($rowIdx, $colIdx);
+            }
+            $this->rendererCell->addLastCellHeader($rowIdx, $colIdx);
         }
     }
 
@@ -174,7 +175,7 @@ abstract class AbstractTable implements TableInterface
                 }
             }
             if ($offset % $this->numValueCols < $this->numValueCols - 1) {
-                $this->rendererCell->addValueCellBody($offset);
+                $this->rendererCell->addValueCellBody($rowIdx, $offset);
             } elseif ($offset % $this->numValueCols === $this->numValueCols - 1) {
                 $this->rendererCell->addLastCellBody($rowIdx, $offset);
                 $rowIdx++;

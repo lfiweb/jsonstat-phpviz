@@ -30,17 +30,16 @@ interface CellInterface
     /**
      * Add the first cell to the table header.
      * @param int $rowIdx row index
-     * @return mixed
+     * @return void
      */
-    public function addFirstCellHeader(int $rowIdx): mixed;
-
+    public function addFirstCellHeader(int $rowIdx): void;
 
     /**
      * Add the first cell to the table body
      * @param int $rowIdx row index
-     * @return mixed
+     * @return void
      */
-    public function addFirstCellBody(int $rowIdx): mixed;
+    public function addFirstCellBody(int $rowIdx): void;
 
     /**
      * Add a lable cell to the table header.
@@ -71,7 +70,14 @@ interface CellInterface
      * @param int $offset
      * @return void
      */
-    public function addValueCellBody(int $offset): void;
+    public function addValueCellBody(int $rowIdx, int $offset): void;
+
+    /**
+     * Add the last cell to the table header.
+     * @param int $rowIdx
+     * @return void
+     */
+    public function addLastCellHeader(int $rowIdx, int $offset): void;
 
     /**
      * Add the last cell to the table body.

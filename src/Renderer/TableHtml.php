@@ -152,21 +152,6 @@ class TableHtml extends AbstractTable
     }
 
     /**
-     * Creates the table head and appends header cells, row by row to it.
-     * @throws DOMException
-     */
-    public function xxxheaders(): void
-    {
-        for ($rowIdx = 0; $rowIdx < $this->numHeaderRows; $rowIdx++) {
-            if ($this->noLabelLastDim === false || $rowIdx !== $this->numHeaderRows - 2) {
-                $row = $this->dom->appendRow($this->head);
-                $this->rendererCell->headerLabelCells($row, $rowIdx);
-                $this->rendererCell->addValueCellHeader($rowIdx, $row);
-            }
-        }
-    }
-
-    /**
      * Creates and inserts a caption.
      * @throws DOMException
      */

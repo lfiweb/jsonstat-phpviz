@@ -20,8 +20,6 @@ function getRenderer(Reader $reader, $format): TableTsv|TableExcel|TableHtml
         $renderer->repeatLabels = false;
     } else {
         $renderer = new TableHtml($reader);
-        $renderer->useRowSpans = true;
-        $renderer->noLabelLastDim = false;
     }
 
     return $renderer;
@@ -70,7 +68,7 @@ download($table1, $format, '1');
 
 // create the table with 3 dimensions used for the row grouping instead of 2 (default):
 $table2 = getRenderer($reader, $format);
-$table2->numRowDim = 0;
+$table2->numRowDim = 4;
 $table2->caption .= ', dimension A, B and C are used as row dimensions.';
 download($table2, $format, '2');
 
@@ -93,6 +91,7 @@ $reader = new Reader($jsonstat);
 $table4 = getRenderer($reader, $format);
 $table4->excludeOneDim = true;
 $table4->noLabelLastDim = true;
+//$table4->useRowSpans = false;
 download($table4, $format, '4');
 
 // use JSON-stat OECD test data

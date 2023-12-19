@@ -5,7 +5,6 @@ namespace jsonstatPhpViz\Renderer;
 use jsonstatPhpViz\Formatter;
 use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
-use jsonstatPhpViz\UtilHtml;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Exception;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -23,6 +22,10 @@ class TableExcel extends AbstractTable
         $this->xls = new Spreadsheet();
     }
 
+    /**
+     * Instantiate the RendererCell class.
+     * @return void
+     */
     public function initRendererCell(): void
     {
         $formatter = new FormatterCell($this->reader, new Formatter());
@@ -92,7 +95,7 @@ class TableExcel extends AbstractTable
     /**
      * Creates the table head and appends header cells, row by row to it.
      */
-    public function headers(): void
+    public function xxxxheaders(): void
     {
         for ($rowIdx = 0; $rowIdx < $this->numHeaderRows; $rowIdx++) {
             if (!$this->noLabelDim || $rowIdx % 2 === 1) {
