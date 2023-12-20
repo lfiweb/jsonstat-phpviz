@@ -138,7 +138,7 @@ class Reader
     }
 
     /**
-     * Returns the id of a category label.
+     * Returns the id of the category label.
      * @param string $dimId dimension id
      * @param int $categIdx index of the category label
      * @return string

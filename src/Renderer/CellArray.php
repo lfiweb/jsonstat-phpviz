@@ -27,14 +27,14 @@ class CellArray implements CellInterface
     /**
      * Appends cells with values to the row.
      * Inserts a HTMLTableCellElement at the end of the row with a value taken from the values at given offset.
-     * @param int $offset
+     * @param int $rowIdx
      * @return string the content of the cell
      */
-    public function addValueCellBody(int $offset): string
+    public function addValueCellBody(int $rowIdx): string
     {
-        $val = $this->reader->data->value[$offset];
+        $val = $this->reader->data->value[$rowIdx];
 
-        return $this->formatter->formatValueCell($val, $offset);
+        return $this->formatter->formatValueCell($val, $rowIdx);
     }
 
     /**
@@ -120,12 +120,12 @@ class CellArray implements CellInterface
         // TODO: Implement firstCell() method.
     }
 
-    public function addLabelCellBody(int $rowIdx, int $dimIdx)
+    public function addLabelCellBody(int $dimIdx, int $rowIdx)
     {
         // TODO: Implement labelCell() method.
     }
 
-    public function addLastCellBody(int $rowIdx, int $offset)
+    public function addLastCellBody(int $offset, int $rowIdx)
     {
         // TODO: Implement lastCell() method.
     }

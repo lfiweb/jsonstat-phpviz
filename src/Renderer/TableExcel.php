@@ -6,20 +6,21 @@ use jsonstatPhpViz\Formatter;
 use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\Exception;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class TableExcel extends AbstractTable
 {
-
-    public bool $repeatLabels = false;
-
-    public Spreadsheet $xls;
+    protected Spreadsheet $xls;
+    public Worksheet $worksheet;
 
     public function __construct(Reader $jsonStatReader, ?int $numRowDim = null)
     {
         parent::__construct($jsonStatReader, $numRowDim);
         $this->xls = new Spreadsheet();
+        $this->worksheet = $this->xls->getActiveSheet();
     }
 
     /**
@@ -72,9 +73,9 @@ class TableExcel extends AbstractTable
     /**
      * Creates and inserts a caption.
      */
-    public function caption(): void
+    public function addCaption(): void
     {
-        $this->xls->getActiveSheet()->setCellValue([1, 1], $this->caption);
+        $this->worksheet->setCellValue([1, 1], $this->caption);
     }
 
     /**
@@ -82,7 +83,7 @@ class TableExcel extends AbstractTable
      * Sets the caption from the optional JSON-stat label property. HTML from the JSON-stat is escaped.
      * @return void
      */
-    public function initCaption(): void
+    public function readCaption(): void
     {
         // since html content is allowed in caption when the property is set explicitly,
         // we have to escape it when set via json-stat to prevent html content from the untrusted source
@@ -91,17 +92,25 @@ class TableExcel extends AbstractTable
         }
     }
 
-
     /**
      * Creates the table head and appends header cells, row by row to it.
      */
-    public function xxxxheaders(): void
+    public function addHeaders(): void
     {
-        for ($rowIdx = 0; $rowIdx < $this->numHeaderRows; $rowIdx++) {
-            if (!$this->noLabelDim || $rowIdx % 2 === 1) {
-                $this->rendererCell->headerLabelCells($rowIdx);
-                $this->rendererCell->addValueCellHeader($rowIdx, $rowIdx);
-            }
+        parent::addHeaders();
+        $this->styleHeaders();
+    }
+
+    private function styleHeaders()
+    {
+        $numCols = $this->numLabelCols + $this->numValueCols;
+        $numRows = array_product($this->rowDims);
+        $style = $this->worksheet->getStyle([1, 1, $numCols, $this->numHeaderRows]);
+        $style->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $style = $this->worksheet->getStyle([1, 1, $this->numLabelCols, $this->numHeaderRows + $numRows]);
+        $style->getAlignment()->setVertical(Alignment::VERTICAL_TOP);
+        for ($colIdx = 1; $colIdx < $numCols + 1; $colIdx++) {
+            $this->worksheet->getColumnDimensionByColumn($colIdx)->setAutoSize(true);
         }
     }
 }

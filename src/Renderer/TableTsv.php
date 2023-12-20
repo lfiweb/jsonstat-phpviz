@@ -57,7 +57,7 @@ class TableTsv extends AbstractTable
      * Sets the caption from the optional JSON-stat label property. HTML from the JSON-stat is escaped.
      * @return void
      */
-    public function initCaption(): void
+    public function readCaption(): void
     {
         if (property_exists($this->reader->data, 'label')) {
             $this->caption = $this->reader->data->label;
@@ -89,7 +89,7 @@ class TableTsv extends AbstractTable
     /**
      * Creates the table head and appends header cells, row by row to it.
      */
-    public function headers(): void
+    public function addHeaders(): void
     {
         for ($rowIdx = 0; $rowIdx < $this->numHeaderRows; $rowIdx++) {
             if (!$this->noLabelDim || $rowIdx % 2 === 1) {
@@ -104,7 +104,7 @@ class TableTsv extends AbstractTable
      * Creates and inserts a caption.
      * @return void
      */
-    public function caption(): void
+    public function addCaption(): void
     {
         $this->tsv .= $this->caption.$this->separatorRow.$this->separatorRow;
     }

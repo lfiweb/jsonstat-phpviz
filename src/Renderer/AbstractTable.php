@@ -45,10 +45,18 @@ abstract class AbstractTable implements TableInterface
 
     /**
      * Exclude dimensions of size one from rendering.
-     * Only excludes continuous dimensions of size one, e.g. when each dimension with a lower index is also of size one.
+     * Only excludes continuous dimensions of size one, when each dimension with a lower index is also of size one.
      * @var bool
      */
     public ?bool $excludeOneDim = false;
+
+    /**
+     * Render the table with rowspans ?
+     * default = true
+     * Note: When this is set to false, empty row headers might be created, which are an accessibility problem.
+     * @var bool $useRowSpans
+     */
+    public bool $useRowSpans = true;
 
     /** @var array shape of the json-stat value array */
     public array $shape;
@@ -65,6 +73,12 @@ abstract class AbstractTable implements TableInterface
     public CellInterface $rendererCell;
 
     /**
+     * the caption element
+     * @var null|string
+     */
+    public null|string $caption;
+
+    /**
      * Instantiates the class.
      * @param Reader $jsonStatReader
      * @param int|null $numRowDim
@@ -73,8 +87,7 @@ abstract class AbstractTable implements TableInterface
     {
         $this->reader = $jsonStatReader;
         $this->numRowDim = $numRowDim;
-        $this->initCaption();
-        $this->initRendererCell();
+        $this->readCaption();
     }
 
     /**
@@ -93,9 +106,9 @@ abstract class AbstractTable implements TableInterface
     public function build(): void
     {
         $this->init();
-        $this->caption();
-        $this->headers();
-        $this->rows();
+        $this->addCaption();
+        $this->addHeaders();
+        $this->addRows();
     }
 
     /**
@@ -106,7 +119,7 @@ abstract class AbstractTable implements TableInterface
     {
         $this->shape = $this->reader->getDimensionSizes($this->excludeOneDim);
         $this->strides = UtilArray::getStrides($this->shape);
-        $this->numRowDim = $this->numRowDim ?? $this->numRowDimAuto();
+        $this->numRowDim = $this->numRowDim ?? $this->getNumRowDimAuto();
         $this->rowDims = $this->extractDims($this->shape);
         $this->colDims = $this->extractDims($this->shape, self::DIM_TYPE_COL);
 
@@ -117,6 +130,7 @@ abstract class AbstractTable implements TableInterface
         $this->numLabelCols = count($this->rowDims);
         // add an additional row to label each dimension
         $this->numHeaderRows = count($this->colDims) > 0 ? count($this->colDims) * 2 : 1;
+        $this->initRendererCell();
     }
 
     /**
@@ -125,7 +139,7 @@ abstract class AbstractTable implements TableInterface
      * When there are fewer than 3 dimensions, only the first dimension is used for rows.
      * @return int
      */
-    public function numRowDimAuto(): int
+    public function getNumRowDimAuto(): int
     {
         $dims = $this->reader->getDimensionSizes($this->excludeOneDim);
 
@@ -134,7 +148,7 @@ abstract class AbstractTable implements TableInterface
 
     /**
      * Returns the dimensions that can be used for rows or cols.
-     * Constant dimensions (e.g. of length 1) are excluded.
+     * Constant dimensions (i.e., of length 1) are excluded.
      * @param array $dims
      * @param int $type 'row' or 'col' possible values are RendererTable::DIM_TYPE_ROW or RendererTable::DIM_TYPE_COL
      * @return array
@@ -148,38 +162,71 @@ abstract class AbstractTable implements TableInterface
         return array_slice($dims, $this->numRowDim);
     }
 
-    public function headers(): void
+    public function addHeaders(): void
     {
         $numHeaderRows = $this->noLabelLastDim === true ? $this->numHeaderRows - 1 : $this->numHeaderRows;
 
         for ($rowIdx = 0; $rowIdx < $numHeaderRows; $rowIdx++) {
             $this->rendererCell->addFirstCellHeader($rowIdx);
             for ($colIdx = 1; $colIdx < $this->numLabelCols; $colIdx++) {
-                $this->rendererCell->addLabelCellHeader($rowIdx, $colIdx);
+                $this->rendererCell->addLabelCellHeader($colIdx, $rowIdx);
             }
+            // note: since we are reading from the linear JSON-stat value property,
+            //      we have to align the columns and start with zero instead of
+            //      zero + numLabelCols.
             for ($colIdx = 0; $colIdx < $this->numValueCols - 1; $colIdx++) {
-                $this->rendererCell->addValueCellHeader($rowIdx, $colIdx);
+                $this->rendererCell->addValueCellHeader($colIdx, $rowIdx);
             }
-            $this->rendererCell->addLastCellHeader($rowIdx, $colIdx);
+            $this->rendererCell->addLastCellHeader($colIdx, $rowIdx);
         }
     }
 
-    public function rows(): void
+    public function addRows(): void
     {
         $rowIdx = 0;
         for ($offset = 0, $len = $this->reader->getNumValues(); $offset < $len; $offset++) {
             if ($offset % $this->numValueCols === 0) {
                 $this->rendererCell->addFirstCellBody($rowIdx);
                 for ($colIdx = 1; $colIdx < $this->numLabelCols; $colIdx++) {
-                    $this->rendererCell->addLabelCellBody($rowIdx, $colIdx);
+                    $this->rendererCell->addLabelCellBody($colIdx, $rowIdx);
                 }
             }
             if ($offset % $this->numValueCols < $this->numValueCols - 1) {
-                $this->rendererCell->addValueCellBody($rowIdx, $offset);
+                $this->rendererCell->addValueCellBody($offset, $rowIdx);
             } elseif ($offset % $this->numValueCols === $this->numValueCols - 1) {
-                $this->rendererCell->addLastCellBody($rowIdx, $offset);
+                $this->rendererCell->addLastCellBody($offset, $rowIdx);
                 $rowIdx++;
             }
         }
+    }
+
+    /**
+     * Is this the last row of the table header rows?
+     * Takes the state of the property CellHtml::noLabelLastDim into account.
+     * @param int $rowIdx row index
+     * @return bool
+     */
+    public function isLastRowHeader(int $rowIdx): bool
+    {
+        $lastRow = $this->numHeaderRows - 1;
+        if ($this->noLabelLastDim === true) {
+            --$lastRow;
+        }
+
+        return $rowIdx === $lastRow;
+    }
+
+    /**
+     * Is this a dimension label or a category label row?
+     * Note: Per column dimension, a row for the dimension label
+     *      and a row for the dimension's category label is rendered.
+     * @param int $rowIdx row index
+     * @return bool
+     */
+    public function isDimensionRowHeader(int $rowIdx): bool
+    {
+        return $rowIdx % 2 === 0 && (
+                $this->noLabelLastDim === false || $rowIdx !== $this->numHeaderRows - 2
+            );
     }
 }

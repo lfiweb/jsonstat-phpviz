@@ -20,7 +20,7 @@ interface TableInterface
     public function setNumRowDim(int $numRowDim): void;
 
     /**
-     * Renders the data as a html table.
+     * Renders the data as an html table.
      * Reads the value array and renders it as a table.
      * @return string csv
      */
@@ -32,7 +32,7 @@ interface TableInterface
      * When there are fewer than 3 dimensions, only the first dimension is used for rows.
      * @return int
      */
-    public function numRowDimAuto(): int;
+    public function getNumRowDimAuto(): int;
 
     /**
      * Creates the internal structure of the table.
@@ -45,7 +45,7 @@ interface TableInterface
      * Sets the caption from the optional JSON-stat label property. HTML from the JSON-stat is escaped.
      * @return void
      */
-    public function initCaption(): void;
+    public function readCaption(): void;
 
     /**
      * Instantiate the RendererCell class.
@@ -56,15 +56,15 @@ interface TableInterface
     /**
      * Creates the table body and appends table cells row by row to it.
      */
-    public function rows(): void;
+    public function addRows(): void;
 
     /**
      * Creates the table head and appends header cells, row by row to it.
      */
-    public function headers(): void;
+    public function addHeaders(): void;
 
     /**
      * Creates and inserts a caption.
      */
-    public function caption(): void;
+    public function addCaption(): void;
 }

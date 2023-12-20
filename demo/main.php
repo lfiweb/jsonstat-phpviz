@@ -17,7 +17,7 @@ function getRenderer(Reader $reader, $format): TableTsv|TableExcel|TableHtml
     } elseif ($format === 'xlsx') {
         $renderer = new TableExcel($reader);
         $renderer->excludeOneDim = true;
-        $renderer->repeatLabels = false;
+        $renderer->noLabelLastDim = false;
     } else {
         $renderer = new TableHtml($reader);
     }
@@ -39,10 +39,7 @@ function download(AbstractTable $table, string $format, string $id): void
             header('Content-Disposition: attachment; filename="table'.$id.'.tsv"');
             exit($table->render());
         }
-
         if ($format === 'xlsx') {
-            //header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8');
-            //header('Content-Disposition: attachment; filename="table'.$id.'.xlsx"');
             $table->download();
         }
     }

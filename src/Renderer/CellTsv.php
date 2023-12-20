@@ -105,10 +105,10 @@ class CellTsv implements CellInterface
 
     public function addFirstCellBody(int $dimIdx, int $rowIdx): void
     {
-        $this->addLabelCellBody($rowIdx, $dimIdx);
+        $this->addLabelCellBody($dimIdx, $rowIdx);
     }
 
-    public function addLabelCellBody(int $rowIdx, int $dimIdx): void
+    public function addLabelCellBody(int $dimIdx, int $rowIdx): void
     {
         $table = $this->table;
         $reader = $this->reader;
@@ -128,17 +128,17 @@ class CellTsv implements CellInterface
     /**
      * Appends cells with values to the row.
      * Inserts a HTMLTableCellElement at the end of the row with a value taken from the values at given offset.
-     * @param int $offset
+     * @param int $rowIdx
      * @return void the content of the cell
      */
-    public function addValueCellBody(int $offset): void
+    public function addValueCellBody(int $rowIdx): void
     {
-        $val = $this->reader->data->value[$offset];
+        $val = $this->reader->data->value[$rowIdx];
 
-        $this->table->tsv .= $this->formatter->formatValueCell($val, $offset).$this->table->separatorCol;
+        $this->table->tsv .= $this->formatter->formatValueCell($val, $rowIdx).$this->table->separatorCol;
     }
 
-    public function addLastCellBody(int $rowIdx, int $offset): void
+    public function addLastCellBody(int $offset, int $rowIdx): void
     {
         $val = rtrim($this->table->tsv, $this->table->separatorCol);
         $this->table->tsv .= $val.$this->table->separatorRow;

@@ -43,47 +43,47 @@ interface CellInterface
 
     /**
      * Add a lable cell to the table header.
-     * @param int $rowIdx row index
      * @param int $dimIdx dimension index
+     * @param int $rowIdx row index
      * @return void
      */
-    public function addLabelCellHeader(int $rowIdx, int $dimIdx): void;
+    public function addLabelCellHeader(int $dimIdx, int $rowIdx): void;
 
     /**
      * Add a label cell to the table body.
-     * @param int $rowIdx
      * @param int $dimIdx dimension index
+     * @param int $rowIdx
      * @return void
      */
-    public function addLabelCellBody(int $rowIdx, int $dimIdx): void;
+    public function addLabelCellBody(int $dimIdx, int $rowIdx): void;
 
     /**
      * Add a value cell to the table header.
-     * @param int $rowIdx
      * @param int $offset
+     * @param int $rowIdx
      * @return void
      */
-    public function addValueCellHeader(int $rowIdx, int $offset): void;
+    public function addValueCellHeader(int $offset, int $rowIdx): void;
 
     /**
      * Add a value cell to the table body.
      * @param int $offset
      * @return void
      */
-    public function addValueCellBody(int $rowIdx, int $offset): void;
+    public function addValueCellBody(int $offset, int $rowIdx): void;
 
     /**
      * Add the last cell to the table header.
      * @param int $rowIdx
      * @return void
      */
-    public function addLastCellHeader(int $rowIdx, int $offset): void;
+    public function addLastCellHeader(int $offset, int $rowIdx): void;
 
     /**
      * Add the last cell to the table body.
-     * @param int $rowIdx
      * @param int $offset
+     * @param int $rowIdx
      * @return void
      */
-    public function addLastCellBody(int $rowIdx, int $offset): void;
+    public function addLastCellBody(int $offset, int $rowIdx): void;
 }
