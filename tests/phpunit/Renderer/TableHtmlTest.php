@@ -144,15 +144,15 @@ class TableHtmlTest extends TestCase
     {
         $reader = $this->factory->create(__DIR__ . '/../../resources/volume.json');
         $table = new TableHtml($reader);
-        self::assertSame(4, $table->numRowDimAuto());
+        self::assertSame(4, $table->getNumRowDimAuto());
         $table->excludeOneDim = true;
-        self::assertSame(2, $table->numRowDimAuto());
+        self::assertSame(2, $table->getNumRowDimAuto());
 
         $reader = $this->factory->create(__DIR__ . '/../../resources/oecd.json');
         $table = new TableHtml($reader);
-        self::assertSame(1, $table->numRowDimAuto());
+        self::assertSame(1, $table->getNumRowDimAuto());
         $table->excludeOneDim = true;
-        self::assertSame(1, $table->numRowDimAuto());
+        self::assertSame(1, $table->getNumRowDimAuto());
     }
 
     /**
@@ -162,16 +162,24 @@ class TableHtmlTest extends TestCase
     public function testExcludeOneDim(): void
     {
         $reader = $this->factory->create(__DIR__ . '/../../resources/volume.json');
+        $renderer = new TableHtml($reader, 2);
+
+        $renderer->excludeOneDim = true;
+
+        $renderer->render();
         $size = $reader->data->size;
         $x = array_slice($size, 0, 4);
         $y = array_slice($size, 4);
-        $renderer = new TableHtml($reader, 2);
-        $renderer->excludeOneDim = true;
-        $renderer->render();
         $nlX = FactoryRendererTable::getTBodyChildNodes($renderer->domNode);
         $nlY = FactoryRendererTable::getTheadLastChildNodes($renderer->domNode);
         self::assertSame(array_product($x), $nlX->length);
         self::assertSame(array_product($y) + 2, $nlY->length);
+        $dimId = $reader->getDimensionId(2);    // the first two dimensions have size 1
+        $catId = $reader->getCategoryId($dimId, 0);
+        $catLabel = $reader->getCategoryLabel($dimId, $catId);
+        $tBody = $renderer->domNode->getElementsByTagName('tbody')->item(0);
+        $cellLabel = $tBody->getElementsByTagName('tr')->item(0)->childNodes[0]->nodeValue;
+        self::assertSame($catLabel, $cellLabel);
     }
 
     /**
