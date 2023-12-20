@@ -81,7 +81,7 @@ class CellHtml extends AbstractCell
         $label = null;
         if ($rowIdx % $stride === 0) {
             $product = $table->shape[$dimIdx] * $stride;
-            $label = $this->getCategoryLabel($rowIdx, $dimIdx, $stride, $product);
+            $label = $this->getCategoryLabel($rowIdx, $table->numOneDim + $dimIdx, $stride, $product);
         }
         if ($table->useRowSpans === false || $rowIdx % $stride === 0) {
             $rowspan = $table->useRowSpans && $stride > 1 ? $stride : null;
@@ -114,7 +114,7 @@ class CellHtml extends AbstractCell
             $label = $reader->getDimensionLabel($id);
             $colspan = $product > 1 ? $product : null;
         } else {    // set attributes for category label cell
-            $label = $this->getCategoryLabel($offset, $dimIdx, $stride, $product);
+            $label = $this->getCategoryLabel($offset, $table->numOneDim + $dimIdx, $stride, $product);
             $colspan = $stride > 1 ? $stride : null;
         }
         if ($colspan === null || $offset % $colspan === 0) {

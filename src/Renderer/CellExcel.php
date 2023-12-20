@@ -58,12 +58,12 @@ class CellExcel extends AbstractCell
         $label = null;
         if ($rowIdx % $stride === 0) {
             $product = $table->shape[$dimIdx] * $stride;
-            $label = $this->getCategoryLabel($rowIdx, $dimIdx, $stride, $product);
+            $label = $this->getCategoryLabel($rowIdx, $table->numOneDim + $dimIdx, $stride, $product);
         }
         if ($table->useRowSpans === false || $rowIdx % $stride === 0) {
             $rowspan = $table->useRowSpans && $stride > 1 ? $stride : 0;
             $x = $dimIdx + 1;
-            $y = $this->table->numHeaderRows + $rowIdx + 1;
+            $y = $this->getRowIdxAdjusted($rowIdx);
             $this->addCellHeader($x, $y, $label);
             if ($rowspan > 0) {
                 $this->worksheet->mergeCells([$x, $y, $x, $y + $rowspan - 1]);
@@ -92,7 +92,7 @@ class CellExcel extends AbstractCell
             $colspan = $product > 1 ? $product : 0;
         } else {
             // set attributes for category label cell
-            $label = $this->getCategoryLabel($offset, $dimIdx, $stride, $product);
+            $label = $this->getCategoryLabel($offset, $table->numOneDim + $dimIdx, $stride, $product);
             $colspan = $stride > 1 ? $stride : 0;
         }
         if ($colspan === 0 || $offset % $colspan === 0) {
@@ -116,7 +116,7 @@ class CellExcel extends AbstractCell
     public function addValueCellBody(int $offset, int $rowIdx): void
     {
         $x = $this->table->numLabelCols + ($offset % $this->table->numValueCols) + 1;
-        $y = $this->table->numHeaderRows + $rowIdx + 1;
+        $y = $this->getRowIdxAdjusted($rowIdx);
         $val = $this->reader->data->value[$offset];
         $val = $this->formatter->formatValueCell($val, $offset);
         $this->worksheet->setCellValue([$x, $y], $val);
@@ -151,5 +151,21 @@ class CellExcel extends AbstractCell
     {
         $label = $this->formatter->formatHeaderCell($label);
         $this->worksheet->setCellValue([$x, $y], $label);
+    }
+
+    /**
+     * Return the corrected row index.
+     * Adds the number of header rows to the row index.
+     * @param int $rowIdx
+     * @return int
+     */
+    private function getRowIdxAdjusted(int $rowIdx): int
+    {
+        $y = $this->table->numHeaderRows + $rowIdx + 1;
+        if ($this->table->noLabelLastDim) {
+            --$y;
+        }
+
+        return $y;
     }
 }

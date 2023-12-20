@@ -101,16 +101,26 @@ class TableExcel extends AbstractTable
         $this->styleHeaders();
     }
 
+    /**
+     * Style all the cells of the current worksheet.
+     * @return void
+     */
     private function styleHeaders()
     {
         $numCols = $this->numLabelCols + $this->numValueCols;
-        $numRows = array_product($this->rowDims);
-        $style = $this->worksheet->getStyle([1, 1, $numCols, $this->numHeaderRows]);
+        $numRows = $this->numHeaderRows;
+        if ($this->noLabelLastDim) {
+            --$numRows;
+        }
+        $style = $this->worksheet->getStyle([1, 1, $numCols, $numRows]);
         $style->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $style = $this->worksheet->getStyle([1, 1, $this->numLabelCols, $this->numHeaderRows + $numRows]);
+
+        $numRows += array_product($this->rowDims);
+        $style = $this->worksheet->getStyle([1, 1, $this->numLabelCols, $numRows]);
         $style->getAlignment()->setVertical(Alignment::VERTICAL_TOP);
         for ($colIdx = 1; $colIdx < $numCols + 1; $colIdx++) {
             $this->worksheet->getColumnDimensionByColumn($colIdx)->setAutoSize(true);
         }
+        $this->worksheet->setSelectedCell('A1');    // there seems not to be a deselect method
     }
 }
