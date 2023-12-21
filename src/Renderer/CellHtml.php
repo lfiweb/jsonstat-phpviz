@@ -24,7 +24,7 @@ class CellHtml extends AbstractCell
      * @param Reader $reader
      * @param TableHtml $rendererTable
      */
-    public function __construct(FormatterCell $cellFormatter, Reader $reader, AbstractTable $rendererTable)
+    public function __construct(FormatterCell $cellFormatter, Reader $reader, TableHtml $rendererTable)
     {
         parent::__construct($cellFormatter, $reader);
         $this->table = $rendererTable;
@@ -174,18 +174,18 @@ class CellHtml extends AbstractCell
 
     /**
      * @param int $rowIdx
-     * @return DOMElement
+     * @return DOMNode
      */
-    private function getRowBody(int $rowIdx): DOMElement
+    private function getRowBody(int $rowIdx): DOMNode
     {
         return $this->table->body->getElementsByTagName('tr')->item($rowIdx);
     }
 
     /**
      * @param int $rowIdx
-     * @return DOMElement
+     * @return DOMNode
      */
-    private function getRowHeader(int $rowIdx): DOMElement
+    private function getRowHeader(int $rowIdx): DOMNode
     {
         return $this->table->head->getElementsByTagName('tr')->item($rowIdx);
     }
