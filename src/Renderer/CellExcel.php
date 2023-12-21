@@ -115,7 +115,7 @@ class CellExcel extends AbstractCell
      */
     public function addValueCellBody(int $offset, int $rowIdx): void
     {
-        $x = $this->table->numLabelCols + ($offset % $this->table->numValueCols) + 1;
+        $x = $this->adjustX($offset);
         $y = $this->adjustYBody($rowIdx);
         $val = $this->reader->data->value[$offset];
         $val = $this->formatter->formatValueCell($val, $offset);
