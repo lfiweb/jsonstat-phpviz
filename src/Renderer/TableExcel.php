@@ -128,6 +128,6 @@ class TableExcel extends AbstractTable
         for ($colIdx = 1; $colIdx < $numCols + 1; $colIdx++) {
             $this->worksheet->getColumnDimensionByColumn($colIdx)->setAutoSize(true);
         }
-        //$this->worksheet->setSelectedCell('A1');    // there doesn't seem to be a deselect method
+        $this->worksheet->setSelectedCell('A1');    // there doesn't seem to be a deselect method
     }
 }
