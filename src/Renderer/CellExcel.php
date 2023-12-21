@@ -47,7 +47,7 @@ class CellExcel extends AbstractCell
             $id = $this->reader->getDimensionId($this->table->numOneDim + $dimIdx);
             $label = $this->reader->getDimensionLabel($id);
         }
-        $this->addCellHeader($dimIdx + 1, $rowIdx + 1, $label);
+        $this->addCellHeader($dimIdx + 1, $this->adjustYHeader($rowIdx), $label);
     }
 
     public function addLabelCellBody(int $dimIdx, int $rowIdx): void
@@ -63,7 +63,7 @@ class CellExcel extends AbstractCell
         if ($table->useRowSpans === false || $rowIdx % $stride === 0) {
             $rowspan = $table->useRowSpans && $stride > 1 ? $stride : 0;
             $x = $dimIdx + 1;
-            $y = $this->getRowIdxAdjusted($rowIdx);
+            $y = $this->adjustYBody($rowIdx);
             $this->addCellHeader($x, $y, $label);
             if ($rowspan > 0) {
                 $this->worksheet->mergeCells([$x, $y, $x, $y + $rowspan - 1]);
@@ -96,8 +96,8 @@ class CellExcel extends AbstractCell
             $colspan = $stride > 1 ? $stride : 0;
         }
         if ($colspan === 0 || $offset % $colspan === 0) {
-            $x = $this->table->numLabelCols + $offset + 1;
-            $y = $rowIdx + 1;
+            $x = $this->adjustX($offset);
+            $y = $this->adjustYHeader($rowIdx);
             $this->addCellHeader($x, $y, $label);
             if ($colspan > 0) {
                 $this->worksheet->mergeCells([$x, $y, $x + $colspan - 1, $y]);
@@ -116,7 +116,7 @@ class CellExcel extends AbstractCell
     public function addValueCellBody(int $offset, int $rowIdx): void
     {
         $x = $this->table->numLabelCols + ($offset % $this->table->numValueCols) + 1;
-        $y = $this->getRowIdxAdjusted($rowIdx);
+        $y = $this->adjustYBody($rowIdx);
         $val = $this->reader->data->value[$offset];
         $val = $this->formatter->formatValueCell($val, $offset);
         $this->worksheet->setCellValue([$x, $y], $val);
@@ -154,14 +154,41 @@ class CellExcel extends AbstractCell
     }
 
     /**
-     * Return the corrected row index.
-     * Adds the number of header rows to the row index.
+     * Return the adjusted column index.
+     * @param int $offset
+     * @return int
+     */
+    private function adjustX(int $offset): int
+    {
+        return $this->table->numLabelCols + ($offset % $this->table->numValueCols) + 1;
+    }
+
+    /**
+     * Return the adjusted row index.
+     * Add the caption to the row index.
      * @param int $rowIdx
      * @return int
      */
-    private function getRowIdxAdjusted(int $rowIdx): int
+    private function adjustYHeader(int $rowIdx): int
     {
-        $y = $this->table->numHeaderRows + $rowIdx + 1;
+        $y = $rowIdx + 1;
+        if ($this->table->caption) {
+            ++$y;
+        }
+
+        return $y;
+    }
+
+    /**
+     * Return the adjusted row index.
+     * Add the caption and the header rows to the row index.
+     * @param int $rowIdx
+     * @return int
+     */
+    private function adjustYBody(int $rowIdx): int
+    {
+        $y = $this->adjustYHeader($rowIdx);
+        $y += $this->table->numHeaderRows;
         if ($this->table->noLabelLastDim) {
             --$y;
         }

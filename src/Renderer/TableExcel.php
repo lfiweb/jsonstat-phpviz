@@ -13,7 +13,8 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class TableExcel extends AbstractTable
 {
-    protected Spreadsheet $xls;
+    private Spreadsheet $xls;
+
     public Worksheet $worksheet;
 
     public function __construct(Reader $jsonStatReader, ?int $numRowDim = null)
@@ -34,6 +35,8 @@ class TableExcel extends AbstractTable
     }
 
     /**
+     * Render the table in memory.
+     * @return string
      * @throws Exception
      */
     public function render(): string
@@ -52,6 +55,7 @@ class TableExcel extends AbstractTable
     }
 
     /**
+     * Render and download the table.
      * @throws Exception
      */
     public function download(): void
@@ -71,29 +75,28 @@ class TableExcel extends AbstractTable
     }
 
     /**
-     * Creates and inserts a caption.
+     * Create and insert the caption.
      */
     public function addCaption(): void
     {
         $this->worksheet->setCellValue([1, 1], $this->caption);
+        $this->worksheet->mergeCells([1, 1, $this->numLabelCols + $this->numValueCols, 1]);
     }
 
     /**
-     * Automatically sets the caption.
-     * Sets the caption from the optional JSON-stat label property. HTML from the JSON-stat is escaped.
+     * Set the caption automatically.
+     * Sets the caption from the optional JSON-stat label property.
      * @return void
      */
     public function readCaption(): void
     {
-        // since html content is allowed in caption when the property is set explicitly,
-        // we have to escape it when set via json-stat to prevent html content from the untrusted source
         if (property_exists($this->reader->data, 'label')) {
             $this->caption = $this->reader->data->label;
         }
     }
 
     /**
-     * Creates the table head and appends header cells, row by row to it.
+     * Create the table head and append header cells, row by row to it.
      */
     public function addHeaders(): void
     {
@@ -105,22 +108,26 @@ class TableExcel extends AbstractTable
      * Style all the cells of the current worksheet.
      * @return void
      */
-    private function styleHeaders()
+    private function styleHeaders(): void
     {
         $numCols = $this->numLabelCols + $this->numValueCols;
-        $numRows = $this->numHeaderRows;
+        $numRows = 0;
+        if ($this->caption) {
+            $numRows =+ 1;
+        }
+        $numRows += $this->numHeaderRows;
         if ($this->noLabelLastDim) {
             --$numRows;
         }
-        $style = $this->worksheet->getStyle([1, 1, $numCols, $numRows]);
+        $style = $this->worksheet->getStyle([2, 2, $numCols, $numRows]);
         $style->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
         $numRows += array_product($this->rowDims);
-        $style = $this->worksheet->getStyle([1, 1, $this->numLabelCols, $numRows]);
+        $style = $this->worksheet->getStyle([2, 2, $this->numLabelCols, $numRows]);
         $style->getAlignment()->setVertical(Alignment::VERTICAL_TOP);
         for ($colIdx = 1; $colIdx < $numCols + 1; $colIdx++) {
             $this->worksheet->getColumnDimensionByColumn($colIdx)->setAutoSize(true);
         }
-        $this->worksheet->setSelectedCell('A1');    // there seems not to be a deselect method
+        //$this->worksheet->setSelectedCell('A1');    // there doesn't seem to be a deselect method
     }
 }
