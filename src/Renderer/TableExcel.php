@@ -2,6 +2,7 @@
 
 namespace jsonstatPhpViz\Renderer;
 
+use JetBrains\PhpStorm\NoReturn;
 use jsonstatPhpViz\Formatter;
 use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
@@ -13,9 +14,17 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class TableExcel extends AbstractTable
 {
+    /**
+     * an instance of the PhpSpreadsheet
+     * @var Spreadsheet
+     */
     private Spreadsheet $xls;
 
-    public Worksheet $worksheet;
+    /**
+     * the current worksheet of the PhpSpreadsheet
+     * @var Worksheet
+     */
+    private Worksheet $worksheet;
 
     public function __construct(Reader $jsonStatReader, ?int $numRowDim = null)
     {
@@ -58,7 +67,7 @@ class TableExcel extends AbstractTable
      * Render and download the table.
      * @throws Exception
      */
-    public function download(): void
+    #[NoReturn] public function download(): void
     {
         $this->build();
         $writer = new Xlsx($this->xls);
@@ -106,7 +115,7 @@ class TableExcel extends AbstractTable
     }
 
     /**
-     * Style all the cells of the current worksheet.
+     * Style the header cells of the current worksheet.
      * @return void
      */
     private function styleHeaders(): void
@@ -133,10 +142,23 @@ class TableExcel extends AbstractTable
         $this->worksheet->setSelectedCell('A1');    // there doesn't seem to be a deselect method
     }
 
+    /**
+     * Style the caption cells of the current worksheet.
+     * @return void
+     */
     private function styleCaption(): void
     {
         $this->worksheet->getRowDimension(1)->setRowHeight(24);
         $style = $this->worksheet->getStyle([1, 1, 1, 1]);
         $style->getAlignment()->setVertical(Alignment::VERTICAL_TOP);
+    }
+
+    /**
+     * Return the active worksheet.
+     * @return Worksheet
+     */
+    public function getActiveWorksheet(): Worksheet
+    {
+        return $this->worksheet;
     }
 }

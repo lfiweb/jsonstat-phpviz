@@ -9,6 +9,12 @@ use jsonstatPhpViz\UtilArray;
 class CellTsv extends AbstractCell
 {
     protected TableTsv $table;
+    
+    /**
+     * internal reference to the tab separated string
+     * @var string 
+     */
+    private string $tsv;
 
     /**
      * @param FormatterCell $cellFormatter
@@ -19,6 +25,7 @@ class CellTsv extends AbstractCell
     {
         parent::__construct($cellFormatter, $reader);
         $this->table = $rendererTable;
+        $this->tsv = &$rendererTable->getTsv();
     }
 
     public function addFirstCellHeader($rowIdx): void
@@ -36,7 +43,7 @@ class CellTsv extends AbstractCell
             $id = $this->reader->getDimensionId($table->numOneDim + $dimIdx);
             $label = $this->reader->getDimensionLabel($id);
         }
-        $table->tsv .= $this->formatter->formatHeaderCell($label).$table->separatorCol;
+        $this->tsv .= $this->formatter->formatHeaderCell($label).$table->separatorCol;
     }
 
     public function addFirstCellBody(int $rowIdx): void
@@ -56,7 +63,7 @@ class CellTsv extends AbstractCell
         if ($table->repeatLabels || $rowIdx % $stride === 0) {
             $label = $this->getCategoryLabel($rowIdx, $table->numOneDim + $dimIdx, $stride, $product);
         }
-        $table->tsv .= $this->formatter->formatHeaderCell($label).$table->separatorCol;
+        $this->tsv .= $this->formatter->formatHeaderCell($label).$table->separatorCol;
     }
 
     /**
@@ -69,7 +76,7 @@ class CellTsv extends AbstractCell
         if (count($this->table->colDims) !== 0) {
             $this->addValueCellHeader($offset, $rowIdx);
         }
-        $this->table->tsv .= $this->table->separatorRow;
+        $this->tsv .= $this->table->separatorRow;
     }
 
     /**
@@ -92,13 +99,13 @@ class CellTsv extends AbstractCell
         } else {
             $label = $this->getCategoryLabel($offset, $table->numOneDim + $dimIdx, $stride, $product);
         }
-        $table->tsv .= $this->formatter->formatHeaderCell($label).$table->separatorCol;
+        $this->tsv .= $this->formatter->formatHeaderCell($label).$table->separatorCol;
     }
 
     public function addLastCellBody(int $offset, int $rowIdx): void
     {
         $this->addValueCellBody($offset, $rowIdx);
-        $this->table->tsv .= $this->table->separatorRow;
+        $this->tsv .= $this->table->separatorRow;
     }
 
     /**
@@ -111,6 +118,6 @@ class CellTsv extends AbstractCell
     public function addValueCellBody(int $offset, int $rowIdx): void
     {
         $val = $this->reader->data->value[$offset];
-        $this->table->tsv .= $this->formatter->formatValueCell($val, $offset).$this->table->separatorCol;
+        $this->tsv .= $this->formatter->formatValueCell($val, $offset).$this->table->separatorCol;
     }
 }

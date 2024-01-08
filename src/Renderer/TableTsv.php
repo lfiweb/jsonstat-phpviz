@@ -17,7 +17,7 @@ class TableTsv extends AbstractTable
      * Holds the tab separated data.
      * @var string
      */
-    public string $tsv;
+    private string $tsv;
 
     /** @var string|null caption of the table */
     public null|string $caption;
@@ -85,5 +85,15 @@ class TableTsv extends AbstractTable
     public function addCaption(): void
     {
         $this->tsv .= $this->caption.$this->separatorRow;
+    }
+
+    /**
+     * Return the internal, tab separated string.
+     * Returns the tab separated string as a reference, not as a copy.
+     * @return string
+     */
+    public function &getTsv(): string
+    {
+        return $this->tsv;
     }
 }

@@ -23,7 +23,7 @@ class CellExcel extends AbstractCell
     {
         parent::__construct($cellFormatter, $reader);
         $this->table = $rendererTable;
-        $this->worksheet = $this->table->worksheet;
+        $this->worksheet = $this->table->getActiveWorksheet();
     }
 
     public function addFirstCellHeader($rowIdx): void
