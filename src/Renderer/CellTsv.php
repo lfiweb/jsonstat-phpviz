@@ -104,6 +104,7 @@ class CellTsv extends AbstractCell
     /**
      * Appends cells with values to the row.
      * Inserts a HTMLTableCellElement at the end of the row with a value taken from the values at given offset.
+     * @param int $offset
      * @param int $rowIdx
      * @return void the content of the cell
      */
