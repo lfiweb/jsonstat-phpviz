@@ -73,36 +73,6 @@ class TableHtml extends AbstractTable
     }
 
     /**
-     * Precalculate and cache often used numbers before rendering.
-     * @return void
-     * @throws DOMException
-     */
-    protected function init(): void
-    {
-        parent::init();
-        $this->initTable();
-    }
-
-    /**
-     * Set the attributes of the table element.
-     * @return void
-     * @throws DOMException
-     */
-    protected function initTable(): void
-    {
-        $numRowDims = count($this->rowDims);
-        $shape = implode(',', $this->shape);
-        $lastDimSize = $this->shape[count($this->shape) - 1];
-
-        $css = new ClassList($this->domNode);
-        $css->add('jst-viz', 'numRowDims'.$numRowDims, 'lastDimSize'.$lastDimSize);
-        $this->domNode->setAttribute('data-shape', $shape);
-        $this->domNode->setAttribute('data-num-row-dim', $numRowDims);
-        $this->head = $this->dom->createTHead();
-        $this->body = $this->dom->createTBody();
-    }
-
-    /**
      * Automatically sets the caption.
      * Sets the caption from the optional JSON-stat label property. HTML from the JSON-stat is escaped.
      * @return void
@@ -143,11 +113,39 @@ class TableHtml extends AbstractTable
      */
     public function addCaption(): void
     {
-        if ($this->caption) {
-            $caption = $this->dom->insertCaption();
-            $fragment = $this->doc->createDocumentFragment();
-            $fragment->appendXML($this->caption);
-            $caption->appendChild($fragment);
-        }
+        $caption = $this->dom->insertCaption();
+        $fragment = $this->doc->createDocumentFragment();
+        $fragment->appendXML($this->caption);
+        $caption->appendChild($fragment);
+    }
+
+    /**
+     * Precalculate and cache often used numbers before rendering.
+     * @return void
+     * @throws DOMException
+     */
+    protected function init(): void
+    {
+        parent::init();
+        $this->initTable();
+    }
+
+    /**
+     * Set the attributes of the table element.
+     * @return void
+     * @throws DOMException
+     */
+    protected function initTable(): void
+    {
+        $numRowDims = count($this->rowDims);
+        $shape = implode(',', $this->shape);
+        $lastDimSize = $this->shape[count($this->shape) - 1];
+
+        $css = new ClassList($this->domNode);
+        $css->add('jst-viz', 'numRowDims'.$numRowDims, 'lastDimSize'.$lastDimSize);
+        $this->domNode->setAttribute('data-shape', $shape);
+        $this->domNode->setAttribute('data-num-row-dim', $numRowDims);
+        $this->head = $this->dom->createTHead();
+        $this->body = $this->dom->createTBody();
     }
 }
