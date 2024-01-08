@@ -85,7 +85,6 @@ $reader = new Reader($jsonstat);
 $table4 = getRenderer($reader, $format);
 $table4->excludeOneDim = true;
 $table4->noLabelLastDim = true;
-//$table4->useRowSpans = false;
 download($table4, $format, '4');
 
 // use JSON-stat OECD test data
