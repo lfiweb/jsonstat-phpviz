@@ -8,7 +8,7 @@ use jsonstatPhpViz\UtilArray;
 
 class CellTsv extends AbstractCell
 {
-    protected TableTsv $table;
+    private TableTsv $table;
     
     /**
      * internal reference to the tab separated string

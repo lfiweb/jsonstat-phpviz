@@ -10,7 +10,7 @@ use function count;
 
 class CellExcel extends AbstractCell
 {
-    protected TableExcel $table;
+    private TableExcel $table;
     private Worksheet $worksheet;
 
     /**
