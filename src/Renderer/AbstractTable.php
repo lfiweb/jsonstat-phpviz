@@ -106,7 +106,9 @@ abstract class AbstractTable implements TableInterface
     public function build(): void
     {
         $this->init();
-        $this->addCaption();
+        if ($this->caption) {
+            $this->addCaption();
+        }
         $this->addHeaders();
         $this->addRows();
     }
@@ -181,6 +183,10 @@ abstract class AbstractTable implements TableInterface
         }
     }
 
+    /**
+     * Note: row index starts at zero for body rows and can be adjusted in the cell renderer.
+     * @return void
+     */
     public function addRows(): void
     {
         $rowIdx = 0;
