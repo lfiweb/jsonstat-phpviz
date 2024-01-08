@@ -6,11 +6,9 @@ use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
 use jsonstatPhpViz\UtilArray;
 
-class CellTsv implements CellInterface
+class CellTsv extends AbstractCell
 {
-    protected Reader $reader;
-    protected FormatterCell $formatter;
-    protected AbstractTable $table;
+    protected TableTsv $table;
 
     /**
      * @param FormatterCell $cellFormatter
@@ -19,110 +17,88 @@ class CellTsv implements CellInterface
      */
     public function __construct(FormatterCell $cellFormatter, Reader $reader, TableTsv $rendererTable)
     {
-        $this->reader = $reader;
-        $this->formatter = $cellFormatter;
+        parent::__construct($cellFormatter, $reader);
         $this->table = $rendererTable;
     }
 
-    /**
-     * Creates the cells for the headers of the label columns.
-     */
-    public function headerLabelCells(int $rowIdx): void
+    public function addFirstCellHeader($rowIdx): void
     {
-        for ($k = 0; $k < $this->table->numLabelCols; $k++) {
-            $label = '';
-            if ($this->table->repeatLabels === true || $rowIdx === $this->table->numHeaderRows - 1) { // last header row
-                $id = $this->reader->getDimensionId($this->table->numOneDim + $k);
-                $label = $this->reader->getDimensionLabel($id);
-            }
-            $this->table->tsv .= $this->headerCell($label);
+        if ($this->table->numRowDim > 0) {
+            $this->addLabelCellHeader(0, $rowIdx);
         }
     }
 
-    /**
-     * Append the header cell to the internal tab separated string.
-     * @param string $label
-     * @return string
-     */
-    public function headerCell(string $label): string
+    public function addLabelCellHeader($dimIdx, $rowIdx): void
     {
-        return $this->formatter->formatHeaderCell($label).$this->table->separatorCol;
-    }
-
-    /**
-     * Creates the cells for the headers of the value columns.
-     * @param int $rowIdx row index
-     */
-    public function headerValueCells(int $rowIdx): void
-    {
+        $label = '';
         $table = $this->table;
-        $reader = $this->reader;
-        $csv = '';
-        // remember: we render two rows with headings per column dimension, e.g.
-        //      one for the dimension label and one for the category label
-        $dimIdx = $table->numRowDim + (int)floor($rowIdx / 2);
-        $stride = $table->strides[$dimIdx];
-        $z = $rowIdx % 2;
-        $product = $table->shape[$dimIdx] * $stride;
-        for ($i = 0; $i < $table->numValueCols; $i++) {
-            $id = $reader->getDimensionId($table->numOneDim + $dimIdx);
-            if ($z === 0) { // set attributes for dimension label cell
-                $label = $reader->getDimensionLabel($id);
-            } else {    // set attributes for category label cell
-                $catIdx = floor(($i % $product) / $stride);
-                $catId = $reader->getCategoryId($id, $catIdx);
-                $label = $reader->getCategoryLabel($id, $catId);
-            }
-            $this->table->tsv .= $this->headerCell($label);
+        if ($table->repeatLabels || $table->isLastRowHeader($rowIdx)) {
+            $id = $this->reader->getDimensionId($table->numOneDim + $dimIdx);
+            $label = $this->reader->getDimensionLabel($id);
         }
-        $this->table->tsv = rtrim($this->table->tsv, $this->table->separatorCol);
+        $table->tsv .= $this->formatter->formatHeaderCell($label).$table->separatorCol;
     }
 
-    /**
-     * Appends cells with labels to the row.
-     * Inserts the label as a HTMLTableHeaderElement at the end of the row.
-     * @param int $rowIdx the row index of the body rows only
-     */
-    public function xxxlabelCells(int $rowIdx): void
+    public function addFirstCellBody(int $rowIdx): void
     {
-        $table = $this->table;
-        $reader = $this->reader;
-        $rowStrides = UtilArray::getStrides($table->rowDims);
-
-        for ($dimIdx = 0; $dimIdx < $table->numLabelCols; $dimIdx++) {
-            $stride = $rowStrides[$dimIdx];
-            $product = $table->shape[$dimIdx] * $stride;
-            $label = '';
-            if ($table->repeatLabels === true || $rowIdx % $stride === 0) {
-                $catIdx = floor($rowIdx % $product / $stride);
-                $id = $reader->getDimensionId($table->numOneDim + $dimIdx);
-                $categId = $reader->getCategoryId($id, $catIdx);
-                $label = $reader->getCategoryLabel($id, $categId);
-            }
-            $this->table->tsv .= $this->headerCell($label);
+        if ($this->table->numLabelCols > 0) {
+            $this->addLabelCellBody(0, $rowIdx);
         }
-    }
-
-    public function addFirstCellBody(int $dimIdx, int $rowIdx): void
-    {
-        $this->addLabelCellBody($dimIdx, $rowIdx);
     }
 
     public function addLabelCellBody(int $dimIdx, int $rowIdx): void
     {
         $table = $this->table;
-        $reader = $this->reader;
         $rowStrides = UtilArray::getStrides($table->rowDims);
         $stride = $rowStrides[$dimIdx];
-        $product = $table->shape[$dimIdx] * $stride;
         $label = '';
-        if ($table->repeatLabels === true || $rowIdx % $stride === 0) {
-            $catIdx = floor($rowIdx % $product / $stride);
-            $id = $reader->getDimensionId($table->numOneDim + $dimIdx);
-            $categId = $reader->getCategoryId($id, $catIdx);
-            $label = $reader->getCategoryLabel($id, $categId);
+        $product = $table->shape[$dimIdx] * $stride;
+        if ($table->repeatLabels || $rowIdx % $stride === 0) {
+            $label = $this->getCategoryLabel($rowIdx, $table->numOneDim + $dimIdx, $stride, $product);
         }
-        $this->table->tsv .= $this->headerCell($label);
+        $table->tsv .= $this->formatter->formatHeaderCell($label).$table->separatorCol;
+    }
+
+    /**
+     * Add the last cell to the table header.
+     * @param int $rowIdx
+     * @return void
+     */
+    public function addLastCellHeader(int $offset, int $rowIdx): void
+    {
+        if (count($this->table->colDims) !== 0) {
+            $this->addValueCellHeader($offset, $rowIdx);
+        }
+        $this->table->tsv .= $this->table->separatorRow;
+    }
+
+    /**
+     * Add a value cell to the table header.
+     * @param int $offset
+     * @param int $rowIdx
+     * @return void
+     */
+    public function addValueCellHeader(int $offset, int $rowIdx): void
+    {
+        // remember: we render two rows with headings per column dimension,
+        //  e.g., one for the dimension label and one for the category label
+        $table = $this->table;
+        $dimIdx = $table->numRowDim + (int)floor($rowIdx / 2);
+        $stride = $table->strides[$dimIdx];
+        $product = $table->shape[$dimIdx] * $stride;
+        $id = $this->reader->getDimensionId($table->numOneDim + $dimIdx);
+        if ($table->isDimensionRowHeader($rowIdx)) {
+            $label = $this->reader->getDimensionLabel($id);
+        } else {
+            $label = $this->getCategoryLabel($offset, $table->numOneDim + $dimIdx, $stride, $product);
+        }
+        $table->tsv .= $this->formatter->formatHeaderCell($label).$table->separatorCol;
+    }
+
+    public function addLastCellBody(int $offset, int $rowIdx): void
+    {
+        $this->addValueCellBody($offset, $rowIdx);
+        $this->table->tsv .= $this->table->separatorRow;
     }
 
     /**
@@ -131,16 +107,9 @@ class CellTsv implements CellInterface
      * @param int $rowIdx
      * @return void the content of the cell
      */
-    public function addValueCellBody(int $rowIdx): void
+    public function addValueCellBody(int $offset, int $rowIdx): void
     {
-        $val = $this->reader->data->value[$rowIdx];
-
-        $this->table->tsv .= $this->formatter->formatValueCell($val, $rowIdx).$this->table->separatorCol;
-    }
-
-    public function addLastCellBody(int $offset, int $rowIdx): void
-    {
-        $val = rtrim($this->table->tsv, $this->table->separatorCol);
-        $this->table->tsv .= $val.$this->table->separatorRow;
+        $val = $this->reader->data->value[$offset];
+        $this->table->tsv .= $this->formatter->formatValueCell($val, $offset).$this->table->separatorCol;
     }
 }

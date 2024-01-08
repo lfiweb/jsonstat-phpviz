@@ -13,19 +13,11 @@ use jsonstatPhpViz\Reader;
  */
 class TableTsv extends AbstractTable
 {
-
     /**
      * Holds the tab separated data.
      * @var string
      */
     public string $tsv;
-
-    /**
-     * Do not render dimension labels?
-     * default = true
-     * @var bool
-     */
-    public bool $noLabelDim = true;
 
     /** @var string|null caption of the table */
     public null|string $caption;
@@ -87,25 +79,11 @@ class TableTsv extends AbstractTable
     }
 
     /**
-     * Creates the table head and appends header cells, row by row to it.
-     */
-    public function addHeaders(): void
-    {
-        for ($rowIdx = 0; $rowIdx < $this->numHeaderRows; $rowIdx++) {
-            if (!$this->noLabelDim || $rowIdx % 2 === 1) {
-                $this->rendererCell->headerLabelCells($rowIdx);
-                $this->rendererCell->addValueCellHeader($rowIdx, $rowIdx);
-                $this->tsv .= $this->separatorRow;
-            }
-        }
-    }
-
-    /**
      * Creates and inserts a caption.
      * @return void
      */
     public function addCaption(): void
     {
-        $this->tsv .= $this->caption.$this->separatorRow.$this->separatorRow;
+        $this->tsv .= $this->caption.$this->separatorRow;
     }
 }

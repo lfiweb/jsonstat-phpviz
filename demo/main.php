@@ -12,12 +12,9 @@ function getRenderer(Reader $reader, $format): TableTsv|TableExcel|TableHtml
 {
     if ($format === 'tsv') {
         $renderer = new TableTsv($reader);
-        $renderer->excludeOneDim = true;
-        $renderer->noLabelDim = false;
     } elseif ($format === 'xlsx') {
         $renderer = new TableExcel($reader);
-        $renderer->excludeOneDim = true;
-        $renderer->noLabelLastDim = false;
+
     } else {
         $renderer = new TableHtml($reader);
     }
