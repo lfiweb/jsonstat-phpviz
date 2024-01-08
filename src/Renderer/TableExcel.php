@@ -81,6 +81,7 @@ class TableExcel extends AbstractTable
     {
         $this->worksheet->setCellValue([1, 1], $this->caption);
         $this->worksheet->mergeCells([1, 1, $this->numLabelCols + $this->numValueCols, 1]);
+        $this->styleCaption();
     }
 
     /**
@@ -129,5 +130,12 @@ class TableExcel extends AbstractTable
             $this->worksheet->getColumnDimensionByColumn($colIdx)->setAutoSize(true);
         }
         $this->worksheet->setSelectedCell('A1');    // there doesn't seem to be a deselect method
+    }
+
+    private function styleCaption(): void
+    {
+        $this->worksheet->getRowDimension(1)->setRowHeight(24);
+        $style = $this->worksheet->getStyle([1, 1, 1, 1]);
+        $style->getAlignment()->setVertical(Alignment::VERTICAL_TOP);
     }
 }
