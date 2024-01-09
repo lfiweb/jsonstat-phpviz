@@ -113,17 +113,17 @@ class TableExcel extends AbstractTable
         $numCols = $this->numLabelCols + $this->numValueCols;
         $numRows = 0;
         if ($this->caption) {
-            $numRows =+ 1;
+            ++$numRows;
         }
         $numRows += $this->numHeaderRows;
         if ($this->noLabelLastDim) {
             --$numRows;
         }
-        $style = $this->worksheet->getStyle([2, 2, $numCols, $numRows]);
+        $style = $this->worksheet->getStyle([1, 2, $numCols, $numRows]);
         $style->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
         $numRows += array_product($this->rowDims);
-        $style = $this->worksheet->getStyle([2, 2, $this->numLabelCols, $numRows]);
+        $style = $this->worksheet->getStyle([1, 2, $this->numLabelCols, $numRows]);
         $style->getAlignment()->setVertical(Alignment::VERTICAL_TOP);
         for ($colIdx = 1; $colIdx < $numCols + 1; $colIdx++) {
             $this->worksheet->getColumnDimensionByColumn($colIdx)->setAutoSize(true);
