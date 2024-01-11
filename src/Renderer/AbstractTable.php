@@ -132,7 +132,7 @@ abstract class AbstractTable implements TableInterface
         $this->numLabelCols = count($this->rowDims);
         // add an additional row to label each dimension
         $this->numHeaderRows = count($this->colDims) > 0 ? count($this->colDims) * 2 : 1;
-        $this->initRendererCell();
+        $this->rendererCell = $this->newCellRenderer();
     }
 
     /**
@@ -235,4 +235,10 @@ abstract class AbstractTable implements TableInterface
                 $this->noLabelLastDim === false || $rowIdx !== $this->numHeaderRows - 2
             );
     }
+
+    /**
+     * Return a new instance of the cell renderer.
+     * @return CellInterface
+     */
+    abstract protected function newCellRenderer(): CellInterface;
 }

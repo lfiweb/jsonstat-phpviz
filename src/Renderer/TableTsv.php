@@ -57,13 +57,13 @@ class TableTsv extends AbstractTable
     }
 
     /**
-     * Instantiate the RendererCell class.
-     * @return void
+     * Return a new instance of the cell renderer.
+     * @return CellInterface
      */
-    public function initRendererCell(): void
+    protected function newCellRenderer(): CellInterface
     {
         $formatter = new FormatterCell($this->reader, new Formatter());
-        $this->rendererCell = new CellTsv($formatter, $this->reader, $this);
+        return new CellTsv($formatter, $this->reader, $this);
     }
 
     /**

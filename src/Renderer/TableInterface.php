@@ -4,6 +4,9 @@ namespace jsonstatPhpViz\Renderer;
 
 use jsonstatPhpViz\Reader;
 
+/**
+ * Handles rendering of the table.
+ */
 interface TableInterface
 {
     /**
@@ -22,14 +25,14 @@ interface TableInterface
     /**
      * Renders the data as an html table.
      * Reads the value array and renders it as a table.
-     * @return string csv
+     * @return string
      */
     public function render(): string;
 
     /**
      * Returns the default number of dimensions used for rendering rows.
      * By default, a table is rendered using all dimensions for rows expect the last two dimensions are used for columns.
-     * When there are fewer than 3 dimensions, only the first dimension is used for rows.
+     * When there are fewer than three dimensions, only the first dimension is used for rows.
      * @return int
      */
     public function getNumRowDimAuto(): int;
@@ -42,16 +45,10 @@ interface TableInterface
 
     /**
      * Automatically sets the caption.
-     * Sets the caption from the optional JSON-stat label property. HTML from the JSON-stat is escaped.
+     * Sets the caption from the optional JSON-stat label property.
      * @return void
      */
     public function readCaption(): void;
-
-    /**
-     * Instantiate the RendererCell class.
-     * @return void
-     */
-    public function initRendererCell(): void;
 
     /**
      * Creates the table body and appends table cells row by row to it.
