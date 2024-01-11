@@ -123,7 +123,7 @@ class TableExcel extends AbstractTable
         $numCols = $this->numLabelCols + $this->numValueCols;
         $numRows = 0;
         if ($this->caption) {
-            $numRows =+ 1;
+            ++$numRows;
         }
         $numRows += $this->numHeaderRows;
         if ($this->noLabelLastDim) {
