@@ -14,7 +14,7 @@ class Formatter
 
     /**
      * Null values have to be replaced with an empty string in the table cells,
-     * otherwise a void element <td/> is created, wich is invalid html.
+     * otherwise a void element <td/> is created by the DOMDocument, wich is invalid html.
      */
     public string $nullLabel = '';
 
@@ -35,8 +35,7 @@ class Formatter
     }
 
     /**
-     * Render a null value as a special character.
-     * Renders the null value as the nullLabel character, which is set to an empty string.
+     * Render a null value as an empty string.
      * @param string|int|float|null $val
      * @return string
      */
