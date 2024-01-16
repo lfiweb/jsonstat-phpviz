@@ -2,8 +2,16 @@
 
 namespace jsonstatPhpViz;
 
+/**
+ * Handle formatting of table cells.
+ */
 class FormatterCell
 {
+    /**
+     * Construct the formatter of the table cells.
+     * @param Reader $reader
+     * @param Formatter $formatter
+     */
     public function __construct(public readonly Reader $reader, public readonly Formatter $formatter)
     {
     }
