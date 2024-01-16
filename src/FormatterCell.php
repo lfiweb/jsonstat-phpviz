@@ -4,7 +4,7 @@ namespace jsonstatPhpViz;
 
 class FormatterCell
 {
-    public function __construct(private Reader $reader, private Formatter $formatter)
+    public function __construct(public readonly Reader $reader, public readonly Formatter $formatter)
     {
     }
 
