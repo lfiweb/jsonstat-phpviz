@@ -9,7 +9,7 @@ use function is_int;
 /**
  * Handle formatting of values.
  */
-class Formatter
+class Formatter implements FormatterInterface
 {
 
     /**
@@ -19,8 +19,8 @@ class Formatter
     public string $nullLabel = '';
 
     /**
-     * Format the value.
-     * Formats according to the format defined in the json-stat by parameter Zahlenformat (power and decimal places).
+     * Format a numeric value from the JSON-stat value property.
+     * Format the value according to the number of decimals provided.
      * @param string|int|float|null $val
      * @param int $decimals the number of digits printed after the decimal point
      * @return null|string
@@ -35,7 +35,7 @@ class Formatter
     }
 
     /**
-     * Render a null value as an empty string.
+     * Format a null value from the JSON-stat value property as an empty string.
      * @param string|int|float|null $val
      * @return string
      */
