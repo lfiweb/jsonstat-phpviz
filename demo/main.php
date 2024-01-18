@@ -46,7 +46,6 @@ function renderDownloadLink(int $id): string
  * @param string $format
  * @param string $id
  * @return void
- * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
  */
 function download(AbstractTable|TableExcel $table, string $format, string $id): void
 {
@@ -54,19 +53,22 @@ function download(AbstractTable|TableExcel $table, string $format, string $id): 
         if ($format === 'tsv') {
             header('Content-Type: text/plain; charset=utf-8');
             header('Content-Disposition: attachment; filename="table'.$id.'.tsv"');
-            exit($table->render());
         }
         if ($format === 'ods') {
             $table->setWriter(new Ods($table->getSpreadSheet()));
             header('Content-Type: application/vnd.oasis.opendocument.spreadsheet');
             header('Content-Disposition: attachment; filename="table.ods"');
-            exit($table->render());
         }
         if ($format === 'xlsx') {
             header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             header('Content-Disposition: attachment; filename="table.xlsx"');
-            exit($table->render());
         }
+        try {
+            $data = $table->render();
+        } catch (\PhpOffice\PhpSpreadsheet\Writer\Exception $exception) {
+            $data = $exception->getMessage();
+        }
+        exit($data);
     }
 }
 
@@ -83,7 +85,7 @@ if (isset($_GET['f'])) {
     }
 }
 
-// create a table with 4 dimensions of size `[3,2,4,2]` (shape). To dimensions are used to group the rows:
+// Create a table with 4 dimensions of size `[3,2,4,2]` (shape). To dimensions are used to group the rows:
 $filename = '../tests/resources/integer.json';
 $json = file_get_contents($filename);
 $jsonstat = json_decode($json, false, 512, JSON_THROW_ON_ERROR);

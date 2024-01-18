@@ -26,6 +26,9 @@ class TableExcel extends AbstractTable
      */
     private Worksheet $worksheet;
 
+    /*
+     * the writer used for rendering (saving), defaults to Xlsx.
+     */
     private IWriter $writer;
 
     public function __construct(Reader $jsonStatReader, ?int $numRowDim = null)
@@ -37,11 +40,13 @@ class TableExcel extends AbstractTable
     }
 
     /**
+     * Set the writer to be used when rendering the output.
      * @param IWriter $writer
      *
      * @return void
      */
-    public function setWriter(IWriter $writer) {
+    public function setWriter(IWriter $writer): void
+    {
         $this->writer = $writer;
     }
 
@@ -57,6 +62,7 @@ class TableExcel extends AbstractTable
 
     /**
      * Render the table in memory.
+     * Writes the file to memory and then returns it as a binary string.
      * @return string binary, zipped string
      * @throws Exception
      */
@@ -76,6 +82,7 @@ class TableExcel extends AbstractTable
 
     /**
      * Create and insert the caption.
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
      */
     public function addCaption(): void
     {
@@ -147,7 +154,7 @@ class TableExcel extends AbstractTable
     /**
      * @return Spreadsheet
      */
-    public function getSpreadSheet()
+    public function getSpreadSheet(): Spreadsheet
     {
         return $this->xls;
     }

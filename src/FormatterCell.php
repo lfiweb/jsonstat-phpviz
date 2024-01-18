@@ -2,6 +2,8 @@
 
 namespace jsonstatPhpViz;
 
+use function count;
+
 /**
  * Handle formatting of table cells.
  */

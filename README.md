@@ -15,11 +15,11 @@ screen reader support for visually impaired users
 - download (render) the table in the MS Excel format (xlsx)
 
 ### not implemented
-- `child` property, e.g. hierarchical relationships between different categories
+- `child` property e.g., hierarchical relationships between different categories
 
 ## Usage
 ### Example 1
-Render a table from JSON-stat data having 4 dimensions with sizes `[3,2,4,2]` (= shape).
+Render a table from JSON-stat data having four dimensions with sizes `[3,2,4,2]` (= shape).
 Two dimensions are automatically used to group the rows:
 
 ```php
@@ -41,7 +41,7 @@ $html = $table->render();
 ![screenshot-01](demo/screenshot-01.png)
 
 ### Example 2
-Render a table from the same JSON-stat data, but with 3 dimensions used for the row grouping instead:
+Render a table from the same JSON-stat data, but with three dimensions used for the row grouping instead:
 ```php
 $reader = new Reader($jsonstat);
 $table = new TableHtml($reader, 3);

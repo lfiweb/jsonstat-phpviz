@@ -5,6 +5,7 @@ namespace jsonstatPhpViz\Renderer;
 use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
 use jsonstatPhpViz\UtilArray;
+use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use function count;
 
@@ -50,6 +51,12 @@ class CellExcel extends AbstractCell
         $this->addCellHeader($dimIdx + 1, $this->adjustYHeader($rowIdx), $label);
     }
 
+    /**
+     * @param int $dimIdx
+     * @param int $rowIdx
+     * @return void
+     * @throws Exception
+     */
     public function addLabelCellBody(int $dimIdx, int $rowIdx): void
     {
         $table = $this->table;
@@ -75,6 +82,7 @@ class CellExcel extends AbstractCell
      * Creates the cells for the headers of the value columns.
      * @param int $offset
      * @param int $rowIdx
+     * @throws Exception
      */
     public function addValueCellHeader(int $offset, int $rowIdx): void
     {

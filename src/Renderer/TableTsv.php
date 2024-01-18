@@ -19,9 +19,6 @@ class TableTsv extends AbstractTable
      */
     private string $tsv;
 
-    /** @var string|null caption of the table */
-    public null|string $caption;
-
     public string $separatorRow = "\n";
 
     public string $separatorCol = "\t";
