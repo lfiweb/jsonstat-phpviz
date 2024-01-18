@@ -52,7 +52,7 @@ function download(AbstractTable|TableExcel $table, string $format, string $id): 
     if (isset($_GET['id']) && $_GET['id'] === $id) {
         if ($format === 'tsv') {
             header('Content-Type: text/plain; charset=utf-8');
-            header('Content-Disposition: attachment; filename="table'.$id.'.tsv"');
+            header('Content-Disposition: attachment; filename="table.tsv"');
         }
         if ($format === 'ods') {
             $table->setWriter(new Ods($table->getSpreadSheet()));

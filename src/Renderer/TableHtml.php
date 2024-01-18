@@ -92,7 +92,7 @@ class TableHtml extends AbstractTable
      */
     protected function newCellRenderer(): CellInterface
     {
-        $formatter = new FormatterCell($this->reader, new Formatter());
+        $formatter = new FormatterCell($this->reader, $this->formatter);
         return new CellHtml($formatter, $this->reader, $this);
     }
 

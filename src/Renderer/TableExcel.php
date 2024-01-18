@@ -56,7 +56,7 @@ class TableExcel extends AbstractTable
      */
     protected function newCellRenderer(): CellInterface
     {
-        $formatter = new FormatterCell($this->reader, new Formatter());
+        $formatter = new FormatterCell($this->reader, $this->formatter);
         return new CellExcel($formatter, $this->reader, $this);
     }
 
