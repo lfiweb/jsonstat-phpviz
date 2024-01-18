@@ -2,7 +2,6 @@
 
 namespace jsonstatPhpViz\Renderer;
 
-use JetBrains\PhpStorm\NoReturn;
 use jsonstatPhpViz\Formatter;
 use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
@@ -10,6 +9,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\Exception;
+use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class TableExcel extends AbstractTable
@@ -26,11 +26,23 @@ class TableExcel extends AbstractTable
      */
     private Worksheet $worksheet;
 
+    private IWriter $writer;
+
     public function __construct(Reader $jsonStatReader, ?int $numRowDim = null)
     {
         parent::__construct($jsonStatReader, $numRowDim);
         $this->xls = new Spreadsheet();
         $this->worksheet = $this->xls->getActiveSheet();
+        $this->writer = new Xlsx($this->xls);
+    }
+
+    /**
+     * @param IWriter $writer
+     *
+     * @return void
+     */
+    public function setWriter(IWriter $writer) {
+        $this->writer = $writer;
     }
 
     /**
@@ -45,15 +57,14 @@ class TableExcel extends AbstractTable
 
     /**
      * Render the table in memory.
-     * @return string
+     * @return string binary, zipped string
      * @throws Exception
      */
     public function render(): string
     {
         $this->build();
-        $writer = new Xlsx($this->xls);
         $fp = fopen('php://memory', 'rwb');
-        $writer->save($fp);
+        $this->writer->save($fp);
         rewind($fp);
         $content = '';
         while (!feof($fp)) {
@@ -61,26 +72,6 @@ class TableExcel extends AbstractTable
         }
         fclose($fp);
         return $content;
-    }
-
-    /**
-     * Render and download the table.
-     * @throws Exception
-     */
-    #[NoReturn] public function download(): void
-    {
-        $this->build();
-        $writer = new Xlsx($this->xls);
-        $fp = fopen('php://memory', 'rwb');
-        $writer->save($fp);
-        rewind($fp);
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment; filename="table.xlsx"');
-        while (!feof($fp)) {
-            echo fread($fp, 8000);
-        }
-        fclose($fp);
-        exit();
     }
 
     /**
@@ -151,6 +142,14 @@ class TableExcel extends AbstractTable
         $this->worksheet->getRowDimension(1)->setRowHeight(24);
         $style = $this->worksheet->getStyle([1, 1, 1, 1]);
         $style->getAlignment()->setVertical(Alignment::VERTICAL_TOP);
+    }
+
+    /**
+     * @return Spreadsheet
+     */
+    public function getSpreadSheet()
+    {
+        return $this->xls;
     }
 
     /**

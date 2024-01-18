@@ -5,16 +5,22 @@ use jsonstatPhpViz\Renderer\AbstractTable;
 use jsonstatPhpViz\Renderer\TableExcel;
 use jsonstatPhpViz\Renderer\TableHtml;
 use jsonstatPhpViz\Renderer\TableTsv;
+use PhpOffice\PhpSpreadsheet\Writer\Ods;
 
 require_once __DIR__.'/../vendor/autoload.php';
 
+/**
+ * Factory to return the renderer.
+ * @param Reader $reader
+ * @param $format
+ * @return TableTsv|TableExcel|TableHtml
+ */
 function getRenderer(Reader $reader, $format): TableTsv|TableExcel|TableHtml
 {
     if ($format === 'tsv') {
         $renderer = new TableTsv($reader);
-    } elseif ($format === 'xlsx') {
+    } elseif ($format === 'ods' || $format === 'xlsx') {
         $renderer = new TableExcel($reader);
-
     } else {
         $renderer = new TableHtml($reader);
     }
@@ -22,13 +28,27 @@ function getRenderer(Reader $reader, $format): TableTsv|TableExcel|TableHtml
     return $renderer;
 }
 
+/**
+ * Render a html download link.
+ * @param int $id
+ * @return string
+ */
 function renderDownloadLink(int $id): string
 {
     return '<p>download as: <a href="main.php?f=tsv&id='.$id.'">tab separated</a> (tsv) |
+            <a href="main.php?f=ods&id='.$id.'">Writer</a> (ods) | 
             <a href="main.php?f=xlsx&id='.$id.'">Excel</a> (xlsx)</p>';
 }
 
-function download(AbstractTable $table, string $format, string $id): void
+/**
+ * Download the table.
+ * @param AbstractTable|TableExcel $table
+ * @param string $format
+ * @param string $id
+ * @return void
+ * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
+ */
+function download(AbstractTable|TableExcel $table, string $format, string $id): void
 {
     if (isset($_GET['id']) && $_GET['id'] === $id) {
         if ($format === 'tsv') {
@@ -36,8 +56,16 @@ function download(AbstractTable $table, string $format, string $id): void
             header('Content-Disposition: attachment; filename="table'.$id.'.tsv"');
             exit($table->render());
         }
+        if ($format === 'ods') {
+            $table->setWriter(new Ods($table->getSpreadSheet()));
+            header('Content-Type: application/vnd.oasis.opendocument.spreadsheet');
+            header('Content-Disposition: attachment; filename="table.ods"');
+            exit($table->render());
+        }
         if ($format === 'xlsx') {
-            $table->download();
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment; filename="table.xlsx"');
+            exit($table->render());
         }
     }
 }
@@ -46,7 +74,11 @@ $format = 'html';
 if (isset($_GET['f'])) {
     if ($_GET['f'] === 'tsv') {
         $format = 'tsv';
-    } elseif ($_GET['f'] === 'xlsx') {
+    }
+    if ($_GET['f'] === 'ods') {
+        $format = 'ods';
+    }
+    if ($_GET['f'] === 'xlsx') {
         $format = 'xlsx';
     }
 }

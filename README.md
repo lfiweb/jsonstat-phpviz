@@ -86,7 +86,7 @@ $html = $table->render();
 Install with `composer require lfiweb/jsonstat-phpviz` or add it to your composer.json
 
 ## Dependencies
-None. But if you want to export the table in the MS Excel format, you need PhpSpreadsheet. You can install it with `composer require phpoffice/phpspreadsheet`.
+None. But if you want to export the table in the ODF Spreadsheet (ods) or MS Excel format (xlsx), you need PhpSpreadsheet. You can install it with `composer require phpoffice/phpspreadsheet`.
 
 ## JSON-stat rendering rules
 The renderer applies the following rules when generating a html table:
