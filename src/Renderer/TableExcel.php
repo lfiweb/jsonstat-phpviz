@@ -112,32 +112,32 @@ class TableExcel extends AbstractTable
         $this->styleHeaders();
     }
 
+
+    public function addRows(): void
+    {
+        parent::addRows();
+        $this->styleValueCellBody();
+    }
+
     /**
      * Style the header cells of the current worksheet.
      * @return void
      */
     private function styleHeaders(): void
     {
-        $numCols = $this->numLabelCols + $this->numValueCols;
-        $numRows = 0;
-        if ($this->caption) {
-            ++$numRows;
-        }
-        $numRows += $this->numHeaderRows;
-        if ($this->noLabelLastDim) {
-            --$numRows;
-        }
-        $style = $this->worksheet->getStyle([1, 2, $numCols, $numRows]);
+        $fromCol = 1;
+        $fromRow = $this->getRowIdxBodyAdjusted() - $this->numHeaderRows;
+        $toCol = $this->numLabelCols + $this->numValueCols;
+        $toRow = $this->getRowIdxBodyAdjusted() - 1;
+        $style = $this->worksheet->getStyle([$fromCol, $fromRow, $toCol, $toRow]);
         $style->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-        $numRows += array_product($this->rowDims);
-        $numCols = $this->numLabelCols === 0 ? 1 : $this->numLabelCols;
-        $style = $this->worksheet->getStyle([1, 2, $numCols, $numRows]);
+        $toRow += array_product($this->rowDims);
+        $style = $this->worksheet->getStyle([$fromCol, $fromRow, $toCol, $toRow]);
         $style->getAlignment()->setVertical(Alignment::VERTICAL_TOP);
-        for ($colIdx = 1; $colIdx < $numCols + 1; $colIdx++) {
+        for ($colIdx = 1; $colIdx < $toCol + 1; $colIdx++) {
             $this->worksheet->getColumnDimensionByColumn($colIdx)->setAutoSize(true);
         }
-        $this->worksheet->setSelectedCell('A1');    // there doesn't seem to be a deselect method
     }
 
     /**
@@ -149,6 +149,40 @@ class TableExcel extends AbstractTable
         $this->worksheet->getRowDimension(1)->setRowHeight(24);
         $style = $this->worksheet->getStyle([1, 1, 1, 1]);
         $style->getAlignment()->setVertical(Alignment::VERTICAL_TOP);
+    }
+
+    /**
+     * Style the value cells of the body.
+     * Set the alignment of the value cells to right.
+     */
+    private function styleValueCellBody(): void
+    {
+        $fromRow = $this->getRowIdxBodyAdjusted();
+        $toRow = $fromRow + array_product($this->rowDims);
+        $fromCol = $this->numLabelCols === 0 ? 1 : $this->numLabelCols;
+        $toCol = $this->numLabelCols + $this->numValueCols;
+        $style = $this->worksheet->getStyle([$fromCol, $fromRow, $toCol, $toRow]);
+        $style->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        $this->worksheet->setSelectedCell('A1');    // there doesn't seem to be a deselect method
+    }
+
+    /**
+     * Return the row index of the first body row.
+     * This returns the row index adjusted by the caption and header rows. The caption is assumed to be just one row.
+     * @return int
+     */
+    public function getRowIdxBodyAdjusted(): int
+    {
+        $numRows = 0;
+        if ($this->caption) {
+            ++$numRows;
+        }
+        $numRows += $this->numHeaderRows;
+        if ($this->noLabelLastDim) {
+            --$numRows;
+        }
+
+        return $numRows + 1;
     }
 
     /**
