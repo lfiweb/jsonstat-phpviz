@@ -3,6 +3,7 @@
 namespace jsonstatPhpViz\Renderer;
 
 use jsonstatPhpViz\Formatter;
+use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
 use jsonstatPhpViz\UtilArray;
 use function array_slice;
@@ -76,14 +77,13 @@ abstract class AbstractTable implements TableInterface
 
     public CellInterface $rendererCell;
 
+    public ?StylerInterface $styler = null;
+
     /**
      * the caption element
      * @var null|string
      */
     public null|string $caption;
-
-    public Formatter $formatter;
-
 
     /**
      * Instantiates the class.
@@ -93,7 +93,6 @@ abstract class AbstractTable implements TableInterface
     public function __construct(Reader $jsonStatReader, ?int $numRowDim = null)
     {
         $this->reader = $jsonStatReader;
-        $this->formatter = new Formatter();
         $this->numRowDim = $numRowDim;
         $this->readCaption();
     }
@@ -119,6 +118,7 @@ abstract class AbstractTable implements TableInterface
         }
         $this->addHeaders();
         $this->addRows();
+        $this->styler?->style($this);
     }
 
     /**
@@ -251,10 +251,4 @@ abstract class AbstractTable implements TableInterface
      * @return CellInterface
      */
     abstract protected function newCellRenderer(): CellInterface;
-
-
-    public function setFormatter(Formatter $formatter): void
-    {
-        $this->formatter = $formatter;
-    }
 }

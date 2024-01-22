@@ -9,6 +9,9 @@ use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use function count;
 
+/**
+ * Handle rendering of html table cells.
+ */
 class CellExcel extends AbstractCell
 {
     private TableExcel $table;
@@ -27,6 +30,11 @@ class CellExcel extends AbstractCell
         $this->worksheet = $this->table->getActiveWorksheet();
     }
 
+    /**
+     *
+     * @param $rowIdx
+     * @return void
+     */
     public function addFirstCellHeader($rowIdx): void
     {
         if ($this->table->numRowDim > 0) {
@@ -130,6 +138,13 @@ class CellExcel extends AbstractCell
         $this->worksheet->setCellValue([$x, $y], $val);
     }
 
+    /**
+     * Add the last cell to a body row.
+     * @param int $offset
+     * @param int $rowIdx
+     * @return void
+     * @throws Exception
+     */
     public function addLastCellHeader(int $offset, int $rowIdx): void
     {
         if (count($this->table->colDims) !== 0) {
@@ -138,7 +153,7 @@ class CellExcel extends AbstractCell
     }
 
     /**
-     * Add the last cell to the table body.
+     * Add the last cell to a body row.
      * @param int $offset
      * @param int $rowIdx
      * @return void
