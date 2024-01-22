@@ -116,7 +116,9 @@ class TableExcel extends AbstractTable
     public function addRows(): void
     {
         parent::addRows();
+        $this->styleLabelCellBody();
         $this->styleValueCellBody();
+        $this->worksheet->setSelectedCell('A1');    // there doesn't seem to be a deselect method
     }
 
     /**
@@ -152,6 +154,21 @@ class TableExcel extends AbstractTable
     }
 
     /**
+     * Style the label cells of the body.
+     * Set the alignment of the value cells to left.
+     */
+    private function styleLabelCellBody(): void
+    {
+        $fromRow = $this->getRowIdxBodyAdjusted();
+        $toRow = $fromRow + array_product($this->rowDims);
+        $fromCol = ($this->numLabelCols === 0 ? 1 : $this->numLabelCols) + 1;
+        $toCol = $fromCol + $this->numLabelCols;
+        $style = $this->worksheet->getStyle([$fromCol, $fromRow, $toCol, $toRow]);
+        $style->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+    }
+
+
+    /**
      * Style the value cells of the body.
      * Set the alignment of the value cells to right.
      */
@@ -159,11 +176,10 @@ class TableExcel extends AbstractTable
     {
         $fromRow = $this->getRowIdxBodyAdjusted();
         $toRow = $fromRow + array_product($this->rowDims);
-        $fromCol = $this->numLabelCols === 0 ? 1 : $this->numLabelCols;
+        $fromCol = ($this->numLabelCols === 0 ? 1 : $this->numLabelCols) + 1;
         $toCol = $this->numLabelCols + $this->numValueCols;
         $style = $this->worksheet->getStyle([$fromCol, $fromRow, $toCol, $toRow]);
         $style->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-        $this->worksheet->setSelectedCell('A1');    // there doesn't seem to be a deselect method
     }
 
     /**
