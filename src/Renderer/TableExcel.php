@@ -126,7 +126,7 @@ class TableExcel extends AbstractTable
     private function styleHeaders(): void
     {
         $fromCol = 1;
-        $fromRow = $this->getRowIdxBodyAdjusted() - $this->numHeaderRows;
+        $fromRow = $this->getRowIdxBodyAdjusted() - $this->numHeaderRows + 1;
         $toCol = $this->numLabelCols + $this->numValueCols;
         $toRow = $this->getRowIdxBodyAdjusted() - 1;
         $style = $this->worksheet->getStyle([$fromCol, $fromRow, $toCol, $toRow]);
