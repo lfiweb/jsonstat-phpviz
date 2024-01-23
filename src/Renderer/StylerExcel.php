@@ -12,15 +12,13 @@ class StylerExcel implements StylerInterface
      * @param TableInterface|TableExcel $table
      * @return TableExcel
      */
-    public function style(TableInterface|TableExcel $table): TableExcel
+    public function style(TableInterface|TableExcel $table): void
     {
         $this->styleCaption($table);
         $this->styleHeader($table);
         $this->styleLabelCellBody($table);
         $this->styleValueCellBody($table);
         $table->getActiveWorksheet()->setSelectedCell('A1');    // there doesn't seem to be a deselect method
-
-        return $table;
     }
 
     /**
