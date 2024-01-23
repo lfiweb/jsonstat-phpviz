@@ -10,7 +10,6 @@ class StylerExcel implements StylerInterface
     /**
      * Style the Excel.
      * @param TableInterface|TableExcel $table
-     * @return TableExcel
      */
     public function style(TableInterface|TableExcel $table): void
     {
