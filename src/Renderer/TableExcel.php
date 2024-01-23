@@ -29,6 +29,10 @@ class TableExcel extends AbstractTable
      */
     private IWriter $writer;
 
+    /**
+     * number of rows used for the caption
+     * @var int
+     */
     public int $numCaptionRows = 0;
 
     public function __construct(Reader $jsonStatReader, ?int $numRowDim = null)

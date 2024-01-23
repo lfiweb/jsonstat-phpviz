@@ -196,7 +196,7 @@ class CellExcel extends AbstractCell
     {
         $y = $rowIdx + 1;
         if ($this->table->caption) {
-            ++$this->table->numCaptionRows;
+            $y += $this->table->numCaptionRows;
         }
 
         return $y;
