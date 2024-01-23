@@ -2,7 +2,6 @@
 
 namespace jsonstatPhpViz\Renderer;
 
-use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 interface StylerInterface
 {
@@ -12,7 +11,7 @@ interface StylerInterface
      * @param TableInterface $table
      * @return TableExcel
      */
-    public function style(TableInterface $table): TableExcel;
+    public function style(TableInterface $table): void;
 
 
     /**
