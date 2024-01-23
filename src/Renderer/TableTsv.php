@@ -81,6 +81,7 @@ class TableTsv extends AbstractTable
     public function addCaption(): void
     {
         $this->tsv .= $this->caption.$this->separatorRow;
+        $this->numCaptionRows = 1;
     }
 
     /**

@@ -2,8 +2,6 @@
 
 namespace jsonstatPhpViz\Renderer;
 
-use jsonstatPhpViz\Formatter;
-use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
 use jsonstatPhpViz\UtilArray;
 use function array_slice;
@@ -83,7 +81,13 @@ abstract class AbstractTable implements TableInterface
      * the caption element
      * @var null|string
      */
-    public null|string $caption;
+    public null|string $caption = null;
+
+    /**
+     * number of rows used for the caption
+     * @var int|null
+     */
+    public null|int $numCaptionRows = null;
 
     /**
      * Instantiates the class.

@@ -47,7 +47,7 @@ class StylerExcel implements StylerInterface
         $fromCol = 1;
         $fromRow = 1;
         if ($table->caption) {
-            ++$fromRow;
+            $fromRow += $table->numCaptionRows;
         }
         $toCol = $table->numLabelCols + $table->numValueCols;
         $toRow = $table->getRowIdxBodyAdjusted() - 1;

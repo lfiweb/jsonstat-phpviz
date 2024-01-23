@@ -86,6 +86,7 @@ class TableExcel extends AbstractTable
     {
         $this->worksheet->setCellValue([1, 1], $this->caption);
         $this->worksheet->mergeCells([1, 1, $this->numLabelCols + $this->numValueCols, 1]);
+        $this->numCaptionRows = 1;
     }
 
     /**
@@ -109,7 +110,7 @@ class TableExcel extends AbstractTable
     {
         $numRows = 0;
         if ($this->caption) {
-            ++$numRows;
+            $numRows += $this->numCaptionRows;
         }
         $numRows += $this->numHeaderRows;
         if ($this->noLabelLastDim) {
