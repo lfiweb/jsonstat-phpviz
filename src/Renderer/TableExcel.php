@@ -29,6 +29,8 @@ class TableExcel extends AbstractTable
      */
     private IWriter $writer;
 
+    public ?StylerExcel $styler = null;
+
     /**
      * number of rows used for the caption
      * @var int
@@ -73,6 +75,7 @@ class TableExcel extends AbstractTable
     public function render(): string
     {
         $this->build();
+        $this->styler?->style($this);
         $fp = fopen('php://memory', 'rwb');
         $this->writer->save($fp);
         rewind($fp);

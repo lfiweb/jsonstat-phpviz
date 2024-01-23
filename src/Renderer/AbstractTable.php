@@ -75,8 +75,6 @@ abstract class AbstractTable implements TableInterface
 
     public CellInterface $rendererCell;
 
-    public ?StylerInterface $styler = null;
-
     /**
      * the caption element
      * @var null|string
@@ -116,7 +114,6 @@ abstract class AbstractTable implements TableInterface
         }
         $this->addHeaders();
         $this->addRows();
-        $this->styler?->style($this);
     }
 
     /**
