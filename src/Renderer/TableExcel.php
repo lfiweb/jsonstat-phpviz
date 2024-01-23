@@ -29,6 +29,8 @@ class TableExcel extends AbstractTable
      */
     private IWriter $writer;
 
+    public int $numCaptionRows = 0;
+
     public function __construct(Reader $jsonStatReader, ?int $numRowDim = null)
     {
         parent::__construct($jsonStatReader, $numRowDim);
@@ -86,7 +88,7 @@ class TableExcel extends AbstractTable
     {
         $this->worksheet->setCellValue([1, 1], $this->caption);
         $this->worksheet->mergeCells([1, 1, $this->numLabelCols + $this->numValueCols, 1]);
-        $this->numCaptionRows = 1;
+        ++$this->numCaptionRows;
     }
 
     /**

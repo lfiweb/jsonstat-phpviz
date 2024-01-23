@@ -84,12 +84,6 @@ abstract class AbstractTable implements TableInterface
     public null|string $caption = null;
 
     /**
-     * number of rows used for the caption
-     * @var int|null
-     */
-    public null|int $numCaptionRows = null;
-
-    /**
      * Instantiates the class.
      * @param Reader $jsonStatReader
      * @param int|null $numRowDim
