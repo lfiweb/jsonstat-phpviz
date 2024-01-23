@@ -17,7 +17,6 @@ class StylerExcel implements StylerInterface
         $this->styleHeader($table);
         $this->styleLabelCellBody($table);
         $this->styleValueCellBody($table);
-        $table->getActiveWorksheet()->setSelectedCell('A1');    // there doesn't seem to be a deselect method
     }
 
     /**
