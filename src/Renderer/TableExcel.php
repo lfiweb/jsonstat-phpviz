@@ -112,7 +112,7 @@ class TableExcel extends AbstractTable
 
     /**
      * Return the row index of the first body row.
-     * This returns the row index adjusted by the caption and header rows. The caption is assumed to be just one row.
+     * This returns the row index adjusted by the caption and header rows.
      * @return int
      */
     public function getRowIdxBodyAdjusted(): int
