@@ -29,6 +29,11 @@ class TableExcel extends AbstractTable
      */
     private IWriter $writer;
 
+    /**
+     * if this instance is set, it's style method will be called
+     * after building the table when rendering it.
+     * @var StylerExcel|null
+     */
     public ?StylerExcel $styler = null;
 
     /**
