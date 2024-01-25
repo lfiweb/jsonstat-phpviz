@@ -107,7 +107,7 @@ class CellHtml extends AbstractCell
         if ($table->useRowSpans === false || $rowIdx % $stride === 0) {
             $rowspan = $table->useRowSpans && $stride > 1 ? $stride : null;
             $scope = $stride > 1 ? 'rowgroup' : 'row';
-            $cell = $this->addCellHeader($label);  //
+            $cell = $this->addCellHeader($label);
             $this->setAttrCellHeader($cell, $scope, null, $rowspan);
             $this->setCssLabelCell($cell, $dimIdx, $rowIdx, $stride);
             $row = $this->getRowBody($rowIdx);
