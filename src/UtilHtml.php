@@ -19,12 +19,13 @@ class UtilHtml
      */
     public static function append(DOMNode $parent, string $html): void
     {
-        // DOMDocument::appendXML() requires X(HT)ML as input, which can be especially cumbersome with SVG because of namespaces.
-        // Thus, in some cases it's easier to just insert html instead.
+        // DOMDocument::appendXML() requires X(HT)ML as input,
+        // which can be especially cumbersome with SVG because of namespaces.
+        // Thus, in some cases, it's easier to just insert html instead.
         $tmpDoc = new DOMDocument();
         @$tmpDoc->loadHTML('<?xml encoding="utf-8" ?><div>'.$html.'</div>');    // prevent complaining about svg
         $frag = $tmpDoc->getElementsByTagName('div')->item(0);
-        foreach ($frag->childNodes as $node) {
+        foreach ($frag?->childNodes as $node) {
             $node = $parent->ownerDocument->importNode($node, true);
             $parent->appendChild($node);
         }
