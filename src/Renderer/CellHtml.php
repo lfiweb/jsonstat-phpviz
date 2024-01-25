@@ -203,7 +203,7 @@ class CellHtml extends AbstractCell
      * @param int $rowIdx row index
      * @return DOMNode table row
      */
-    private function getRowBody(int $rowIdx): DOMNode
+    public function getRowBody(int $rowIdx): DOMNode
     {
         return $this->table->body->getElementsByTagName('tr')->item($rowIdx);
     }
@@ -213,7 +213,7 @@ class CellHtml extends AbstractCell
      * @param int $rowIdx row index
      * @return DOMNode table row
      */
-    private function getRowHeader(int $rowIdx): DOMNode
+    public function getRowHeader(int $rowIdx): DOMNode
     {
         return $this->table->head->getElementsByTagName('tr')->item($rowIdx);
     }
@@ -225,7 +225,7 @@ class CellHtml extends AbstractCell
      * @param int $rowIdxBody
      * @param int $rowStride
      */
-    public function setCssLabelCell(DOMElement $cell, int $cellIdx, int $rowIdxBody, int $rowStride): void
+    protected function setCssLabelCell(DOMElement $cell, int $cellIdx, int $rowIdxBody, int $rowStride): void
     {
         $cl = new ClassList($cell);
         $product = $this->table->shape[$cellIdx] * $rowStride;
@@ -248,7 +248,7 @@ class CellHtml extends AbstractCell
      * @return DOMElement table cell element
      * @throws DOMException
      */
-    private function addCellHeader(?string $label = null): DOMNode
+    protected function addCellHeader(?string $label = null): DOMNode
     {
         $doc = $this->table->doc;
         $cell = $doc->createElement('th');
@@ -264,7 +264,7 @@ class CellHtml extends AbstractCell
      * @param ?String $colspan number of columns to span
      * @param ?String $rowspan number of rows to span
      */
-    public function setAttrCellHeader(DOMElement $cell, ?string $scope = null, ?string $colspan = null, ?string $rowspan = null): void
+    protected function setAttrCellHeader(DOMElement $cell, ?string $scope = null, ?string $colspan = null, ?string $rowspan = null): void
     {
         if ($scope !== null) {
             $cell->setAttribute('scope', $scope);
