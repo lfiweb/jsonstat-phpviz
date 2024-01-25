@@ -138,6 +138,7 @@ class TableExcel extends AbstractTable
     }
 
     /**
+     * Return the spreadsheet.
      * @return Spreadsheet
      */
     public function getSpreadSheet(): Spreadsheet
