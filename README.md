@@ -2,17 +2,17 @@
 Render [JSON-stat v2.0 data](https://json-stat.org/) with any number of dimensions as an HTML table using PHP.
 
 ## Features
-- render any number of dimensions of any size as an HTML table (e.g. theoretically limited only by memory).
+- render any number of dimensions of any size as an HTML table (e.g., theoretically limited only by memory).
 - use any number of dimensions to group rows and columns.
 - transpose dimensions along two or more axes
 - structures the table with `<thead>` and `<tbody>` elements
 - creates a table `<caption>` automatically from the JSON-stat.
 - renders column and row headers using the attributes `scope`, `colspan` and `rowspan` to provide
 screen reader support for visually impaired users
-- sets CSS classes (`first` and `last`) to identify the start and end of row groups (e.g. row totals)
+- sets CSS classes (`first` and `last`) to identify the start and end of row groups (e.g., row totals)
 - exclude dimensions of size one (when ordered continuously from index 0) from rendering when wanted
 - export (render) the table as tab separated values (tsv) or any character (csv) of your choosing.
-- download (render) the table in the MS Excel format (xlsx)
+- download (render) the table in the LibreOffice Calc (ods) or the MS Excel format (xlsx).
 
 ### not implemented
 - `child` property e.g., hierarchical relationships between different categories
@@ -58,7 +58,7 @@ $reader->transpose($axes);
 $table = new TableHtml($reader);
 $html = $table->render();
 ```
-See [NumPy transpose](https://numpy.org/doc/stable/reference/generated/numpy.transpose.html) for how to use the axes array.
+See [NumPy transpose](https://numpy.org/doc/stable/reference/generated/numpy.transpose.html) for how to use the axis array.
 ![screenshot-03](demo/screenshot-03.png)
 
 ### Example 4
@@ -108,14 +108,14 @@ class MyRendererTable extends TableHtml
      * Override with the new html cell renderer.
      * @return void
      */
-    protected function initRendererCell(): void
+    protected function newCellRenderer(): CellInterface
     {
-        $formatter = new FormatterCell($this->reader, new Formatter());
-        $this->rendererCell = new MyRendererCell($formatter, $this->reader, $this);
+        $formatter = new FormatterCell($this->reader);
+        return new MyCellHtml($formatter, $this->reader, $this);
     }
 }
 
-class MyRendererCell extends CellHtml
+class MyCellHtml extends CellHtml
 {
     // render html inside label (header) cells
     public function headerCell(DOMElement $row, ?string $str = null, ?string $scope = null, ?string $colspan = null, ?string $rowspan = null): DOMElement
