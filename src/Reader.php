@@ -106,7 +106,7 @@ class Reader
     }
 
     /**
-     * Check if the dimension has a decimals property.
+     * Check if the dimension has a decimal property.
      * According to JSON-stat schema 2.0, when the unit property is present, the decimals property is required.
      * @param string $dimId dimension id
      * @return bool
