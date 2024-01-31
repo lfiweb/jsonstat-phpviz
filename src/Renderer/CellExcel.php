@@ -5,9 +5,13 @@ namespace jsonstatPhpViz\Renderer;
 use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
 use jsonstatPhpViz\UtilArray;
+use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use function count;
 
+/**
+ * Handle rendering of html table cells.
+ */
 class CellExcel extends AbstractCell
 {
     private TableExcel $table;
@@ -26,6 +30,11 @@ class CellExcel extends AbstractCell
         $this->worksheet = $this->table->getActiveWorksheet();
     }
 
+    /**
+     *
+     * @param $rowIdx
+     * @return void
+     */
     public function addFirstCellHeader($rowIdx): void
     {
         if ($this->table->numRowDim > 0) {
@@ -50,6 +59,12 @@ class CellExcel extends AbstractCell
         $this->addCellHeader($dimIdx + 1, $this->adjustYHeader($rowIdx), $label);
     }
 
+    /**
+     * @param int $dimIdx
+     * @param int $rowIdx
+     * @return void
+     * @throws Exception
+     */
     public function addLabelCellBody(int $dimIdx, int $rowIdx): void
     {
         $table = $this->table;
@@ -75,6 +90,7 @@ class CellExcel extends AbstractCell
      * Creates the cells for the headers of the value columns.
      * @param int $offset
      * @param int $rowIdx
+     * @throws Exception
      */
     public function addValueCellHeader(int $offset, int $rowIdx): void
     {
@@ -122,6 +138,13 @@ class CellExcel extends AbstractCell
         $this->worksheet->setCellValue([$x, $y], $val);
     }
 
+    /**
+     * Add the last cell to a body row.
+     * @param int $offset
+     * @param int $rowIdx
+     * @return void
+     * @throws Exception
+     */
     public function addLastCellHeader(int $offset, int $rowIdx): void
     {
         if (count($this->table->colDims) !== 0) {
@@ -130,7 +153,7 @@ class CellExcel extends AbstractCell
     }
 
     /**
-     * Add the last cell to the table body.
+     * Add the last cell to a body row.
      * @param int $offset
      * @param int $rowIdx
      * @return void
@@ -173,7 +196,7 @@ class CellExcel extends AbstractCell
     {
         $y = $rowIdx + 1;
         if ($this->table->caption) {
-            ++$y;
+            $y += $this->table->numCaptionRows;
         }
 
         return $y;

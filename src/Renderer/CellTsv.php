@@ -6,6 +6,8 @@ use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
 use jsonstatPhpViz\UtilArray;
 
+use function count;
+
 class CellTsv extends AbstractCell
 {
     private TableTsv $table;
@@ -68,6 +70,7 @@ class CellTsv extends AbstractCell
 
     /**
      * Add the last cell to the table header.
+     * @param int $offset
      * @param int $rowIdx
      * @return void
      */

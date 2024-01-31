@@ -2,7 +2,6 @@
 
 namespace jsonstatPhpViz\Renderer;
 
-use jsonstatPhpViz\Formatter;
 use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
 
@@ -18,9 +17,6 @@ class TableTsv extends AbstractTable
      * @var string
      */
     private string $tsv;
-
-    /** @var string|null caption of the table */
-    public null|string $caption;
 
     public string $separatorRow = "\n";
 
@@ -62,7 +58,7 @@ class TableTsv extends AbstractTable
      */
     protected function newCellRenderer(): CellInterface
     {
-        $formatter = new FormatterCell($this->reader, new Formatter());
+        $formatter = new FormatterCell($this->reader);
         return new CellTsv($formatter, $this->reader, $this);
     }
 

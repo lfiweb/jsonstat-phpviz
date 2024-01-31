@@ -31,8 +31,9 @@ interface TableInterface
 
     /**
      * Returns the default number of dimensions used for rendering rows.
-     * By default, a table is rendered using all dimensions for rows expect the last two dimensions are used for columns.
-     * When there are fewer than three dimensions, only the first dimension is used for rows.
+     * By default, a table is rendered using all dimensions for rows
+     * except the last two dimensions are used for columns. When there are fewer than three dimensions,
+     * only the first dimension is used for rows.
      * @return int
      */
     public function getNumRowDimAuto(): int;

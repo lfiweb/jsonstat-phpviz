@@ -2,19 +2,26 @@
 
 use jsonstatPhpViz\Reader;
 use jsonstatPhpViz\Renderer\AbstractTable;
+use jsonstatPhpViz\Renderer\StylerExcel;
 use jsonstatPhpViz\Renderer\TableExcel;
 use jsonstatPhpViz\Renderer\TableHtml;
 use jsonstatPhpViz\Renderer\TableTsv;
+use PhpOffice\PhpSpreadsheet\Writer\Ods;
 
 require_once __DIR__.'/../vendor/autoload.php';
 
+/**
+ * Factory to return the renderer.
+ * @param Reader $reader
+ * @param $format
+ * @return TableTsv|TableExcel|TableHtml
+ */
 function getRenderer(Reader $reader, $format): TableTsv|TableExcel|TableHtml
 {
     if ($format === 'tsv') {
         $renderer = new TableTsv($reader);
-    } elseif ($format === 'xlsx') {
+    } elseif ($format === 'ods' || $format === 'xlsx') {
         $renderer = new TableExcel($reader);
-
     } else {
         $renderer = new TableHtml($reader);
     }
@@ -22,23 +29,50 @@ function getRenderer(Reader $reader, $format): TableTsv|TableExcel|TableHtml
     return $renderer;
 }
 
+/**
+ * Render a html download link.
+ * @param int $id
+ * @return string
+ */
 function renderDownloadLink(int $id): string
 {
     return '<p>download as: <a href="main.php?f=tsv&id='.$id.'">tab separated</a> (tsv) |
+            <a href="main.php?f=ods&id='.$id.'">Writer</a> (ods) | 
             <a href="main.php?f=xlsx&id='.$id.'">Excel</a> (xlsx)</p>';
 }
 
-function download(AbstractTable $table, string $format, string $id): void
+/**
+ * Download the table.
+ * @param AbstractTable|TableExcel $table
+ * @param string $format
+ * @param string $id
+ * @return void
+ */
+function download(AbstractTable|TableExcel $table, string $format, string $id): void
 {
     if (isset($_GET['id']) && $_GET['id'] === $id) {
         if ($format === 'tsv') {
             header('Content-Type: text/plain; charset=utf-8');
-            header('Content-Disposition: attachment; filename="table'.$id.'.tsv"');
-            exit($table->render());
+            header('Content-Disposition: attachment; filename="table.tsv"');
+        }
+        if ($format === 'ods') {
+            $table->styler = new StylerExcel();
+            $table->setWriter(new Ods($table->getSpreadSheet()));
+            header('Content-Type: application/vnd.oasis.opendocument.spreadsheet');
+            header('Content-Disposition: attachment; filename="table.ods"');
         }
         if ($format === 'xlsx') {
-            $table->download();
+            $table->styler = new StylerExcel();
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment; filename="table.xlsx"');
         }
+
+        try {
+            $data = $table->render();
+        } catch (\PhpOffice\PhpSpreadsheet\Writer\Exception $exception) {
+            $data = $exception->getMessage();
+        }
+        exit($data);
     }
 }
 
@@ -46,12 +80,16 @@ $format = 'html';
 if (isset($_GET['f'])) {
     if ($_GET['f'] === 'tsv') {
         $format = 'tsv';
-    } elseif ($_GET['f'] === 'xlsx') {
+    }
+    if ($_GET['f'] === 'ods') {
+        $format = 'ods';
+    }
+    if ($_GET['f'] === 'xlsx') {
         $format = 'xlsx';
     }
 }
 
-// create a table with 4 dimensions of size `[3,2,4,2]` (shape). To dimensions are used to group the rows:
+// Create a table with 4 dimensions of size `[3,2,4,2]` (shape). To dimensions are used to group the rows:
 $filename = '../tests/resources/integer.json';
 $json = file_get_contents($filename);
 $jsonstat = json_decode($json, false, 512, JSON_THROW_ON_ERROR);

@@ -20,6 +20,7 @@ class CellHtml extends AbstractCell
     protected TableHtml $table;
 
     /**
+     * Construct the cell renderer.
      * @param FormatterCell $cellFormatter
      * @param Reader $reader
      * @param TableHtml $rendererTable
@@ -31,9 +32,14 @@ class CellHtml extends AbstractCell
     }
 
     /**
+     * Add the first cell to a row of the table header.
+     * Adds the first cell to a row of the table header. This can either be a label or a value cell,
+     * since there are some tables that don't have header label cells or header value cells.
+     * @param int $rowIdx row index
+     * @return void
      * @throws DOMException
      */
-    public function addFirstCellHeader($rowIdx): void
+    public function addFirstCellHeader(int $rowIdx): void
     {
         $this->table->dom->appendRow($this->table->head);
         if ($this->table->numRowDim > 0) {
@@ -42,6 +48,12 @@ class CellHtml extends AbstractCell
     }
 
     /**
+     * Add the first cell to a row of the table body.
+     * Adds the first cell to a row of the table body. This can either be a label or a value cell,
+     * since there are some tables that don't have body label cells.
+     * Note: The row index of the table body restarts at zero.
+     * @param int $rowIdx row index
+     * @return void
      * @throws DOMException
      */
     public function addFirstCellBody(int $rowIdx): void
@@ -53,6 +65,10 @@ class CellHtml extends AbstractCell
     }
 
     /**
+     * Add a label cell to a row of the table header.
+     * @param int $dimIdx dimension index
+     * @param int $rowIdx row index
+     * @return void
      * @throws DOMException
      */
     public function addLabelCellHeader($dimIdx, $rowIdx): void
@@ -71,6 +87,11 @@ class CellHtml extends AbstractCell
     }
 
     /**
+     * Add a label cell to the row of the table body.
+     * Note: The row index of the table body restarts at zero
+     * @param int $dimIdx dimension index
+     * @param int $rowIdx row index
+     * @return void
      * @throws DOMException
      */
     public function addLabelCellBody(int $dimIdx, int $rowIdx): void
@@ -86,7 +107,7 @@ class CellHtml extends AbstractCell
         if ($table->useRowSpans === false || $rowIdx % $stride === 0) {
             $rowspan = $table->useRowSpans && $stride > 1 ? $stride : null;
             $scope = $stride > 1 ? 'rowgroup' : 'row';
-            $cell = $this->addCellHeader($label);  //
+            $cell = $this->addCellHeader($label);
             $this->setAttrCellHeader($cell, $scope, null, $rowspan);
             $this->setCssLabelCell($cell, $dimIdx, $rowIdx, $stride);
             $row = $this->getRowBody($rowIdx);
@@ -95,9 +116,10 @@ class CellHtml extends AbstractCell
     }
 
     /**
-     * Creates the cells for the headers of the value columns.
-     * @param int $offset
-     * @param int $rowIdx
+     * Add a value cell to a row of the table header.
+     * @param int $offset index of the JSON-stat value array
+     * @param int $rowIdx row index
+     * @return void
      * @throws DOMException
      */
     public function addValueCellHeader(int $offset, int $rowIdx): void
@@ -127,12 +149,11 @@ class CellHtml extends AbstractCell
     }
 
     /**
-     * Append a value cell to the row.
-     * Inserts a HTMLTableCellElement at the end of the row
-     * with a value taken from the JSON-stat values attribute at the given offset.
-     * @param int $offset
-     * @param int $rowIdx
-     * @return void the created table cell
+     * Add a value cell to a row of the table body.
+     * Note: The row index of the table body restarts at zero
+     * @param int $offset index of the JSON-stat value array
+     * @param int $rowIdx row index
+     * @return void
      * @throws DOMException
      */
     public function addValueCellBody(int $offset, int $rowIdx): void
@@ -147,6 +168,10 @@ class CellHtml extends AbstractCell
     }
 
     /**
+     * Add the last cell to a row of the table header.
+     * @param int $offset index of the JSON-stat value array
+     * @param int $rowIdx row index
+     * @return void
      * @throws DOMException
      */
     public function addLastCellHeader(int $offset, int $rowIdx): void
@@ -161,9 +186,10 @@ class CellHtml extends AbstractCell
     }
 
     /**
-     * Add the last cell to the table body.
-     * @param int $offset
-     * @param int $rowIdx
+     * Add the last cell to a row of the table body.
+     * Note: the row index of the table body restarts at zero
+     * @param int $offset index of the JSON-stat value array
+     * @param int $rowIdx row index
      * @return void
      * @throws DOMException
      */
@@ -173,19 +199,21 @@ class CellHtml extends AbstractCell
     }
 
     /**
-     * @param int $rowIdx
-     * @return DOMNode
+     * Return a row from the body.
+     * @param int $rowIdx row index
+     * @return DOMNode table row
      */
-    private function getRowBody(int $rowIdx): DOMNode
+    public function getRowBody(int $rowIdx): DOMNode
     {
         return $this->table->body->getElementsByTagName('tr')->item($rowIdx);
     }
 
     /**
-     * @param int $rowIdx
-     * @return DOMNode
+     * Return a row from the header.
+     * @param int $rowIdx row index
+     * @return DOMNode table row
      */
-    private function getRowHeader(int $rowIdx): DOMNode
+    public function getRowHeader(int $rowIdx): DOMNode
     {
         return $this->table->head->getElementsByTagName('tr')->item($rowIdx);
     }
@@ -197,7 +225,7 @@ class CellHtml extends AbstractCell
      * @param int $rowIdxBody
      * @param int $rowStride
      */
-    public function setCssLabelCell(DOMElement $cell, int $cellIdx, int $rowIdxBody, int $rowStride): void
+    protected function setCssLabelCell(DOMElement $cell, int $cellIdx, int $rowIdxBody, int $rowStride): void
     {
         $cl = new ClassList($cell);
         $product = $this->table->shape[$cellIdx] * $rowStride;
@@ -220,7 +248,7 @@ class CellHtml extends AbstractCell
      * @return DOMElement table cell element
      * @throws DOMException
      */
-    private function addCellHeader(?string $label = null): DOMNode
+    protected function addCellHeader(?string $label = null): DOMNode
     {
         $doc = $this->table->doc;
         $cell = $doc->createElement('th');
@@ -236,7 +264,7 @@ class CellHtml extends AbstractCell
      * @param ?String $colspan number of columns to span
      * @param ?String $rowspan number of rows to span
      */
-    public function setAttrCellHeader(DOMElement $cell, ?string $scope = null, ?string $colspan = null, ?string $rowspan = null): void
+    protected function setAttrCellHeader(DOMElement $cell, ?string $scope = null, ?string $colspan = null, ?string $rowspan = null): void
     {
         if ($scope !== null) {
             $cell->setAttribute('scope', $scope);

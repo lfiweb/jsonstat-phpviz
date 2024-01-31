@@ -7,7 +7,6 @@ use DOMElement;
 use DOMException;
 use jsonstatPhpViz\DOM\ClassList;
 use jsonstatPhpViz\DOM\Table;
-use jsonstatPhpViz\Formatter;
 use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
 use jsonstatPhpViz\UtilHtml;
@@ -92,7 +91,7 @@ class TableHtml extends AbstractTable
      */
     protected function newCellRenderer(): CellInterface
     {
-        $formatter = new FormatterCell($this->reader, new Formatter());
+        $formatter = new FormatterCell($this->reader);
         return new CellHtml($formatter, $this->reader, $this);
     }
 

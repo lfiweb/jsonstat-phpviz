@@ -7,6 +7,9 @@ use jsonstatPhpViz\UtilArray;
 use function array_slice;
 use function count;
 
+/**
+ * Create a class template for rendering JSON-stat as a table.
+ */
 abstract class AbstractTable implements TableInterface
 {
     /** @var int dimension of type row */
@@ -76,7 +79,7 @@ abstract class AbstractTable implements TableInterface
      * the caption element
      * @var null|string
      */
-    public null|string $caption;
+    public null|string $caption = null;
 
     /**
      * Instantiates the class.
@@ -137,8 +140,9 @@ abstract class AbstractTable implements TableInterface
 
     /**
      * Returns the default number of dimensions used for rendering rows.
-     * By default, a table is rendered using all dimensions for rows expect the last two dimensions are used for columns.
-     * When there are fewer than 3 dimensions, only the first dimension is used for rows.
+     * By default, a table is rendered using all dimensions for rows
+     * except the last two dimensions are used for columns. When there are fewer than three dimensions,
+     * only the first dimension is used for rows.
      * @return int
      */
     public function getNumRowDimAuto(): int
@@ -184,7 +188,9 @@ abstract class AbstractTable implements TableInterface
     }
 
     /**
-     * Note: row index starts at zero for body rows and can be adjusted in the cell renderer.
+     * Add rows to the table body.
+     * Note: The Row index starts at zero for body rows since we are using the offset of the value array to loop over.
+     * The row index can be adjusted for header rows in the cell renderer if necessary.
      * @return void
      */
     public function addRows(): void
