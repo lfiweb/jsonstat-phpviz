@@ -118,21 +118,11 @@ class MyRendererTable extends TableHtml
 class MyCellHtml extends CellHtml
 {
     // render html inside label (header) cells
-    public function headerCell(DOMElement $row, ?string $str = null, ?string $scope = null, ?string $colspan = null, ?string $rowspan = null): DOMElement
+    public function addCellHeader(DOMElement $row, ?string $str = null, ?string $scope = null, ?string $colspan = null, ?string $rowspan = null): DOMElement
     {
         $cell = parent::headerCell($row, $str, $scope, $colspan, $rowspan);
         $cell->textContent = '';
         UtilHtml::append($cell, $str);
-
-        return $cell;
-    }
-
-    // render html inside value (data) cells
-    public function valueCell(DOMElement $row, int $offset): DOMNode
-    {
-        $cell = parent::valueCell($row, $offset);
-        $cell->textContent = '';
-        UtilHtml::append($cell, $this->reader->data->value[$offset]);
 
         return $cell;
     }
