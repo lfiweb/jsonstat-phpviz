@@ -84,15 +84,26 @@ class TableExcel extends AbstractTable
         $this->styler?->style($this);
         $this->getActiveWorksheet()->setSelectedCell('A1');    // there doesn't seem to be a deselect method
 
-        $fp = fopen('php://memory', 'rwb');
-        $this->writer->save($fp);
-        rewind($fp);
+        $fp = $this->saveToMemory();
         $content = '';
         while (!feof($fp)) {
             $content .= fread($fp, 8000);
         }
         fclose($fp);
         return $content;
+    }
+
+    /**
+     * Save the spreadsheet to memory instead of a (temp) file.
+     * @return false|resource
+     * @throws Exception
+     */
+    public function saveToMemory()
+    {
+        $fp = fopen('php://memory', 'rwb');
+        $this->writer->save($fp);
+        rewind($fp);
+        return $fp;
     }
 
     /**
