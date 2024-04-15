@@ -190,7 +190,7 @@ abstract class AbstractTable implements TableInterface
     /**
      * Add rows to the table body.
      * Note: The Row index starts at zero for body rows since we are using the offset of the value array to loop over.
-     * The row index can be adjusted for header rows in the cell renderer if necessary.
+     * The row index is passed, so it can be adjusted for header rows in the cell renderer if necessary (excel export).
      * @return void
      */
     public function addRows(): void
