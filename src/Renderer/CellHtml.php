@@ -87,7 +87,7 @@ class CellHtml extends AbstractCell
     }
 
     /**
-     * Add a label cell to the row of the table body.
+     * Append a label cell to the row of the table body.
      * Note: The row index of the table body restarts at zero
      * @param int $dimIdx dimension index
      * @param int $rowIdx row index
@@ -110,7 +110,8 @@ class CellHtml extends AbstractCell
             $cell = $this->addCellHeader($label);
             $this->setAttrCellHeader($cell, $scope, null, $rowspan);
             $this->setCssLabelCell($cell, $dimIdx, $rowIdx, $stride);
-            $row = $this->getRowBody($rowIdx);
+            // note: $row = $this->getRowHeader($rowIdx); is very slow (100x) on large datasets
+            $row = $this->table->body->lastChild;
             $row->appendChild($cell);
         }
     }
@@ -149,7 +150,7 @@ class CellHtml extends AbstractCell
     }
 
     /**
-     * Add a value cell to a row of the table body.
+     * Append a value cell to the last row of the table body.
      * Note: The row index of the table body restarts at zero
      * @param int $offset index of the JSON-stat value array
      * @param int $rowIdx row index
@@ -163,7 +164,8 @@ class CellHtml extends AbstractCell
         $val = $this->formatter->formatValueCell($val, $offset);
         $cell = $doc->createElement('td');
         $cell->appendChild($doc->createTextNode($val));
-        $row = $this->getRowBody($rowIdx);
+        // note: $row = $this->getRowHeader($rowIdx); is very slow on large datasets
+        $row = $this->table->body->lastChild;
         $row->appendChild($cell);
     }
 
