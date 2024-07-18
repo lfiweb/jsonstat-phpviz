@@ -14,11 +14,11 @@
     "ext-json": "*"
   },
   "require-dev": {
-    "phpoffice/phpspreadsheet": "1.*",
+    "phpoffice/phpspreadsheet": "2.*",
     "phpunit/phpunit": "10.*"
   },
   "suggest": {
-    "phpoffice/phpspreadsheet": "1.*; Install if you want to render/export JSON-stat as an Excel file"
+    "phpoffice/phpspreadsheet": "2.*; Install if you want to render/export JSON-stat as an Excel file"
   },
   "autoload": {
     "psr-4": {
