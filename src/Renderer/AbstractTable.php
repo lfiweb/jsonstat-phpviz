@@ -4,6 +4,7 @@ namespace jsonstatPhpViz\Renderer;
 
 use jsonstatPhpViz\Reader;
 use jsonstatPhpViz\UtilArray;
+
 use function array_slice;
 use function count;
 
@@ -141,8 +142,8 @@ abstract class AbstractTable implements TableInterface
     /**
      * Returns the default number of dimensions used for rendering rows.
      * By default, a table is rendered using all dimensions for rows
-     * except the last two dimensions are used for columns. When there are fewer than three dimensions,
-     * only the first dimension is used for rows.
+     * except the last two dimensions are used for columns.
+     * When there are fewer than three dimensions, only the first dimension is used for rows.
      * @return int
      */
     public function getNumRowDimAuto(): int
@@ -168,6 +169,11 @@ abstract class AbstractTable implements TableInterface
         return array_slice($dims, $this->numRowDim);
     }
 
+    /**
+     * Add the rows and cells of the table header.
+     * The number of rows used for the header is defined by the numHeaderRows property.
+     * @return void
+     */
     public function addHeaders(): void
     {
         $numHeaderRows = $this->noLabelLastDim === true ? $this->numHeaderRows - 1 : $this->numHeaderRows;
