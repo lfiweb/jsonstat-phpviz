@@ -134,10 +134,10 @@ class CellHtml extends AbstractCell
         $id = $reader->getDimensionId($table->numOneDim + $dimIdx);
         if ($this->table->isDimensionRowHeader($rowIdx)) { // set attributes for dimension label cell
             $label = $reader->getDimensionLabel($id);
-            $colspan = $product > 1 ? $product : null;
+            $colspan = $this->calcColspanDimHeader($product);
         } else {    // set attributes for category label cell
             $label = $this->getCategoryLabel($offset, $table->numOneDim + $dimIdx, $stride, $product);
-            $colspan = $stride > 1 ? $stride : null;
+            $colspan = $this->calcColspanCategoryHeader($stride);
         }
         if ($colspan === null || $offset % $colspan === 0) {
             $scope = $colspan === null ? 'col' : 'colgroup';
@@ -275,5 +275,17 @@ class CellHtml extends AbstractCell
         if ($rowspan !== null) {
             $cell->setAttribute('rowspan', $rowspan);
         }
+    }
+
+
+    protected function calcColspanDimHeader(int $product): ?int
+    {
+        return $product > 1 ? $product : null;
+
+    }
+
+    protected function calcColspanCategoryHeader(int $stride): ?int
+    {
+        return $stride > 1 ? $stride : null;
     }
 }
