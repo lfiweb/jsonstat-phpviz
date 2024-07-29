@@ -96,19 +96,17 @@ class CellExcel extends AbstractCell
     {
         // remember: we render two rows with headings per column dimension,
         //  e.g., one for the dimension label and one for the category label
-        $table = $this->table;
-        $reader = $this->reader;
-        $dimIdx = $table->numRowDim + (int)floor($rowIdx / 2);
-        $stride = $table->strides[$dimIdx];
-        $product = $table->shape[$dimIdx] * $stride;
-        $id = $reader->getDimensionId($table->numOneDim + $dimIdx);
+        $dimIdx = $this->table->numRowDim + (int)floor($rowIdx / 2);
+        $stride = $this->table->strides[$dimIdx];
+        $product = $this->table->shape[$dimIdx] * $stride;
+        $id = $this->reader->getDimensionId($this->table->numOneDim + $dimIdx);
         if ($this->table->isDimensionRowHeader($rowIdx)) {
             // set attributes for dimension label cell
-            $label = $reader->getDimensionLabel($id);
+            $label = $this->reader->getDimensionLabel($id);
             $colspan = $product > 1 ? $product : 0;
         } else {
             // set attributes for category label cell
-            $label = $this->getCategoryLabel($offset, $table->numOneDim + $dimIdx, $stride, $product);
+            $label = $this->getCategoryLabel($offset, $this->table->numOneDim + $dimIdx, $stride, $product);
             $colspan = $stride > 1 ? $stride : 0;
         }
         if ($colspan === 0 || $offset % $colspan === 0) {

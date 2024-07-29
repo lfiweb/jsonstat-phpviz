@@ -128,17 +128,17 @@ class CellHtml extends AbstractCell
     {
         // remember: we render two rows with headings per column dimension,
         //  e.g., one for the dimension label and one for the category label
-        $table = $this->table;
-        $reader = $this->reader;
-        $dimIdx = $table->numRowDim + (int)floor($rowIdx / 2);
-        $stride = $table->strides[$dimIdx];
-        $product = $table->shape[$dimIdx] * $stride;
-        $id = $reader->getDimensionId($table->numOneDim + $dimIdx);
-        if ($this->table->isDimensionRowHeader($rowIdx)) { // set attributes for dimension label cell
-            $label = $reader->getDimensionLabel($id);
+        $dimIdx = $this->table->numRowDim + (int)floor($rowIdx / 2);
+        $stride = $this->table->strides[$dimIdx];
+        $product = $this->table->shape[$dimIdx] * $stride;
+        $id = $this->reader->getDimensionId($this->table->numOneDim + $dimIdx);
+        if ($this->table->isDimensionRowHeader($rowIdx)) {
+            // set attributes for dimension label cell
+            $label = $this->reader->getDimensionLabel($id);
             $colspan = $this->calcColspanDimHeader($product);
-        } else {    // set attributes for category label cell
-            $label = $this->getCategoryLabel($offset, $table->numOneDim + $dimIdx, $stride, $product);
+        } else {
+            // set attributes for category label cell
+            $label = $this->getCategoryLabel($offset, $this->table->numOneDim + $dimIdx, $stride, $product);
             $colspan = $this->calcColspanCategoryHeader($stride);
         }
         if ($colspan === null || $offset % $colspan === 0) {
