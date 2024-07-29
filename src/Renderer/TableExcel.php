@@ -141,9 +141,6 @@ class TableExcel extends AbstractTable
             $numRows += $this->numCaptionRows;
         }
         $numRows += $this->numHeaderRows;
-        if ($this->noLabelLastDim) {
-            --$numRows;
-        }
 
         return $numRows + 1;
     }

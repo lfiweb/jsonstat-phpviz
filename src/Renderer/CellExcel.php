@@ -212,9 +212,6 @@ class CellExcel extends AbstractCell
     {
         $y = $this->adjustYHeader($rowIdx);
         $y += $this->table->numHeaderRows;
-        if ($this->table->noLabelLastDim) {
-            --$y;
-        }
 
         return $y;
     }

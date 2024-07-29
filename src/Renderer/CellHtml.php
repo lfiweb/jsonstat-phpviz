@@ -9,6 +9,7 @@ use jsonstatPhpViz\DOM\ClassList;
 use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
 use jsonstatPhpViz\UtilArray;
+
 use function count;
 
 /**
@@ -266,8 +267,12 @@ class CellHtml extends AbstractCell
      * @param ?String $colspan number of columns to span
      * @param ?String $rowspan number of rows to span
      */
-    protected function setAttrCellHeader(DOMElement $cell, ?string $scope = null, ?string $colspan = null, ?string $rowspan = null): void
-    {
+    protected function setAttrCellHeader(
+        DOMElement $cell,
+        ?string $scope = null,
+        ?string $colspan = null,
+        ?string $rowspan = null
+    ): void {
         if ($scope !== null) {
             $cell->setAttribute('scope', $scope);
         }
@@ -279,13 +284,21 @@ class CellHtml extends AbstractCell
         }
     }
 
-
+    /**
+     * Calculate the colspan for the dimension label cell of the table header.
+     * @param int $product
+     * @return int|null
+     */
     protected function calcColspanDimHeader(int $product): ?int
     {
         return $product > 1 ? $product : null;
-
     }
 
+    /**
+     * Calculate the colspan for the category label cell of the table header
+     * @param int $stride
+     * @return int|null
+     */
     protected function calcColspanCategoryHeader(int $stride): ?int
     {
         return $stride > 1 ? $stride : null;

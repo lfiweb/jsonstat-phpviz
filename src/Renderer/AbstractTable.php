@@ -135,7 +135,7 @@ abstract class AbstractTable implements TableInterface
         $this->numValueCols = count($this->colDims) > 0 ? array_product($this->colDims) : 1;
         $this->numLabelCols = count($this->rowDims);
         // add an additional row to label each dimension
-        $this->numHeaderRows = count($this->colDims) > 0 ? count($this->colDims) * 2 : 1;
+        $this->numHeaderRows = $this->calcHeaderRows();
         $this->rendererCell = $this->newCellRenderer();
     }
 
@@ -176,9 +176,7 @@ abstract class AbstractTable implements TableInterface
      */
     public function addHeaders(): void
     {
-        $numHeaderRows = $this->noLabelLastDim === true ? $this->numHeaderRows - 1 : $this->numHeaderRows;
-
-        for ($rowIdx = 0; $rowIdx < $numHeaderRows; $rowIdx++) {
+        for ($rowIdx = 0; $rowIdx < $this->numHeaderRows; $rowIdx++) {
             $this->rendererCell->addFirstCellHeader($rowIdx);
             for ($colIdx = 1; $colIdx < $this->numLabelCols; $colIdx++) {
                 $this->rendererCell->addLabelCellHeader($colIdx, $rowIdx);
@@ -226,12 +224,25 @@ abstract class AbstractTable implements TableInterface
      */
     public function isLastRowHeader(int $rowIdx): bool
     {
-        $lastRow = $this->numHeaderRows - 1;
-        if ($this->noLabelLastDim === true) {
-            --$lastRow;
+        return $rowIdx === $this->numHeaderRows - 1;
+    }
+
+    /**
+     * Calculate the number of header rows.
+     * @return int
+     */
+    public function calcHeaderRows(): int
+    {
+        $num = 1;
+        if (count($this->colDims) > 0) {
+            // one row for the dimension label, and one row for the category label
+            $num = count($this->colDims) * 2;
+            if ($this->noLabelLastDim === true) {
+                --$num;
+            }
         }
 
-        return $rowIdx === $lastRow;
+        return $num;
     }
 
     /**
@@ -244,7 +255,7 @@ abstract class AbstractTable implements TableInterface
     public function isDimensionRowHeader(int $rowIdx): bool
     {
         return $rowIdx % 2 === 0 && (
-                $this->noLabelLastDim === false || $rowIdx !== $this->numHeaderRows - 2
+                $this->noLabelLastDim === false || $rowIdx !== $this->numHeaderRows - 1
             );
     }
 
