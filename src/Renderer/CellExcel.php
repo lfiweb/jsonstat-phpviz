@@ -115,7 +115,7 @@ class CellExcel extends AbstractCell
             $x = $this->adjustX($offset);
             $y = $this->adjustYHeader($rowIdx);
             $this->addCellHeader($x, $y, $label);
-            if ($colspan > 0) {
+            if ($colspan > 1) {
                 $this->worksheet->mergeCells([$x, $y, $x + $colspan - 1, $y]);
             }
         }
