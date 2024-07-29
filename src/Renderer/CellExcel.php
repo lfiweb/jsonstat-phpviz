@@ -15,7 +15,7 @@ use function count;
 class CellExcel extends AbstractCell
 {
     private TableExcel $table;
-    private Worksheet $worksheet;
+    protected Worksheet $worksheet;
 
     /**
      * Instantiate the class with the cell formatter and the JSON-stat reader.
