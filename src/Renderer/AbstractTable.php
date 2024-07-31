@@ -123,14 +123,19 @@ abstract class AbstractTable implements TableInterface
      */
     protected function init(): void
     {
-        $this->shape = $this->reader->getDimensionSizes($this->excludeOneDim);
+        $shape = $this->reader->getDimensionSizes($this->excludeOneDim);
+        $dimsAll = $this->reader->getDimensionSizes(false);
+        $this->setProperties($shape, $dimsAll);
+    }
+
+    protected function setProperties(array $shape, array $dimsAll): void {
+        $this->shape = $shape;
         $this->strides = UtilArray::getStrides($this->shape);
         $this->numRowDim = $this->numRowDim ?? $this->getNumRowDimAuto();
         $this->rowDims = $this->extractDims($this->shape);
         $this->colDims = $this->extractDims($this->shape, self::DIM_TYPE_COL);
 
         // cache some often used numbers before rendering table
-        $dimsAll = $this->reader->getDimensionSizes(false);
         $this->numOneDim = count($dimsAll) - count($this->rowDims) - count($this->colDims);
         $this->numValueCols = count($this->colDims) > 0 ? array_product($this->colDims) : 1;
         $this->numLabelCols = count($this->rowDims);
