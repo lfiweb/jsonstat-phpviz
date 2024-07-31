@@ -83,8 +83,6 @@ class CellHtml extends AbstractCell
         }
         $cell = $this->addCellHeader($label);
         $this->setAttrCellHeader($cell, $scope);
-        $row = $this->getRowHeader($rowIdx);
-        $row->appendChild($cell);
     }
 
     /**
@@ -111,9 +109,7 @@ class CellHtml extends AbstractCell
             $cell = $this->addCellHeader($label);
             $this->setAttrCellHeader($cell, $scope, null, $rowspan);
             $this->setCssLabelCell($cell, $dimIdx, $rowIdx, $stride);
-            // note: $row = $this->getRowHeader($rowIdx); is very slow (100x) on large datasets
-            $row = $this->table->body->lastChild;
-            $row->appendChild($cell);
+            $this->table->body->lastChild->appendChild($cell);
         }
     }
 
@@ -130,25 +126,25 @@ class CellHtml extends AbstractCell
         //  e.g., one for the dimension label and one for the category label
         $dimIdx = $this->table->numRowDim + (int)floor($rowIdx / 2);
         $stride = $this->table->strides[$dimIdx];
-        $product = $this->table->shape[$dimIdx] * $stride;
-        $id = $this->reader->getDimensionId($this->table->numOneDim + $dimIdx);
+        // note: $this->table->strides[$dimIdx - 1] would have entry missing for the first dim
+        $prevStride = $stride * $this->table->shape[$dimIdx];
         if ($this->table->isDimensionRowHeader($rowIdx)) {
             // set attributes for dimension label cell
-            $label = $this->reader->getDimensionLabel($id);
-            $colspan = $this->calcColspanDimHeader($product);
+            $dimId = $this->reader->getDimensionId($this->table->numOneDim + $dimIdx);
+            $label = $this->reader->getDimensionLabel($dimId);
+            $colspan = $this->calcColspanDimHeader($prevStride);
         } else {
             // set attributes for category label cell
-            $label = $this->getCategoryLabel($offset, $this->table->numOneDim + $dimIdx, $stride, $product);
+            $label = $this->getCategoryLabel($offset, $this->table->numOneDim + $dimIdx, $stride, $prevStride);
             $colspan = $this->calcColspanCategoryHeader($stride);
         }
         if ($colspan === null || $offset % $colspan === 0) {
             $scope = $colspan === null ? 'col' : 'colgroup';
             $cell = $this->addCellHeader($label);
             $this->setAttrCellHeader($cell, $scope, $colspan);
-            $row = $this->getRowHeader($rowIdx);
-            $row->appendChild($cell);
         }
     }
+
 
     /**
      * Append a value cell to the last row of the table body.
@@ -165,9 +161,7 @@ class CellHtml extends AbstractCell
         $val = $this->formatter->formatValueCell($val, $offset);
         $cell = $doc->createElement('td');
         $cell->appendChild($doc->createTextNode($val));
-        // note: $row = $this->getRowHeader($rowIdx); is very slow on large datasets
-        $row = $this->table->body->lastChild;
-        $row->appendChild($cell);
+        $this->table->body->lastChild->appendChild($cell);
     }
 
     /**
@@ -180,9 +174,7 @@ class CellHtml extends AbstractCell
     public function addLastCellHeader(int $offset, int $rowIdx): void
     {
         if (count($this->table->colDims) === 0) {
-            $cell = $this->addCellHeader();
-            $row = $this->getRowHeader($rowIdx);
-            $row->appendChild($cell);
+            $this->addCellHeader();
         } else {
             $this->addValueCellHeader($offset, $rowIdx);
         }
@@ -199,26 +191,6 @@ class CellHtml extends AbstractCell
     public function addLastCellBody(int $offset, int $rowIdx): void
     {
         $this->addValueCellBody($offset, $rowIdx);
-    }
-
-    /**
-     * Return a row from the body.
-     * @param int $rowIdx row index
-     * @return DOMNode table row
-     */
-    public function getRowBody(int $rowIdx): DOMNode
-    {
-        return $this->table->body->getElementsByTagName('tr')->item($rowIdx);
-    }
-
-    /**
-     * Return a row from the header.
-     * @param int $rowIdx row index
-     * @return DOMNode table row
-     */
-    public function getRowHeader(int $rowIdx): DOMNode
-    {
-        return $this->table->head->getElementsByTagName('tr')->item($rowIdx);
     }
 
     /**
@@ -257,9 +229,8 @@ class CellHtml extends AbstractCell
         $cell = $doc->createElement('th');
         $label = $this->formatter->formatHeaderCell($label);
         $cell->appendChild($doc->createTextNode($label));
-        $this->table->head->appendChild($cell);
 
-        return $cell;
+        return $this->table->head->lastChild->appendChild($cell);
     }
 
     /**
