@@ -72,8 +72,8 @@ class CellExcel extends AbstractCell
         $stride = $rowStrides[$dimIdx];
         $label = null;
         if ($rowIdx % $stride === 0) {
-            $product = $table->shape[$dimIdx] * $stride;
-            $label = $this->getCategoryLabel($rowIdx, $table->numOneDim + $dimIdx, $stride, $product);
+            $offset = $rowIdx * $this->table->strides[$dimIdx];
+            $label = $this->getCategoryLabel($offset, $dimIdx);
         }
         if ($table->useRowSpans === false || $rowIdx % $stride === 0) {
             $rowspan = $table->useRowSpans && $stride > 1 ? $stride : 0;
@@ -106,7 +106,7 @@ class CellExcel extends AbstractCell
             $colspan = $product > 1 ? $product : 0;
         } else {
             // set attributes for category label cell
-            $label = $this->getCategoryLabel($offset, $this->table->numOneDim + $dimIdx, $stride, $product);
+            $label = $this->getCategoryLabel($offset, $dimIdx);
             $colspan = $stride > 1 ? $stride : 0;
         }
         if ($colspan === 0 || $offset % $colspan === 0) {

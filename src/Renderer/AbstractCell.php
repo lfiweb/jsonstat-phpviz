@@ -23,14 +23,15 @@ abstract class AbstractCell implements CellInterface
     /**
      * @param int $offset
      * @param int $dimIdx
-     * @param $stride
-     * @param $product
      * @return string
      */
-    protected function getCategoryLabel(int $offset, int $dimIdx, $stride, $product): string
+    protected function getCategoryLabel(int $offset, int $dimIdx): string
     {
-        $id = $this->reader->getDimensionId($dimIdx);
-        $catIdx = floor(($offset % $product) / $stride);
+        $stride = $this->table->strides[$dimIdx];
+        // note: $this->table->strides[$dimIdx - 1] would have entry missing for the first dim
+        $prevStride = $stride * $this->table->shape[$dimIdx];
+        $id = $this->reader->getDimensionId($this->table->numOneDim + $dimIdx);
+        $catIdx = floor(($offset % $prevStride) / $stride);
         $catId = $this->reader->getCategoryId($id, $catIdx);
 
         return $this->reader->getCategoryLabel($id, $catId);

@@ -100,16 +100,16 @@ class CellHtml extends AbstractCell
         $stride = $rowStrides[$dimIdx];
         $label = null;
         if ($rowIdx % $stride === 0) {
-            $product = $table->shape[$dimIdx] * $stride;
-            $label = $this->getCategoryLabel($rowIdx, $table->numOneDim + $dimIdx, $stride, $product);
+            $offset = $rowIdx * $this->table->strides[$dimIdx];
+            $label = $this->getCategoryLabel($offset, $dimIdx);
         }
         if ($table->useRowSpans === false || $rowIdx % $stride === 0) {
             $rowspan = $table->useRowSpans && $stride > 1 ? $stride : null;
             $scope = $stride > 1 ? 'rowgroup' : 'row';
             $cell = $this->addCellHeader($label);
+            $this->table->body->lastChild->appendChild($cell);  // moves already appended cell from thead to tbody
             $this->setAttrCellHeader($cell, $scope, null, $rowspan);
             $this->setCssLabelCell($cell, $dimIdx, $rowIdx, $stride);
-            $this->table->body->lastChild->appendChild($cell);
         }
     }
 
@@ -125,18 +125,15 @@ class CellHtml extends AbstractCell
         // remember: we render two rows with headings per column dimension,
         //  e.g., one for the dimension label and one for the category label
         $dimIdx = $this->table->numRowDim + (int)floor($rowIdx / 2);
-        $stride = $this->table->strides[$dimIdx];
-        // note: $this->table->strides[$dimIdx - 1] would have entry missing for the first dim
-        $prevStride = $stride * $this->table->shape[$dimIdx];
         if ($this->table->isDimensionRowHeader($rowIdx)) {
             // set attributes for dimension label cell
             $dimId = $this->reader->getDimensionId($this->table->numOneDim + $dimIdx);
             $label = $this->reader->getDimensionLabel($dimId);
-            $colspan = $this->calcColspanDimHeader($prevStride);
+            $colspan = $this->calcColspanDimHeader($dimIdx);    // prev stride
         } else {
             // set attributes for category label cell
-            $label = $this->getCategoryLabel($offset, $this->table->numOneDim + $dimIdx, $stride, $prevStride);
-            $colspan = $this->calcColspanCategoryHeader($stride);
+            $label = $this->getCategoryLabel($offset, $dimIdx);
+            $colspan = $this->calcColspanCategoryHeader($dimIdx);   // stride
         }
         if ($colspan === null || $offset % $colspan === 0) {
             $scope = $colspan === null ? 'col' : 'colgroup';
@@ -260,9 +257,13 @@ class CellHtml extends AbstractCell
      * @param int $product
      * @return int|null
      */
-    protected function calcColspanDimHeader(int $product): ?int
+    protected function calcColspanDimHeader(int $dimIdx): ?int
     {
-        return $product > 1 ? $product : null;
+        $stride = $this->table->strides[$dimIdx];
+        // note: $this->table->strides[$dimIdx - 1] would have entry missing for the first dim
+        $prevStride = $stride * $this->table->shape[$dimIdx];
+
+        return $prevStride > 1 ? $prevStride : null;
     }
 
     /**
@@ -270,8 +271,10 @@ class CellHtml extends AbstractCell
      * @param int $stride
      * @return int|null
      */
-    protected function calcColspanCategoryHeader(int $stride): ?int
+    protected function calcColspanCategoryHeader(int $dimIdx): ?int
     {
+        $stride = $this->table->strides[$dimIdx];
+
         return $stride > 1 ? $stride : null;
     }
 }

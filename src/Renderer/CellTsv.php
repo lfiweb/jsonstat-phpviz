@@ -61,9 +61,9 @@ class CellTsv extends AbstractCell
         $rowStrides = UtilArray::getStrides($table->rowDims);
         $stride = $rowStrides[$dimIdx];
         $label = '';
-        $product = $table->shape[$dimIdx] * $stride;
         if ($table->repeatLabels || $rowIdx % $stride === 0) {
-            $label = $this->getCategoryLabel($rowIdx, $table->numOneDim + $dimIdx, $stride, $product);
+            $offset = $rowIdx * $this->table->strides[$dimIdx];
+            $label = $this->getCategoryLabel($offset, $dimIdx);
         }
         $this->tsv .= $this->formatter->formatHeaderCell($label).$table->separatorCol;
     }
@@ -100,7 +100,7 @@ class CellTsv extends AbstractCell
         if ($table->isDimensionRowHeader($rowIdx)) {
             $label = $this->reader->getDimensionLabel($id);
         } else {
-            $label = $this->getCategoryLabel($offset, $table->numOneDim + $dimIdx, $stride, $product);
+            $label = $this->getCategoryLabel($offset, $dimIdx);
         }
         $this->tsv .= $this->formatter->formatHeaderCell($label).$table->separatorCol;
     }
