@@ -128,7 +128,8 @@ abstract class AbstractTable implements TableInterface
         $this->setProperties($shape, $dimsAll);
     }
 
-    protected function setProperties(array $shape, array $dimsAll): void {
+    protected function setProperties(array $shape, array $dimsAll): void
+    {
         $this->shape = $shape;
         $this->strides = UtilArray::getStrides($this->shape);
         $this->numRowDim = $this->numRowDim ?? $this->getNumRowDimAuto();

@@ -7,6 +7,7 @@ use jsonstatPhpViz\Reader;
 use jsonstatPhpViz\UtilArray;
 use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+
 use function count;
 
 /**
@@ -14,7 +15,7 @@ use function count;
  */
 class CellExcel extends AbstractCell
 {
-    private TableExcel $table;
+    protected TableExcel $table;
     protected Worksheet $worksheet;
 
     /**
@@ -32,10 +33,10 @@ class CellExcel extends AbstractCell
 
     /**
      *
-     * @param $rowIdx
+     * @param int $rowIdx
      * @return void
      */
-    public function addFirstCellHeader($rowIdx): void
+    public function addFirstCellHeader(int $rowIdx): void
     {
         if ($this->table->numRowDim > 0) {
             $this->addLabelCellHeader(0, $rowIdx);
@@ -49,7 +50,7 @@ class CellExcel extends AbstractCell
         }
     }
 
-    public function addLabelCellHeader($dimIdx, $rowIdx): void
+    public function addLabelCellHeader(int $dimIdx, int $rowIdx): void
     {
         $label = null;
         if ($this->table->isLastRowHeader($rowIdx)) {
@@ -72,8 +73,7 @@ class CellExcel extends AbstractCell
         $stride = $rowStrides[$dimIdx];
         $label = null;
         if ($rowIdx % $stride === 0) {
-            $offset = $rowIdx * $this->table->strides[$dimIdx];
-            $label = $this->getCategoryLabel($offset, $dimIdx);
+            $label = $this->getRowLabel($dimIdx, $rowIdx);
         }
         if ($table->useRowSpans === false || $rowIdx % $stride === 0) {
             $rowspan = $table->useRowSpans && $stride > 1 ? $stride : 0;

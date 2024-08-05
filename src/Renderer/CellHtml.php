@@ -72,7 +72,7 @@ class CellHtml extends AbstractCell
      * @return void
      * @throws DOMException
      */
-    public function addLabelCellHeader($dimIdx, $rowIdx): void
+    public function addLabelCellHeader(int $dimIdx, int $rowIdx): void
     {
         $label = null;
         $scope = null;
@@ -97,19 +97,18 @@ class CellHtml extends AbstractCell
     {
         $table = $this->table;
         $rowStrides = UtilArray::getStrides($table->rowDims);
-        $stride = $rowStrides[$dimIdx];
+        $rowStride = $rowStrides[$dimIdx];
         $label = null;
-        if ($rowIdx % $stride === 0) {
-            $offset = $rowIdx * $this->table->strides[$dimIdx];
-            $label = $this->getCategoryLabel($offset, $dimIdx);
+        if ($rowIdx % $rowStride === 0) {
+            $label = $this->getRowLabel($dimIdx, $rowIdx);
         }
-        if ($table->useRowSpans === false || $rowIdx % $stride === 0) {
-            $rowspan = $table->useRowSpans && $stride > 1 ? $stride : null;
-            $scope = $stride > 1 ? 'rowgroup' : 'row';
+        if ($table->useRowSpans === false || $rowIdx % $rowStride === 0) {
+            $rowspan = $table->useRowSpans && $rowStride > 1 ? $rowStride : null;
+            $scope = $rowStride > 1 ? 'rowgroup' : 'row';
             $cell = $this->addCellHeader($label);
             $this->table->body->lastChild->appendChild($cell);  // moves already appended cell from thead to tbody
             $this->setAttrCellHeader($cell, $scope, null, $rowspan);
-            $this->setCssLabelCell($cell, $dimIdx, $rowIdx, $stride);
+            $this->setCssLabelCell($cell, $dimIdx, $rowIdx, $rowStride);
         }
     }
 

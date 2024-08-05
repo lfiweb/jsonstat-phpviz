@@ -10,11 +10,11 @@ use function count;
 
 class CellTsv extends AbstractCell
 {
-    private TableTsv $table;
-    
+    protected TableTsv $table;
+
     /**
      * internal reference to the tab separated string
-     * @var string 
+     * @var string
      */
     private string $tsv;
 
@@ -30,14 +30,14 @@ class CellTsv extends AbstractCell
         $this->tsv = &$rendererTable->getTsv();
     }
 
-    public function addFirstCellHeader($rowIdx): void
+    public function addFirstCellHeader(int $rowIdx): void
     {
         if ($this->table->numRowDim > 0) {
             $this->addLabelCellHeader(0, $rowIdx);
         }
     }
 
-    public function addLabelCellHeader($dimIdx, $rowIdx): void
+    public function addLabelCellHeader(int $dimIdx, int $rowIdx): void
     {
         $label = '';
         $table = $this->table;
@@ -62,8 +62,7 @@ class CellTsv extends AbstractCell
         $stride = $rowStrides[$dimIdx];
         $label = '';
         if ($table->repeatLabels || $rowIdx % $stride === 0) {
-            $offset = $rowIdx * $this->table->strides[$dimIdx];
-            $label = $this->getCategoryLabel($offset, $dimIdx);
+            $label = $this->getRowLabel($dimIdx, $rowIdx);
         }
         $this->tsv .= $this->formatter->formatHeaderCell($label).$table->separatorCol;
     }
@@ -94,8 +93,6 @@ class CellTsv extends AbstractCell
         //  e.g., one for the dimension label and one for the category label
         $table = $this->table;
         $dimIdx = $table->numRowDim + (int)floor($rowIdx / 2);
-        $stride = $table->strides[$dimIdx];
-        $product = $table->shape[$dimIdx] * $stride;
         $id = $this->reader->getDimensionId($table->numOneDim + $dimIdx);
         if ($table->isDimensionRowHeader($rowIdx)) {
             $label = $this->reader->getDimensionLabel($id);
