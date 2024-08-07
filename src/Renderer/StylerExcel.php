@@ -11,20 +11,6 @@ class StylerExcel implements StylerInterface
 {
 
     /**
-     * Apply styles before setting cell content.
-     * @param TableExcel $table
-     * @return void
-     */
-    public function styleInitial(TableExcel $table): void
-    {
-        $worksheet = $table->getActiveWorksheet();
-        $toCol =  array_product($table->reader->getDimensionSizes());   // note: table properties such as table->shape are not initialized yet
-        for ($colIdx = 1; $colIdx < $toCol + 1; $colIdx++) {
-            $worksheet->getColumnDimensionByColumn($colIdx)->setAutoSize(true);
-        }
-    }
-
-    /**
      * Style the Excel.
      * @param TableInterface|TableExcel $table
      */
@@ -34,6 +20,7 @@ class StylerExcel implements StylerInterface
         $this->styleHeader($table);
         $this->styleLabelCellBody($table);
         $this->styleValueCellBody($table);
+        $table->getActiveWorksheet()->setSelectedCell('A1');    // there doesn't seem to be a deselect method
     }
 
     /**
@@ -70,9 +57,9 @@ class StylerExcel implements StylerInterface
         $toRow += array_product($table->rowDims);
         $style = $worksheet->getStyle([$fromCol, $fromRow, $toCol, $toRow]);
         $style->getAlignment()->setVertical(Alignment::VERTICAL_TOP);
-        /*for ($colIdx = 1; $colIdx < $toCol + 1; $colIdx++) {
+        for ($colIdx = 1; $colIdx < $toCol + 1; $colIdx++) {
             $worksheet->getColumnDimensionByColumn($colIdx)->setAutoSize(true);
-        }*/
+        }
     }
 
     /**

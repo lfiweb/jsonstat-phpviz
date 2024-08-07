@@ -79,11 +79,8 @@ class TableExcel extends AbstractTable
      */
     public function render(): string
     {
-        $this->styler?->styleInitial($this);
         $this->build();
         $this->styler?->style($this);
-
-        $this->getActiveWorksheet()->setSelectedCell('A1');    // there doesn't seem to be a deselect method
 
         $fp = $this->saveToMemory();
         $content = '';
