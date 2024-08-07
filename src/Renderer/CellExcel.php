@@ -12,6 +12,7 @@ use function count;
 
 /**
  * Handle rendering of html table cells.
+ * @see CellInterface
  */
 class CellExcel extends AbstractCell
 {
@@ -32,8 +33,8 @@ class CellExcel extends AbstractCell
     }
 
     /**
-     *
-     * @param int $rowIdx
+     * Add the first cell to a row of the table header.
+     * @param int $rowIdx row index
      * @return void
      */
     public function addFirstCellHeader(int $rowIdx): void
@@ -43,6 +44,11 @@ class CellExcel extends AbstractCell
         }
     }
 
+    /**
+     * Add the first cell to a row of the table body.
+     * @param int $rowIdx row index
+     * @return void
+     */
     public function addFirstCellBody(int $rowIdx): void
     {
         if ($this->table->numLabelCols > 0) {
@@ -50,6 +56,12 @@ class CellExcel extends AbstractCell
         }
     }
 
+    /**
+     * Add a label cell to a row of the table header.
+     * @param int $dimIdx dimension index
+     * @param int $rowIdx row index
+     * @return void
+     */
     public function addLabelCellHeader(int $dimIdx, int $rowIdx): void
     {
         $label = null;
@@ -61,8 +73,9 @@ class CellExcel extends AbstractCell
     }
 
     /**
-     * @param int $dimIdx
-     * @param int $rowIdx
+     * Append a label cell to the row of the table body.
+     * @param int $dimIdx dimension index
+     * @param int $rowIdx row index
      * @return void
      * @throws Exception
      */
@@ -88,8 +101,8 @@ class CellExcel extends AbstractCell
 
     /**
      * Creates the cells for the headers of the value columns.
-     * @param int $offset
-     * @param int $rowIdx
+     * @param int $offset value index
+     * @param int $rowIdx row index
      * @throws Exception
      */
     public function addValueCellHeader(int $offset, int $rowIdx): void
@@ -138,8 +151,8 @@ class CellExcel extends AbstractCell
 
     /**
      * Add the last cell to a body row.
-     * @param int $offset
-     * @param int $rowIdx
+     * @param int $offset value index
+     * @param int $rowIdx row index
      * @return void
      * @throws Exception
      */
@@ -152,8 +165,8 @@ class CellExcel extends AbstractCell
 
     /**
      * Add the last cell to a body row.
-     * @param int $offset
-     * @param int $rowIdx
+     * @param int $offset value index
+     * @param int $rowIdx row index
      * @return void
      */
     public function addLastCellBody(int $offset, int $rowIdx): void
@@ -176,7 +189,7 @@ class CellExcel extends AbstractCell
 
     /**
      * Return the adjusted column index.
-     * @param int $offset
+     * @param int $offset value index
      * @return int
      */
     protected function adjustX(int $offset): int
@@ -187,7 +200,7 @@ class CellExcel extends AbstractCell
     /**
      * Return the adjusted row index.
      * Add the caption to the row index.
-     * @param int $rowIdx
+     * @param int $rowIdx row index
      * @return int
      */
     protected function adjustYHeader(int $rowIdx): int
@@ -203,7 +216,7 @@ class CellExcel extends AbstractCell
     /**
      * Return the adjusted row index.
      * Add the caption and the header rows to the row index.
-     * @param int $rowIdx
+     * @param int $rowIdx row index
      * @return int
      */
     protected function adjustYBody(int $rowIdx): int

@@ -12,18 +12,18 @@ interface TableInterface
     /**
      * Instantiates the class.
      * @param Reader $jsonStatReader
-     * @param int|null $numRowDim
+     * @param int|null $numRowDim number of row dimensions
      */
     public function __construct(Reader $jsonStatReader, ?int $numRowDim = null);
 
     /**
      * Set the number of dimensions to be used for rows.
-     * @param int $numRowDim
+     * @param int $numRowDim number of row dimensions
      */
     public function setNumRowDim(int $numRowDim): void;
 
     /**
-     * Renders the data as an html table.
+     * Renders the data as an HTML table.
      * Reads the value array and renders it as a table.
      * @return string
      */

@@ -37,12 +37,12 @@ class Table
     }
 
     /**
-     * Return the table as an html string
+     * Return the table as an HTML string.
      * @return false|string html
      */
     public function toHtml(): bool|string
     {
-        // do not use saveHTML, since that will encode html entities
+        // do not use saveHTML, since that will encode HTML entities
         return $this->doc->saveXML($this->domNode);
     }
 

@@ -6,13 +6,13 @@ use DOMDocument;
 use DOMNode;
 
 /**
- * Utility that provides html related methods.
+ * Utility that provides HTML related methods.
  */
 class UtilHtml
 {
 
     /**
-     * Append a html fragment to the provided node.
+     * Append an HTML fragment to the provided node.
      * @param DOMNode $parent
      * @param string $html
      * @return void
@@ -21,7 +21,7 @@ class UtilHtml
     {
         // DOMDocument::appendXML() requires X(HT)ML as input,
         // which can be especially cumbersome with SVG because of namespaces.
-        // Thus, in some cases, it's easier to just insert html instead.
+        // Thus, in some cases, it's easier to just insert HTML instead.
         $tmpDoc = new DOMDocument();
         @$tmpDoc->loadHTML('<?xml encoding="utf-8" ?><div>'.$html.'</div>');    // prevent complaining about svg
         $frag = $tmpDoc->getElementsByTagName('div')->item(0);
@@ -32,8 +32,9 @@ class UtilHtml
     }
 
     /**
-     * Escape a string, so it can be safely inserted into html.
-     * @param String $text
+     * Escape a text, so it can be safely inserted into HTML.
+     * Convert special characters to HTML entities.
+     * @param String $text text to convert
      * @return String
      */
     public static function escape(string $text): string

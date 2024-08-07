@@ -8,12 +8,16 @@ use jsonstatPhpViz\UtilArray;
 
 use function count;
 
+/**
+ * Handle rendering of TAB separated items (cells).
+ * @see CellInterface
+ */
 class CellTsv extends AbstractCell
 {
     protected TableTsv $table;
 
     /**
-     * internal reference to the tab separated string
+     * internal reference to the TAB separated string
      * @var string
      */
     private string $tsv;
@@ -30,6 +34,11 @@ class CellTsv extends AbstractCell
         $this->tsv = &$rendererTable->getTsv();
     }
 
+    /**
+     * Add the first category label to the header line.
+     * @param int $rowIdx row index
+     * @return void
+     */
     public function addFirstCellHeader(int $rowIdx): void
     {
         if ($this->table->numRowDim > 0) {
@@ -37,6 +46,12 @@ class CellTsv extends AbstractCell
         }
     }
 
+    /**
+     * Add a category label to the table header.
+     * @param int $dimIdx dimension index
+     * @param int $rowIdx row index
+     * @return void
+     */
     public function addLabelCellHeader(int $dimIdx, int $rowIdx): void
     {
         $label = '';
@@ -48,6 +63,11 @@ class CellTsv extends AbstractCell
         $this->tsv .= $this->formatter->formatHeaderCell($label).$table->separatorCol;
     }
 
+    /**
+     * Add the category label of the first dimension to the table body.
+     * @param int $rowIdx row index
+     * @return void
+     */
     public function addFirstCellBody(int $rowIdx): void
     {
         if ($this->table->numLabelCols > 0) {
@@ -55,6 +75,12 @@ class CellTsv extends AbstractCell
         }
     }
 
+    /**
+     * Append a category label to the table body.
+     * @param int $dimIdx
+     * @param int $rowIdx
+     * @return void
+     */
     public function addLabelCellBody(int $dimIdx, int $rowIdx): void
     {
         $table = $this->table;
@@ -68,9 +94,9 @@ class CellTsv extends AbstractCell
     }
 
     /**
-     * Add the last cell to the table header.
-     * @param int $offset
-     * @param int $rowIdx
+     * Add the last cell to the header line.
+     * @param int $offset value index
+     * @param int $rowIdx row index
      * @return void
      */
     public function addLastCellHeader(int $offset, int $rowIdx): void
@@ -83,8 +109,8 @@ class CellTsv extends AbstractCell
 
     /**
      * Add a value cell to the table header.
-     * @param int $offset
-     * @param int $rowIdx
+     * @param int $offset value index
+     * @param int $rowIdx row index
      * @return void
      */
     public function addValueCellHeader(int $offset, int $rowIdx): void
@@ -102,6 +128,12 @@ class CellTsv extends AbstractCell
         $this->tsv .= $this->formatter->formatHeaderCell($label).$table->separatorCol;
     }
 
+    /**
+     * Add the last cell to a row of the table body.
+     * @param int $offset value index
+     * @param int $rowIdx row index
+     * @return void
+     */
     public function addLastCellBody(int $offset, int $rowIdx): void
     {
         $this->addValueCellBody($offset, $rowIdx);
@@ -111,8 +143,8 @@ class CellTsv extends AbstractCell
     /**
      * Appends cells with values to the row.
      * Inserts a HTMLTableCellElement at the end of the row with a value taken from the values at given offset.
-     * @param int $offset
-     * @param int $rowIdx
+     * @param int $offset value index
+     * @param int $rowIdx row index
      * @return void the content of the cell
      */
     public function addValueCellBody(int $offset, int $rowIdx): void

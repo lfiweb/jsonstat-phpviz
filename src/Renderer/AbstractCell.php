@@ -6,6 +6,9 @@ use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
 use jsonstatPhpViz\UtilArray;
 
+/**
+ * Implements some methods of the CellInterface common to all cell renderers.
+ */
 abstract class AbstractCell implements CellInterface
 {
     protected Reader $reader;
@@ -22,8 +25,10 @@ abstract class AbstractCell implements CellInterface
     }
 
     /**
-     * @param int $offset
-     * @param int $dimIdx
+     * Returns the category label.
+     * Returns the category label by value index and dimension index.
+     * @param int $offset value index
+     * @param int $dimIdx dimension index
      * @return string
      */
     protected function getCategoryLabel(int $offset, int $dimIdx): string
@@ -37,8 +42,10 @@ abstract class AbstractCell implements CellInterface
     }
 
     /**
-     * @param int $dimIdx
-     * @param int $rowIdx
+     * Return the category label used for the row heading.
+     * Returns the category label identified by dimension index and row index.
+     * @param int $dimIdx dimension index
+     * @param int $rowIdx row index
      * @return string
      */
     protected function getRowLabel(int $dimIdx, int $rowIdx): string
@@ -52,6 +59,13 @@ abstract class AbstractCell implements CellInterface
         return $this->getLabel($catIdx, $dimIdx);
     }
 
+    /**
+     * Return a category label from the JSON-stat.
+     * Returns the category label by category index and dimension index.
+     * @param int $catIdx category index
+     * @param int $dimIdx dimensions index
+     * @return string
+     */
     protected function getLabel(int $catIdx, int $dimIdx): string
     {
         $id = $this->reader->getDimensionId($this->table->numOneDim + $dimIdx);

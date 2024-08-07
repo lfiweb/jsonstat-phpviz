@@ -13,7 +13,7 @@ use jsonstatPhpViz\UtilArray;
 use function count;
 
 /**
- * Handle rendering of html table cells.
+ * Handle rendering of HTML table cells.
  * @see CellInterface
  */
 class CellHtml extends AbstractCell
@@ -67,6 +67,7 @@ class CellHtml extends AbstractCell
 
     /**
      * Add a label cell to a row of the table header.
+     * Adds a category label to the cell.
      * @param int $dimIdx dimension index
      * @param int $rowIdx row index
      * @return void
@@ -87,7 +88,7 @@ class CellHtml extends AbstractCell
 
     /**
      * Append a label cell to the row of the table body.
-     * Note: The row index of the table body restarts at zero
+     * Note: The row index of the table body restarts at zero.
      * @param int $dimIdx dimension index
      * @param int $rowIdx row index
      * @return void
@@ -190,7 +191,7 @@ class CellHtml extends AbstractCell
     }
 
     /**
-     * Sets the css class of the body row
+     * Sets the CSS class of the body row
      * @param DOMElement $cell
      * @param int $cellIdx
      * @param int $rowIdxBody
@@ -253,7 +254,7 @@ class CellHtml extends AbstractCell
 
     /**
      * Calculate the colspan for the dimension label cell of the table header.
-     * @param int $product
+     * @param int $dimIdx dimension index
      * @return int|null
      */
     protected function calcColspanDimHeader(int $dimIdx): ?int
@@ -266,8 +267,8 @@ class CellHtml extends AbstractCell
     }
 
     /**
-     * Calculate the colspan for the category label cell of the table header
-     * @param int $stride
+     * Calculate the colspan for the category label cell of the table header.
+     * @param int $dimIdx dimension index
      * @return int|null
      */
     protected function calcColspanCategoryHeader(int $dimIdx): ?int

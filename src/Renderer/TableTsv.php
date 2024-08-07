@@ -63,7 +63,7 @@ class TableTsv extends AbstractTable
     }
 
     /**
-     * Renders the data as a html table.
+     * Renders the data as an HTML table.
      * Reads the value array and renders it as a table.
      * @return string csv
      */
@@ -84,7 +84,7 @@ class TableTsv extends AbstractTable
     }
 
     /**
-     * Return the internal, tab separated string.
+     * Return the internal, TAB separated string.
      * Returns the tab separated string as a reference, not as a copy.
      * @return string
      */

@@ -10,6 +10,9 @@ use PhpOffice\PhpSpreadsheet\Writer\Exception;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
+/**
+ * @see TableHtml
+ */
 class TableExcel extends AbstractTable
 {
     /**
@@ -42,6 +45,11 @@ class TableExcel extends AbstractTable
      */
     public int $numCaptionRows = 0;
 
+    /**
+     * Constructs the class instance and sets some (internal) default properties.
+     * @param Reader $jsonStatReader
+     * @param int|null $numRowDim
+     */
     public function __construct(Reader $jsonStatReader, ?int $numRowDim = null)
     {
         parent::__construct($jsonStatReader, $numRowDim);

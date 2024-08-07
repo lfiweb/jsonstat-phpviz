@@ -128,6 +128,12 @@ abstract class AbstractTable implements TableInterface
         $this->setProperties($shape, $dimsAll);
     }
 
+    /**
+     * Set class properties related to the rendering of the table.
+     * @param array $shape
+     * @param array $dimsAll
+     * @return void
+     */
     protected function setProperties(array $shape, array $dimsAll): void
     {
         $this->shape = $shape;

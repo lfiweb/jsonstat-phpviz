@@ -2,14 +2,16 @@
 
 namespace jsonstatPhpViz\Renderer;
 
-
+/**
+ * Interface to define methods related to the styling of the table.
+ */
 interface StylerInterface
 {
 
     /**
      * Style the table.
      * @param TableInterface $table
-     * @return TableExcel
+     * @return void
      */
     public function style(TableInterface $table): void;
 

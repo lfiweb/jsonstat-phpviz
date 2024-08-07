@@ -73,7 +73,8 @@ class UtilArray
 
     /**
      * Convert subindexes to a linear index.
-     * Converts the subscripts back to a linear index (row major), @param array<int> $strides
+     * Converts the subscripts back to a linear index (row major).
+     * @param array<int> $strides
      * @param array<int> $subscripts
      * @return int index
      *@see UtilArray::linearToSub()

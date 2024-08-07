@@ -43,7 +43,7 @@ class Reader
     }
 
     /**
-     * Return list with the sizes of the dimensions.
+     * Return list with the sizes (shape) of the dimensions.
      * Dimensions of size 1 are excluded by default, if each dimension with a lower index is also of size one, e.g.:
      * [1,1,3,2,5] --> [3,2,5], but
      * [1,1,3,2,1] --> [3,2,1]
@@ -107,7 +107,8 @@ class Reader
 
     /**
      * Check if the dimension has a decimal property.
-     * According to JSON-stat schema 2.0, when the unit property is present, the decimals property is required.
+     * According to JSON-stat schema 2.0, when the unit property is present,
+     * the decimals property is required.
      * @param string $dimId dimension id
      * @return bool
      */

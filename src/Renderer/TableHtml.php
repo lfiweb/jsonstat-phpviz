@@ -13,7 +13,7 @@ use jsonstatPhpViz\UtilHtml;
 use function count;
 
 /**
- * Renders json-stat data as an html table.
+ * Renders json-stat data as an HTML table.
  *
  * A table consists of a number of dimensions. They are either used to define the rows of the two-dimensional table
  * (referred to as row dimensions) or to define the columns of the table (referred to as col dimensions).
