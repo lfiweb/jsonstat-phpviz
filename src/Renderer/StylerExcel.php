@@ -18,7 +18,7 @@ class StylerExcel implements StylerInterface
     public function styleInitial(TableExcel $table): void
     {
         $worksheet = $table->getActiveWorksheet();
-        $toCol = $table->numLabelCols + $table->numValueCols;
+        $toCol =  array_product($table->reader->getDimensionSizes());   // note: table properties such as table->shape are not initialized yet
         for ($colIdx = 1; $colIdx < $toCol + 1; $colIdx++) {
             $worksheet->getColumnDimensionByColumn($colIdx)->setAutoSize(true);
         }
@@ -70,6 +70,9 @@ class StylerExcel implements StylerInterface
         $toRow += array_product($table->rowDims);
         $style = $worksheet->getStyle([$fromCol, $fromRow, $toCol, $toRow]);
         $style->getAlignment()->setVertical(Alignment::VERTICAL_TOP);
+        /*for ($colIdx = 1; $colIdx < $toCol + 1; $colIdx++) {
+            $worksheet->getColumnDimensionByColumn($colIdx)->setAutoSize(true);
+        }*/
     }
 
     /**
