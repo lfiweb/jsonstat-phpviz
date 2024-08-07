@@ -4,8 +4,25 @@ namespace jsonstatPhpViz\Renderer;
 
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
+/**
+ * Apply styles to the worksheet.
+ */
 class StylerExcel implements StylerInterface
 {
+
+    /**
+     * Apply styles before setting cell content.
+     * @param TableExcel $table
+     * @return void
+     */
+    public function styleInitial(TableExcel $table): void
+    {
+        $worksheet = $table->getActiveWorksheet();
+        $toCol = $table->numLabelCols + $table->numValueCols;
+        for ($colIdx = 1; $colIdx < $toCol + 1; $colIdx++) {
+            $worksheet->getColumnDimensionByColumn($colIdx)->setAutoSize(true);
+        }
+    }
 
     /**
      * Style the Excel.
@@ -53,9 +70,6 @@ class StylerExcel implements StylerInterface
         $toRow += array_product($table->rowDims);
         $style = $worksheet->getStyle([$fromCol, $fromRow, $toCol, $toRow]);
         $style->getAlignment()->setVertical(Alignment::VERTICAL_TOP);
-        for ($colIdx = 1; $colIdx < $toCol + 1; $colIdx++) {
-            $worksheet->getColumnDimensionByColumn($colIdx)->setAutoSize(true);
-        }
     }
 
     /**
