@@ -179,7 +179,7 @@ class CellExcel extends AbstractCell
      * @param int $offset
      * @return int
      */
-    private function adjustX(int $offset): int
+    protected function adjustX(int $offset): int
     {
         return $this->table->numLabelCols + ($offset % $this->table->numValueCols) + 1;
     }
@@ -190,7 +190,7 @@ class CellExcel extends AbstractCell
      * @param int $rowIdx
      * @return int
      */
-    private function adjustYHeader(int $rowIdx): int
+    protected function adjustYHeader(int $rowIdx): int
     {
         $y = $rowIdx + 1;
         if ($this->table->caption) {
@@ -206,7 +206,7 @@ class CellExcel extends AbstractCell
      * @param int $rowIdx
      * @return int
      */
-    private function adjustYBody(int $rowIdx): int
+    protected function adjustYBody(int $rowIdx): int
     {
         $y = $this->adjustYHeader($rowIdx);
         $y += $this->table->numHeaderRows;
