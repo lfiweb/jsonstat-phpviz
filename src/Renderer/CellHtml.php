@@ -77,13 +77,18 @@ class CellHtml extends AbstractCell
     {
         $label = null;
         $scope = null;
+        $css = null;
         if ($this->table->isLastRowHeader($rowIdx)) {
             $id = $this->reader->getDimensionId($this->table->numOneDim + $dimIdx);
             $label = $this->reader->getDimensionLabel($id);
             $scope = 'col';
+            $css = 'rowdim'.($dimIdx + 1);
         }
         $cell = $this->addCellHeader($label);
         $this->setAttrCellHeader($cell, $scope);
+        if ($css) {
+            $cell->setAttribute('class', $css);
+        }
     }
 
     /**
@@ -98,18 +103,15 @@ class CellHtml extends AbstractCell
     {
         $table = $this->table;
         $rowStrides = UtilArray::getStrides($table->rowDims);
-        $rowStride = $rowStrides[$dimIdx];
-        $label = null;
-        if ($rowIdx % $rowStride === 0) {
-            $label = $this->getRowLabel($dimIdx, $rowIdx);
-        }
-        if ($table->useRowSpans === false || $rowIdx % $rowStride === 0) {
-            $rowspan = $table->useRowSpans && $rowStride > 1 ? $rowStride : null;
-            $scope = $rowStride > 1 ? 'rowgroup' : 'row';
+        $stride = $rowStrides[$dimIdx];
+        if ($table->useRowSpans === false || $rowIdx % $stride === 0) {
+            $label = $rowIdx % $stride === 0 ? $this->getRowLabel($dimIdx, $rowIdx) : null;
+            $rowspan = $table->useRowSpans && $stride > 1 ? $stride : null;
+            $scope = $stride > 1 ? 'rowgroup' : 'row';
             $cell = $this->addCellHeader($label);
             $this->table->body->lastChild->appendChild($cell);  // moves already appended cell from thead to tbody
             $this->setAttrCellHeader($cell, $scope, null, $rowspan);
-            $this->setCssLabelCell($cell, $dimIdx, $rowIdx, $rowStride);
+            $this->setCssLabelCell($cell, $dimIdx, $rowIdx, $stride);
         }
     }
 
