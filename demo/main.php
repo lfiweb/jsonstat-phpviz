@@ -100,7 +100,7 @@ download($table1, $format, '1');
 
 // create the table with 3 dimensions used for the row grouping instead of 2 (default):
 $table2 = getRenderer($reader, $format);
-$table2->numRowDim = 4;
+$table2->numRowDim = 0;
 $table2->caption .= ', dimension A, B and C are used as row dimensions.';
 download($table2, $format, '2');
 
@@ -141,6 +141,7 @@ download($table6, $format, '6');
     <title>JSON-stat table renderer</title>
     <link rel="stylesheet" href="main.min.css">
     <link rel="stylesheet" href="table.min.css">
+    <script src="main.js" type="module"></script>
 </head>
 <body class="theme1">
 <h1>Demo of rendering JSON-stat as html tables</h1>
