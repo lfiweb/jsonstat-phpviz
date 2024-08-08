@@ -84,11 +84,8 @@ class CellExcel extends AbstractCell
         $table = $this->table;
         $rowStrides = UtilArray::getStrides($table->rowDims);
         $stride = $rowStrides[$dimIdx];
-        $label = null;
-        if ($rowIdx % $stride === 0) {
-            $label = $this->getRowLabel($dimIdx, $rowIdx);
-        }
         if ($table->useRowSpans === false || $rowIdx % $stride === 0) {
+            $label = $rowIdx % $stride === 0 ? $this->getRowLabel($dimIdx, $rowIdx) : null;
             $rowspan = $table->useRowSpans && $stride > 1 ? $stride : 0;
             $x = $dimIdx + 1;
             $y = $this->adjustYBody($rowIdx);
