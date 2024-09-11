@@ -4,6 +4,7 @@ namespace jsonstatPhpViz\Renderer;
 
 use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\Exception;
@@ -118,7 +119,7 @@ class TableExcel extends AbstractTable
      */
     public function addCaption(): void
     {
-        $this->worksheet->setCellValue([1, 1], $this->caption);
+        $this->worksheet->setCellValueExplicit([1, 1], $this->caption, DataType::TYPE_STRING);
         $this->worksheet->mergeCells([1, 1, $this->numLabelCols + $this->numValueCols, 1]);
         ++$this->numCaptionRows;
     }
