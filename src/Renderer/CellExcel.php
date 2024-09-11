@@ -144,7 +144,7 @@ class CellExcel extends AbstractCell
         $y = $this->adjustYBody($rowIdx);
         $val = $this->reader->data->value[$offset];
         $val = $this->formatter->formatValueCell($val, $offset);
-        $this->worksheet->setCellValueExplicit([$x, $y], $val, DataType::TYPE_STRING);
+        $this->worksheet->setCellValue([$x, $y], $val);
     }
 
     /**
@@ -223,5 +223,14 @@ class CellExcel extends AbstractCell
         $y += $this->table->numHeaderRows;
 
         return $y;
+    }
+
+    /**
+     * Escape the = character, which would start a formula
+     * @param string $value
+     * @return string
+     */
+    protected function escape(string $value): string {
+
     }
 }
