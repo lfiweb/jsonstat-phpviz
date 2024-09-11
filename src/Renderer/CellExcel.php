@@ -5,6 +5,7 @@ namespace jsonstatPhpViz\Renderer;
 use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
 use jsonstatPhpViz\UtilArray;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
@@ -143,7 +144,7 @@ class CellExcel extends AbstractCell
         $y = $this->adjustYBody($rowIdx);
         $val = $this->reader->data->value[$offset];
         $val = $this->formatter->formatValueCell($val, $offset);
-        $this->worksheet->setCellValue([$x, $y], $val);
+        $this->worksheet->setCellValueExplicit([$x, $y], $val, DataType::TYPE_STRING);
     }
 
     /**
@@ -181,7 +182,7 @@ class CellExcel extends AbstractCell
     private function addCellHeader($x, $y, ?string $label = null): void
     {
         $label = $this->formatter->formatHeaderCell($label);
-        $this->worksheet->setCellValue([$x, $y], $label);
+        $this->worksheet->setCellValueExplicit([$x, $y], $label, DataType::TYPE_STRING);
     }
 
     /**
