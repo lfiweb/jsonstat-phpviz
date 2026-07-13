@@ -82,7 +82,7 @@ class TableExcel extends AbstractTable
 
     /**
      * Render the table in memory.
-     * Writes the file to memory and then returns it as a binary string.
+     * Writes the file temporarily to disk or memory and then returns it as a binary string.
      * @return string binary, zipped string
      * @throws Exception
      */
@@ -91,26 +91,39 @@ class TableExcel extends AbstractTable
         $this->build();
         $this->styler?->style($this);
 
-        $fp = $this->saveToMemory();
-        $content = '';
-        while (!feof($fp)) {
-            $content .= fread($fp, 8000);
-        }
-        fclose($fp);
-        return $content;
+        return $this->getBinaryContent();
     }
 
     /**
-     * Save the spreadsheet to memory instead of a (temp) file.
-     * @return false|resource
+     * Save the spreadsheet to the system's temp directory and return it as a binary string.
+     *
+     * ARCHITECTURE NOTE:
+     * PhpSpreadsheet relies on PHP's native ZipArchive extension to build .xlsx and .ods
+     * files. ZipArchive is strictly designed to write to a physical POSIX file path.
+     * Attempting to force it to write to a stream wrapper like 'php://memory' causes
+     * severe CPU thrashing and memory reallocation loops.
+     * To bypass this while maintaining a high-performance, stateless design, we write
+     * to sys_get_temp_dir(). On modern Linux environments, /tmp is typically mounted
+     * as a 'tmpfs' RAM disk. This ensures the operation remains a fast,
+     * pure memory-to-memory transfer with zero physical disk I/O. The temporary
+     * file is instantly unlinked after reading to prevent memory bloat.
+     *
+     * @return string binary, zipped string
      * @throws Exception
      */
-    public function saveToMemory()
+    protected function getBinaryContent(): string
     {
-        $fp = fopen('php://memory', 'rwb');
-        $this->writer->save($fp);
-        rewind($fp);
-        return $fp;
+        $tempFile = tempnam(sys_get_temp_dir(), 'phpviz_');
+        try {
+            $this->writer->save($tempFile);
+            $content = file_get_contents($tempFile);
+        } finally {
+            if (file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+        }
+
+        return $content;
     }
 
     /**
