@@ -14,7 +14,7 @@ interface TableInterface
      * @param Reader $jsonStatReader
      * @param int|null $numRowDim number of row dimensions
      */
-    public function __construct(Reader $jsonStatReader, ?int $numRowDim = null);
+    public function __construct(Reader $jsonStatReader,  ?int $numRowDim = null);
 
     /**
      * Set the number of dimensions to be used for rows.

@@ -139,6 +139,31 @@ class Reader
     }
 
     /**
+     * Returns all category labels for a given dimension as an array of strings.
+     * @param string $dimId
+     * @return array<string>
+     */
+    public function getAllCategoryLabels(string $dimId): array
+    {
+        $dim = $this->data->dimension->{$dimId};
+        $labels = [];
+
+        if (property_exists($dim->category, 'label')) {
+            // Cast the label object to an array of string values
+            $labels = array_values((array)$dim->category->label);
+        } elseif (property_exists($dim->category, 'index')) {
+            // Fallback to IDs if labels don't exist
+            $index = $dim->category->index;
+            $labels = is_array($index) ? $index : array_keys((array)$index);
+        } else {
+            // Size 1 fallback
+            $labels[] = current((array)$dim->category->label);
+        }
+
+        return $labels;
+    }
+
+    /**
      * Returns the id of the category label.
      * @param string $dimId dimension id
      * @param int $categIdx index of the category label

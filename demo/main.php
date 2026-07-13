@@ -30,7 +30,7 @@ function getRenderer(Reader $reader, $format): TableTsv|TableExcel|TableHtml
 }
 
 /**
- * Render a html download link.
+ * Render an HTML download link.
  * @param int $id
  * @return string
  */
