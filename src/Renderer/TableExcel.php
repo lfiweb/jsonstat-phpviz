@@ -12,6 +12,9 @@ use PhpOffice\PhpSpreadsheet\Writer\Exception;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
+use function array_slice;
+use function count;
+
 /**
  * @see TableHtml
  */
@@ -78,16 +81,32 @@ class TableExcel extends AbstractTable
     public function render(): string
     {
         $this->build();
-        $this->widthCalculator = new LabelWidthCalculator(
-            $this->reader,
-            $this->numLabelCols,
-            $this->rowDims,
-            $this->colDims
-        );
         $this->styler?->style($this);
 
         return $this->getBinaryContent();
     }
+
+    /**
+     * Precalculate and cache often used numbers before rendering.
+     * @return void
+     */
+    protected function init(): void
+    {
+        parent::init();
+        $numSkippedSizeOneDims = count($this->reader->data->size) - count($this->shape);
+        $numColDims = count($this->colDims);
+        $colStrides = array_slice($this->strides, -$numColDims);
+        $this->widthCalculator = new LabelWidthCalculator(
+            $this->reader,
+            $this->numLabelCols,
+            $this->numValueCols,
+            $this->colDims,
+            $numSkippedSizeOneDims,
+            $colStrides,
+            $this->noLabelLastDim
+        );
+    }
+
 
     /**
      * Save the spreadsheet to the system's temp directory and return it as a binary string.
@@ -98,7 +117,7 @@ class TableExcel extends AbstractTable
      * Attempting to force it to write to a stream wrapper like 'php://memory' causes
      * severe CPU thrashing and memory reallocation loops.
      * To bypass this while maintaining a high-performance, stateless design, we write
-     * to sys_get_temp_dir(). On modern Linux environments, /tmp is typically mounted
+     * to sys_get_temp_dir(). In modern Linux environments, /tmp is typically mounted
      * as a 'tmpfs' RAM disk. This ensures the operation remains a fast,
      * pure memory-to-memory transfer with zero physical disk I/O. The temporary
      * file is instantly unlinked after reading to prevent memory bloat.

@@ -100,23 +100,27 @@ class StylerExcel
 
     /**
      * Calculate and set the width of a column by asking the Table for data hints.
-     * @param TableInterface|TableExcel $table
+     * @param TableExcel $table
      * @param int $colIdx The 1-indexed Excel column position
      * @return int
      */
-    protected function calcColWidth(TableInterface|TableExcel $table, int $colIdx): int
+    protected function calcColWidth(TableExcel $table, int $colIdx): int
     {
-        // 1. Fetch the raw required character width from JSON-stat.
-        $rawCharLength = $table->widthCalculator->calculate($colIdx);
+        // Calculate the required character width from the JSON-stat.
+        $charLength = $table->widthCalculator->calculateLabelWidth($colIdx);
 
-        // 2. Add 2 characters for visual padding.
-        //$calculatedWidth = $rawCharLength + 2;
-        $calculatedWidth = $rawCharLength;
+        // Ensure the column is at least as wide as the largest number in the entire table
+        // For performance reasons we don't do this for every col separately, but just the max once
+        $charLength = max($charLength, $table->widthCalculator->maxValueCharWidth);
 
-        // 3. Enforce the min/max limits defined in the Styler.
-        $calculatedWidth = max(self::COL_WIDTH_MIN, $calculatedWidth);
+        // Add two characters for visual padding.
+        $charLength += 2;
 
-        return min($calculatedWidth, self::COL_WIDTH_MAX);
+        // Enforce the min/max limits defined in the Styler.
+        $charLength = max(self::COL_WIDTH_MIN, $charLength);
+        $charLength = min($charLength, self::COL_WIDTH_MAX);
+
+        return $charLength;
     }
 
     /**
