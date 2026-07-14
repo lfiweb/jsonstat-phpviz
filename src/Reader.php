@@ -43,8 +43,8 @@ class Reader
     }
 
     /**
-     * Return list with the sizes (shape) of the dimensions.
-     * Dimensions of size 1 are excluded by default, if each dimension with a lower index is also of size one, e.g.:
+     * Return a list with the sizes (shape) of the dimensions.
+     * Dimensions of size 1 are excluded by default if each dimension with a lower index is also of size one, e.g.:
      * [1,1,3,2,5] --> [3,2,5], but
      * [1,1,3,2,1] --> [3,2,1]
      * @param bool $excludeSizeOne do not return dimensions of size one from the beginning
@@ -185,7 +185,7 @@ class Reader
     }
 
     /**
-     * Return the category id by index, when category is an object.
+     * Return the category id by index, when a category is an object.
      * @param stdClass $obj category object
      * @param int $categIdx index of the label
      * @return string|null id of the category label
