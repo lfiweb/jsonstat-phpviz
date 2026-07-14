@@ -36,9 +36,9 @@ function getRenderer(Reader $reader, $format): TableTsv|TableExcel|TableHtml
  */
 function renderDownloadLink(int $id): string
 {
-    return '<p>download as: <a href="main.php?f=tsv&id='.$id.'">tab separated</a> (tsv) |
-            <a href="main.php?f=ods&id='.$id.'">Writer</a> (ods) | 
-            <a href="main.php?f=xlsx&id='.$id.'">Excel</a> (xlsx)</p>';
+    return '<p>download as: <a href="main.php?f=tsv&id='.$id.'" target="_blank">tab separated</a> (tsv) |
+            <a href="main.php?f=ods&id='.$id.'" target="_blank">Writer</a> (ods) | 
+            <a href="main.php?f=xlsx&id='.$id.'" target="_blank">Excel</a> (xlsx)</p>';
 }
 
 /**
@@ -96,6 +96,7 @@ $jsonstat = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
 $reader = new Reader($jsonstat);
 $table1 = getRenderer($reader, $format);
 $table1->caption .= ', dimension A and B are used as row dimensions.';
+//$table1->numRowDim  = 1;
 download($table1, $format, '1');
 
 // create the table with 3 dimensions used for the row grouping instead of 2 (default):
