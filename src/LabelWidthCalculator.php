@@ -13,7 +13,7 @@ class LabelWidthCalculator
     /**
      * @var int[]
      */
-    private array $valueLabelWidths;
+    public readonly array $valueLabelWidths;
 
     public function __construct(
         private readonly Reader $reader,
