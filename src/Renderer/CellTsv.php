@@ -72,25 +72,26 @@ class CellTsv extends AbstractCell
     public function addFirstCellBody(int $offset, int $rowIdx): void
     {
         for ($colIdx = 0; $colIdx < $this->table->numLabelCols; $colIdx++) {
-            $this->addLabelCellBody($colIdx, $rowIdx);
+            $this->addLabelCellBody($offset,$colIdx, $rowIdx);
         }
         $this->addValueCellBody($offset, $rowIdx);
     }
 
     /**
      * Append a category label to the table body.
+     * @param int $offset index of the JSON-stat value array
      * @param int $dimIdx
      * @param int $rowIdx
      * @return void
      */
-    public function addLabelCellBody(int $dimIdx, int $rowIdx): void
+    public function addLabelCellBody(int $offset, int $dimIdx, int $rowIdx): void
     {
         $table = $this->table;
         $rowStrides = UtilArray::getStrides($table->rowDims);
         $stride = $rowStrides[$dimIdx];
         $label = '';
         if ($table->repeatLabels || $rowIdx % $stride === 0) {
-            $label = $this->getRowLabel($dimIdx, $rowIdx);
+            $label = $this->getCategoryLabel($offset, $dimIdx);
         }
         $this->tsv .= $this->formatter->formatHeaderCell($label).$table->separatorCol;
     }

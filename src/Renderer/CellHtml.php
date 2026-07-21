@@ -62,7 +62,7 @@ class CellHtml extends AbstractCell
     {
         $this->table->dom->appendRow($this->table->body);
         for ($colIdx = 0; $colIdx < $this->table->numLabelCols; $colIdx++) {
-            $this->addLabelCellBody($colIdx, $rowIdx);
+            $this->addLabelCellBody($offset, $colIdx, $rowIdx);
         }
         $this->addValueCellBody($offset, $rowIdx);
     }
@@ -96,18 +96,19 @@ class CellHtml extends AbstractCell
     /**
      * Append a label cell to the row of the table body.
      * Note: The row index of the table body restarts at zero.
+     * @param int $offset index of the JSON-stat value array
      * @param int $dimIdx dimension index
      * @param int $rowIdx row index
      * @return void
      * @throws DOMException
      */
-    public function addLabelCellBody(int $dimIdx, int $rowIdx): void
+    public function addLabelCellBody(int $offset, int $dimIdx, int $rowIdx): void
     {
         $table = $this->table;
         $rowStrides = UtilArray::getStrides($table->rowDims);
         $stride = $rowStrides[$dimIdx];
         if ($table->useRowSpans === false || $rowIdx % $stride === 0) {
-            $label = $rowIdx % $stride === 0 ? $this->getRowLabel($dimIdx, $rowIdx) : null;
+            $label = $rowIdx % $stride === 0 ? $this->getCategoryLabel($offset, $dimIdx) : null;
             $rowspan = $table->useRowSpans && $stride > 1 ? $stride : null;
             $scope = $stride > 1 ? 'rowgroup' : 'row';
             $cell = $this->addCellHeader($label);

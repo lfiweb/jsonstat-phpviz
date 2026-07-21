@@ -42,24 +42,6 @@ abstract class AbstractCell implements CellInterface
     }
 
     /**
-     * Return the category label used for the row heading.
-     * Returns the category label identified by dimension index and row index.
-     * @param int $dimIdx dimension index
-     * @param int $rowIdx row index
-     * @return string
-     */
-    protected function getRowLabel(int $dimIdx, int $rowIdx): string
-    {
-        $rowStrides = UtilArray::getStrides($this->table->rowDims);
-        $stride = $rowStrides[$dimIdx];
-        // note: $this->table->strides[$dimIdx - 1] would have entry missing for the first dim
-        $prevStride = $stride * $this->table->shape[$dimIdx];
-        $catIdx = floor(($rowIdx % $prevStride) / $stride);
-
-        return $this->getLabel($catIdx, $dimIdx);
-    }
-
-    /**
      * Return a category label from the JSON-stat.
      * Returns the category label by category index and dimension index.
      * @param int $catIdx category index

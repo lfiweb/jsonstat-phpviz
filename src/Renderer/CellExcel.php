@@ -54,7 +54,7 @@ class CellExcel extends AbstractCell
     public function addFirstCellBody(int $offset, int $rowIdx): void
     {
         for ($colIdx = 0; $colIdx < $this->table->numLabelCols; $colIdx++) {
-            $this->addLabelCellBody($colIdx, $rowIdx);
+            $this->addLabelCellBody($offset, $colIdx, $rowIdx);
         }
         $this->addValueCellBody($offset, $rowIdx);
     }
@@ -77,18 +77,19 @@ class CellExcel extends AbstractCell
 
     /**
      * Append a label cell to the row of the table body.
+     * @param int $offset index of the JSON-stat value array
      * @param int $dimIdx dimension index
      * @param int $rowIdx row index
      * @return void
      * @throws Exception
      */
-    public function addLabelCellBody(int $dimIdx, int $rowIdx): void
+    public function addLabelCellBody(int $offset, int $dimIdx, int $rowIdx): void
     {
         $table = $this->table;
         $rowStrides = UtilArray::getStrides($table->rowDims);
         $stride = $rowStrides[$dimIdx];
         if ($table->useRowSpans === false || $rowIdx % $stride === 0) {
-            $label = $rowIdx % $stride === 0 ? $this->getRowLabel($dimIdx, $rowIdx) : null;
+            $label = $rowIdx % $stride === 0 ? $this->getCategoryLabel($offset,$dimIdx) : null;
             $rowspan = $table->useRowSpans && $stride > 1 ? $stride : 0;
             $x = $dimIdx + 1;
             $y = $this->adjustYBody($rowIdx);

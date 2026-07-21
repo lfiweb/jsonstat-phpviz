@@ -58,11 +58,12 @@ interface CellInterface
     /**
      * Add a label cell to the row of the table body.
      * Note: The row index of the table body restarts at zero
+     * @param int $offset index of the JSON-stat value array
      * @param int $dimIdx dimension index
      * @param int $rowIdx row index
      * @return void
      */
-    public function addLabelCellBody(int $dimIdx, int $rowIdx): void;
+    public function addLabelCellBody(int $offset, int $dimIdx, int $rowIdx): void;
 
     /**
      * Add a value cell to a row of the table header.
