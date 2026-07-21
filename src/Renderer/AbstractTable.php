@@ -153,7 +153,7 @@ abstract class AbstractTable implements TableInterface
 
     /**
      * Returns the default number of dimensions used for rendering rows.
-     * By default, a table is rendered using all dimensions for rows
+     * By default, a table is rendered using all dimensions for rows,
      * except the last two dimensions are used for columns.
      * When there are fewer than three dimensions, only the first dimension is used for rows.
      * @return int
@@ -206,15 +206,23 @@ abstract class AbstractTable implements TableInterface
     /**
      * Add rows to the table body.
      * Note: The Row index starts at zero for body rows since we are using the offset of the value array to loop over.
-     * The row index is passed, so it can be adjusted for header rows in the cell renderer if necessary (excel export).
+     * The row index is passed, so it can be adjusted for header rows in the cell renderer if necessary.
      * @return void
      */
     public function addRows(): void
     {
         $rowIdx = 0;
         for ($offset = 0, $len = $this->reader->getNumValues(); $offset < $len; $offset++) {
-            $this->addCells($offset, $rowIdx);
-            if ($offset % $this->numValueCols === $this->numValueCols - 1) {
+
+            $this->beforeAddCells($offset, $rowIdx);
+
+            if ($this->shouldRenderOffset($offset)) {
+                $this->addCells($offset, $rowIdx);
+            }
+
+            $this->afterAddCells($offset, $rowIdx);
+
+            if (($offset % $this->numValueCols === $this->numValueCols - 1) && $this->shouldAdvanceRow($offset)) {
                 $rowIdx++;
             }
         }
@@ -270,7 +278,7 @@ abstract class AbstractTable implements TableInterface
     /**
      * Is this a dimension label or a category label row?
      * Note: Per column dimension, a row for the dimension label
-     *      and a row for the dimension's category label is rendered.
+     *      and a row for the dimension's category label are rendered.
      * @param int $rowIdx row index
      * @return bool
      */
@@ -286,4 +294,59 @@ abstract class AbstractTable implements TableInterface
      * @return CellInterface
      */
     abstract protected function newCellRenderer(): CellInterface;
+
+    /**
+     * Lifecycle hook triggered immediately before a cell is processed.
+     *
+     * Can be overridden to initialize state, set up row-level flags,
+     * or prepare formatting before the data at the current offset is rendered as a cell.
+     *
+     * @param int $offset The current offset of the JSON-stat values.
+     * @param int $rowIdx The current vertical row index being rendered.
+     * @return void
+     */
+    protected function beforeAddCells(int $offset, int $rowIdx): void
+    {
+    }
+
+    /**
+     * Determines whether the cell at the current offset should be physically rendered.
+     *
+     * Can be overridden to implement custom filtering, such as skipping cells.
+     *
+     * @param int $offset The current rray offset of the JSON-stat values.
+     * @return bool True if the cell should be rendered, false to skip rendering.
+     */
+    protected function shouldRenderOffset(int $offset): bool
+    {
+        return true;
+    }
+
+    /**
+     * Lifecycle hook triggered immediately after a cell has been processed.
+     *
+     * Can be overridden by child classes to execute side effects, such as
+     * calculating CSS classes, injecting DOM attributes, or cleaning up state.
+     *
+     * @param int $offset The current offset of the JSON-stat values.
+     * @param int $rowIdx The current vertical row index being rendered.
+     * @return void
+     */
+    protected function afterAddCells(int $offset, int $rowIdx): void
+    {
+    }
+
+    /**
+     * Determines whether the vertical row index should increment at the end of a data row.
+     *
+     * This hook is evaluated when the loop reaches the end of the defined column span.
+     * Can be overridden to freeze the row index if the preceding row was completely skipped.
+     *
+     * @param int $offset The current offset at the end of the column span.
+     * @return bool True to increment the row index, false to maintain the current index.
+     */
+    protected function shouldAdvanceRow(int $offset): bool
+    {
+        return true;
+    }
 }
