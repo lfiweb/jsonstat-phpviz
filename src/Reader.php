@@ -39,7 +39,7 @@ class Reader
      */
     public function getDimensionLabel(string $dimId): string
     {
-        return $this->data->dimension->{$dimId}->label;
+        return $this->data->dimension->{$dimId}?->label ?? '';
     }
 
     /**
