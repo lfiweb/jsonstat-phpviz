@@ -10,6 +10,53 @@ use PhpOffice\PhpSpreadsheet\Writer\Ods;
 
 require_once __DIR__.'/../vendor/autoload.php';
 
+// 1. Custom sparse renderer for the demo,
+class FilteredTableHtml extends TableHtml
+{
+    /** @var array<int> Zero-indexed positions of the rows to remove */
+    public array $excludedRows = [];
+
+    /**
+     * Calculate which row this offset belongs to in an uncompressed cube.
+     * @param int $offset
+     * @return bool
+     */
+    private function isOffsetExcluded(int $offset): bool
+    {
+
+        $uncompressedRowIdx = (int)floor($offset / $this->numValueCols);
+        return in_array($uncompressedRowIdx, $this->excludedRows, true);
+    }
+
+    /**
+     * Determines whether the cell at the current offset should be physically rendered.
+     *
+     * Can be overridden to implement custom filtering, such as skipping cells.
+     *
+     * @param int $offset The current rray offset of the JSON-stat values.
+     * @return bool True if the cell should be rendered, false to skip rendering.
+     */
+    protected function shouldRenderOffset(int $offset): bool
+    {
+        return !$this->isOffsetExcluded($offset);
+    }
+
+    /**
+     * Determines whether the vertical row index should increment at the end of a data row.
+     *
+     * This hook is evaluated when the loop reaches the end of the defined column span.
+     * Can be overridden to freeze the row index if the preceding row was completely skipped.
+     *
+     * @param int $offset The current offset at the end of the column span.
+     * @return bool True to increment the row index, false to maintain the current index.
+     */
+    protected function shouldAdvanceRow(int $offset): bool
+    {
+        return !$this->isOffsetExcluded($offset);
+    }
+}
+
+
 /**
  * Factory to return the renderer.
  * @param Reader $reader
@@ -99,6 +146,10 @@ $table1->caption .= ', dimension A and B are used as row dimensions.';
 //$table1->numRowDim  = 1;
 download($table1, $format, '1');
 
+$customTable = new FilteredTableHtml($reader);
+$customTable->excludedRows = [0, 2, 3];
+$customTable->caption .= ', with custom filtered row indexes 0, 2, 3';
+
 // create the table with 3 dimensions used for the row grouping instead of 2 (default):
 $table2 = getRenderer($reader, $format);
 $table2->numRowDim = 4;
@@ -148,6 +199,7 @@ download($table6, $format, '6');
 <?php
 echo $table1->render();
 echo renderDownloadLink(1);
+echo $customTable->render();
 echo $table2->render();
 echo renderDownloadLink(2);
 echo $table3->render();

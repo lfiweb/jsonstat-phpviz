@@ -87,10 +87,9 @@ class CellTsv extends AbstractCell
     public function addLabelCellBody(int $offset, int $dimIdx, int $rowIdx): void
     {
         $table = $this->table;
-        $rowStrides = UtilArray::getStrides($table->rowDims);
-        $stride = $rowStrides[$dimIdx];
+        $isFirstRenderedRow = $table->isFirstRenderedRow($offset, $dimIdx);
         $label = '';
-        if ($table->repeatLabels || $rowIdx % $stride === 0) {
+        if ($table->repeatLabels || $isFirstRenderedRow) {
             $label = $this->getCategoryLabel($offset, $dimIdx);
         }
         $this->tsv .= $this->formatter->formatHeaderCell($label).$table->separatorCol;

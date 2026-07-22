@@ -86,20 +86,28 @@ class CellExcel extends AbstractCell
     public function addLabelCellBody(int $offset, int $dimIdx, int $rowIdx): void
     {
         $table = $this->table;
-        $rowStrides = UtilArray::getStrides($table->rowDims);
-        $stride = $rowStrides[$dimIdx];
-        if ($table->useRowSpans === false || $rowIdx % $stride === 0) {
-            $label = $rowIdx % $stride === 0 ? $this->getCategoryLabel($offset,$dimIdx) : null;
-            $rowspan = $table->useRowSpans && $stride > 1 ? $stride : 0;
-            $x = $dimIdx + 1;
-            $y = $this->adjustYBody($rowIdx);
-            $this->addCellHeader($x, $y, $label);
+
+        $isFirstRenderedRow = $table->isFirstRenderedRow($offset, $dimIdx);
+
+        if ($table->useRowSpans === false || $isFirstRenderedRow) {
+            $label = $isFirstRenderedRow ? $this->getCategoryLabel($offset, $dimIdx) : null;
+
+            $rowspan = 0;
+            if ($table->useRowSpans) {
+                $rowspan = $table->calcRenderedRowspan($offset, $dimIdx);
+            }
+
             if ($rowspan > 0) {
-                $this->worksheet->mergeCells([$x, $y, $x, $y + $rowspan - 1]);
+                $x = $dimIdx + 1;
+                $y = $this->adjustYBody($rowIdx);
+                $this->addCellHeader($x, $y, $label);
+
+                if ($rowspan > 1) {
+                    $this->worksheet->mergeCells([$x, $y, $x, $y + $rowspan - 1]);
+                }
             }
         }
     }
-
     /**
      * Creates the cells for the headers of the value columns.
      * @param int $offset value index
@@ -226,14 +234,5 @@ class CellExcel extends AbstractCell
         $y += $this->table->numHeaderRows;
 
         return $y;
-    }
-
-    /**
-     * Escape the = character, which would start a formula
-     * @param string $value
-     * @return string
-     */
-    protected function escape(string $value): string {
-
     }
 }

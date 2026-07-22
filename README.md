@@ -11,6 +11,7 @@ Render [JSON-stat v2.0 data](https://json-stat.org/) with any number of dimensio
 screen reader support for visually impaired users
 - sets CSS classes (`first` and `last`) to identify the start and end of row groups (e.g., row totals)
 - exclude dimensions of size one (when ordered continuously from index 0) from rendering when wanted
+- handle sparse data by excluding cell ranges (rows) from rendering with a custom renderer using life cycle hooks
 - export (render) the table as tab separated values (tsv) or any character (csv) of your choosing.
 - download (render) the table in the LibreOffice Calc (ods) or the MS Excel format (xlsx).
 

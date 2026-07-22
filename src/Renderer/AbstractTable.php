@@ -349,4 +349,66 @@ abstract class AbstractTable implements TableInterface
     {
         return true;
     }
+
+    /**
+     * Determines if the current offset represents the first physically rendered row
+     * of a specific row dimension's category block.
+     *
+     * @param int $offset
+     * @param int $dimIdx
+     * @return bool
+     */
+    public function isFirstRenderedRow(int $offset, int $dimIdx): bool
+    {
+        $rowStrides = UtilArray::getStrides($this->rowDims);
+        $rowStride = $rowStrides[$dimIdx];
+
+        $uncompressedRowIdx = (int)floor($offset / $this->numValueCols);
+        $startRowIdx = (int)floor($uncompressedRowIdx / $rowStride) * $rowStride;
+
+        if ($uncompressedRowIdx === $startRowIdx) {
+            return true;
+        }
+
+        for ($r = $startRowIdx; $r < $uncompressedRowIdx; $r++) {
+            $checkOffset = $r * $this->numValueCols;
+            if ($this->shouldRenderOffset($checkOffset)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Calculates the dynamic rowspan for a category block by counting
+     * how many rows within the block will actually be rendered.
+     *
+     * @param int $offset
+     * @param int $dimIdx
+     * @return int
+     */
+    public function calcRenderedRowspan(int $offset, int $dimIdx): int
+    {
+        $rowStrides = UtilArray::getStrides($this->rowDims);
+        $rowStride = $rowStrides[$dimIdx];
+
+        if ($rowStride <= 1) {
+            return 1;
+        }
+
+        $uncompressedRowIdx = (int)floor($offset / $this->numValueCols);
+        $startRowIdx = (int)floor($uncompressedRowIdx / $rowStride) * $rowStride;
+        $endRowIdx = $startRowIdx + $rowStride;
+
+        $renderedCount = 0;
+        for ($r = $startRowIdx; $r < $endRowIdx; $r++) {
+            $checkOffset = $r * $this->numValueCols;
+            if ($this->shouldRenderOffset($checkOffset)) {
+                $renderedCount++;
+            }
+        }
+
+        return $renderedCount;
+    }
 }
