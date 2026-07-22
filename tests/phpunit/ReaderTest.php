@@ -22,7 +22,7 @@ class ReaderTest extends TestCase
     }
 
     /**
-     * Test, that the JSON-stat was correctly transposed.
+     * Test that the JSON-stat was correctly transposed.
      * @throws JsonException
      */
     public function testTranspose(): void
@@ -46,7 +46,7 @@ class ReaderTest extends TestCase
     }
 
     /**
-     * Test, that all JSON-stat schema variants of the category label property are handled correctly.
+     * Test that all JSON-stat schema variants of the category label property are handled correctly.
      * @throws JsonException
      */
     public function testGetCategoryLabel(): void
@@ -102,7 +102,7 @@ class ReaderTest extends TestCase
     }
 
     /**
-     * Test, that the category id is returned, whether the index property is an array or an object.
+     * Test that the category id is returned, whether the index property is an array or an object.
      * @return void
      * @throws JsonException
      */

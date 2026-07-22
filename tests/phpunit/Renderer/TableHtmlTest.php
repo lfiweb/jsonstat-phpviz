@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace jsonstatPhpViz\Test\Renderer;
 
-use DOMException;
 use JsonException;
 use jsonstatPhpViz\Renderer\TableHtml;
 use jsonstatPhpViz\Test\TestFactory\JsonstatReader;
