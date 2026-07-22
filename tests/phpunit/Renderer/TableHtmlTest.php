@@ -27,7 +27,7 @@ class TableHtmlTest extends TestCase
     /**
      * Test the render method.
      * @return void
-     * @throws DOMException|JsonException
+     * @throws JsonException
      */
     public function testRenderHtml(): void
     {
@@ -39,8 +39,8 @@ class TableHtmlTest extends TestCase
     }
 
     /**
-     * Test, that the JSON-stat was correctly transposed.
-     * @throws DOMException|JsonException
+     * Test that the JSON-stat was correctly transposed.
+     * @throws JsonException
      */
     public function testRendererTransposed(): void
     {
@@ -68,9 +68,8 @@ class TableHtmlTest extends TestCase
     }
 
     /**
-     * Test, that the renderer handles null values (in the JSON-stat) correctly.
+     * Test that the renderer handles null values (in the JSON-stat) correctly.
      * @return void
-     * @throws DOMException
      * @throws JsonException
      */
     public function testRenderNull(): void
@@ -86,8 +85,7 @@ class TableHtmlTest extends TestCase
     }
 
     /**
-     * Test, that integers and floats are rendered with the number of decimals defined in the unit of the category.
-     * @throws DOMException
+     * Test that integers and floats are rendered with the number of decimals defined in the unit of the category.
      * @throws JsonException
      */
     public function testRenderDecimals(): void
@@ -112,8 +110,7 @@ class TableHtmlTest extends TestCase
     }
 
     /**
-     * Test, that the correct number of rows and columns are created when using the numRowDim argument.
-     * @throws DOMException
+     * Test that the correct number of rows and columns are created when using the numRowDim argument.
      * @throws JsonException
      */
     public function testRenderRowDim(): void
@@ -136,7 +133,7 @@ class TableHtmlTest extends TestCase
     }
 
     /**
-     * Test, that the correct number of dimensions used to render rows is returned.
+     * Test that the correct number of dimensions used to render rows is returned.
      * @return void
      * @throws JsonException
      */
@@ -156,7 +153,6 @@ class TableHtmlTest extends TestCase
     }
 
     /**
-     * @throws DOMException
      * @throws JsonException
      */
     public function testExcludeOneDim(): void
@@ -183,9 +179,8 @@ class TableHtmlTest extends TestCase
     }
 
     /**
-     * Test, that html in the JSON-stat is encoded.
+     * Test that html in the JSON-stat is encoded.
      * @return void
-     * @throws DOMException
      * @throws JsonException
      */
     public function testHtmlCell(): void
@@ -203,9 +198,8 @@ class TableHtmlTest extends TestCase
     }
 
     /**
-     * Test, that html from the JSON-stat is encoded in the caption except when explicitly being set.
+     * Test that html from the JSON-stat is encoded in the caption except when explicitly being set.
      * @return void
-     * @throws DOMException
      * @throws JsonException
      */
     public function testHtmlCaption(): void
@@ -226,9 +220,8 @@ class TableHtmlTest extends TestCase
     }
 
     /**
-     * Test, that the label row of the last dimension is excluded from rendering.
+     * Test that the label row of the last dimension is excluded from rendering.
      * @return void
-     * @throws DOMException
      * @throws JsonException
      */
     public function testNoLabelLastDim(): void
