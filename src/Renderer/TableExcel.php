@@ -81,7 +81,7 @@ class TableExcel extends AbstractTable
     public function render(): string
     {
         $this->build();
-        $this->styler?->style($this);
+        $this->styler?->style();
 
         return $this->getBinaryContent();
     }
