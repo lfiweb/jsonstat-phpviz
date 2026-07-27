@@ -18,7 +18,7 @@ class StylerExcel
      * maximum column width when the column has more characters
      */
     public const COL_WIDTH_MAX = 32;
-    private Worksheet $worksheet;
+    protected Worksheet $worksheet;
 
     public function __construct(protected TableExcel $table)
     {

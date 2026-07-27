@@ -39,12 +39,12 @@ class TableExcel extends AbstractTable
      * an instance of the PhpSpreadsheet
      * @var Spreadsheet
      */
-    private Spreadsheet $xls;
+    protected Spreadsheet $xls;
     /**
      * the current worksheet of the PhpSpreadsheet
      * @var Worksheet
      */
-    private Worksheet $worksheet;
+    protected Worksheet $worksheet;
     private IWriter $writer;
     public LabelWidthCalculator $widthCalculator;
 
