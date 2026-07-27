@@ -56,7 +56,7 @@ class LabelWidthCalculator
                     continue;
                 }
 
-                $len = strlen((string)$values[$i]);
+                $len = mb_strlen((string)$values[$i]);
                 if ($len > $maxLen) {
                     $maxLen = $len;
                 }
