@@ -118,7 +118,7 @@ class LabelWidthCalculator
     }
 
     /**
-     * Calculate the width of a column. taking into account
+     * Calculate the width of a column.
      * @param int $colIdx excel column index
      * @return int
      */

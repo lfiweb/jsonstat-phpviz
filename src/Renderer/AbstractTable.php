@@ -85,7 +85,7 @@ abstract class AbstractTable implements TableInterface
     /**
      * @var int the final number of rendered body rows taking into account skipped rows.
      */
-    public readonly int $numRenderedBodyRows;
+    public int $numRenderedBodyRows;
 
     /**
      * Instantiates the class.

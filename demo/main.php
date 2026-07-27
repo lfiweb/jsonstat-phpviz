@@ -103,13 +103,13 @@ function download(AbstractTable|TableExcel $table, string $format, string $id): 
             header('Content-Disposition: attachment; filename="table.tsv"');
         }
         if ($format === 'ods') {
-            $table->styler = new StylerExcel();
+            $table->styler = new StylerExcel($table);
             $table->setWriter(new Ods($table->getSpreadSheet()));
             header('Content-Type: application/vnd.oasis.opendocument.spreadsheet');
             header('Content-Disposition: attachment; filename="table.ods"');
         }
         if ($format === 'xlsx') {
-            $table->styler = new StylerExcel();
+            $table->styler = new StylerExcel($table);
             header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             header('Content-Disposition: attachment; filename="table.xlsx"');
         }
