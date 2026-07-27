@@ -106,12 +106,17 @@ class StylerExcel
      */
     protected function calcColWidth(int $colIdx): int
     {
-        // Calculate the required character width from the JSON-stat.
-        $charLength = $this->table->widthCalculator->calculateLabelWidth($colIdx);
+        $calculator = $this->table->widthCalculator;
 
-        // Ensure the column is at least as wide as the largest number in the entire table
-        // For performance reasons we don't do this for every col separately, but just the max once
-        $charLength = max($charLength, $this->table->widthCalculator->maxValueCharWidth);
+        // Calculate the required character width from the JSON-stat.
+        $charLength = $calculator->calculateLabelWidth($colIdx);
+
+        // Ensure the column is at least as wide as the largest number in the column
+        if ($colIdx > $this->table->numLabelCols) {
+            $dataColIdx = $colIdx - $this->table->numLabelCols - 1;
+            $dataMaxWidth = $calculator->maxValueCharWidths[$dataColIdx];
+            $charLength = max($charLength, $dataMaxWidth);
+        }
 
         // Add two characters for visual padding.
         $charLength += 2;

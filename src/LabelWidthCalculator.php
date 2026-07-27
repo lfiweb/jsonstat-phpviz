@@ -9,9 +9,16 @@ use function strlen;
 class LabelWidthCalculator
 {
 
-    public readonly int $maxValueCharWidth;
     /**
-     * @var int[]
+     * Holds the precalculated maximum string length of value cells by columns.
+     * @var array|int[]
+     */
+    public readonly array $maxValueCharWidths;
+
+    /**
+     * Holds the precalculated maximum string length of header labels by columns.
+     *
+     * @var array|int[]
      */
     public readonly array $valueLabelWidths;
 
@@ -24,31 +31,44 @@ class LabelWidthCalculator
         private readonly array $colStrides,
         private readonly bool $noLabelLastDim = false
     ) {
-        $this->maxValueCharWidth = $this->preCalcMaxValueWidth();
-        // Pre-calculate all value columns at once!
+        $this->maxValueCharWidths = $this->preCalcMaxValueWidths();
         $this->valueLabelWidths = $this->preCalcColDimLabelWidths($this->numValueCols);
     }
 
     /**
-     * Calculates the number of characters from the JSON-stat value array having the most characters.
-     * @return int number of characters
+     * Calculates the maximum string length of the data values for each value column.
+     *
+     * @return array<int, int> Map of zero-indexed column offset to max character length
      */
-    private function preCalcMaxValueWidth(): int
+    private function preCalcMaxValueWidths(): array
     {
-        // Find the absolute largest and smallest (negative) numbers in the entire dataset
-        $highestVal = max($this->reader->data->value);
-        $lowestVal = min($this->reader->data->value); // To catch long negative numbers like -9999999
+        $widths = array_fill(0, $this->numValueCols, 0);
+        $values = $this->reader->data->value;
+        $totalValues = count($values);
 
-        // Calculate their raw string lengths
-        $lenHigh = strlen((string)$highestVal);
-        $lenLow = strlen((string)$lowestVal);
+        // Process one column at a time
+        for ($colIdx = 0; $colIdx < $this->numValueCols; $colIdx++) {
+            $maxLen = 0;
 
-        // Store the global maximum required width for numbers
-        return max($lenHigh, $lenLow);
+            // Step through the flat array using the number of columns as the stride
+            for ($i = $colIdx; $i < $totalValues; $i += $this->numValueCols) {
+                if ($values[$i] === null) {
+                    continue;
+                }
+
+                $len = strlen((string)$values[$i]);
+                if ($len > $maxLen) {
+                    $maxLen = $len;
+                }
+            }
+            $widths[$colIdx] = $maxLen;
+        }
+
+        return $widths;
     }
 
     /**
-     * Calculates the exact required widths for all value columns using a bottom-up deficit distribution algorithm.
+     * Calculates the exact required widths for all header value label columns using a bottom-up deficit distribution algorithm.
      * @param int $numValueCols The total number of value columns in the grid
      * @return array<int> An array of calculated widths, keyed by the excel column index ($colIdx)
      */
