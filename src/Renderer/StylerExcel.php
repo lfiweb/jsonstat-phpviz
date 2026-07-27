@@ -77,7 +77,7 @@ class StylerExcel
         $style = $worksheet->getStyle([$fromCol, $fromRow, $toCol, $toRow]);
         $style->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-        $toRow += array_product($table->rowDims);
+        $toRow += $table->numRenderedBodyRows;
         $style = $worksheet->getStyle([$fromCol, $fromRow, $toCol, $toRow]);
         $style->getAlignment()->setVertical(Alignment::VERTICAL_TOP);
     }

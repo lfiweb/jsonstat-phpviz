@@ -83,6 +83,11 @@ abstract class AbstractTable implements TableInterface
     public null|string $caption = null;
 
     /**
+     * @var int the final number of rendered body rows taking into account skipped rows.
+     */
+    public readonly int $numRenderedBodyRows;
+
+    /**
      * Instantiates the class.
      * @param Reader $jsonStatReader
      * @param int|null $numRowDim
@@ -182,6 +187,30 @@ abstract class AbstractTable implements TableInterface
     }
 
     /**
+     * Calculate the number of header rows.
+     * @return int
+     */
+    public function calcHeaderRows(): int
+    {
+        $num = 1;
+        if (count($this->colDims) > 0) {
+            // one row for the dimension label, and one row for the category label
+            $num = count($this->colDims) * 2;
+            if ($this->noLabelLastDim === true) {
+                --$num;
+            }
+        }
+
+        return $num;
+    }
+
+    /**
+     * Return a new instance of the cell renderer.
+     * @return CellInterface
+     */
+    abstract protected function newCellRenderer(): CellInterface;
+
+    /**
      * Add the rows and cells of the table header.
      * The number of rows used for the header is defined by the numHeaderRows property.
      * @return void
@@ -213,7 +242,6 @@ abstract class AbstractTable implements TableInterface
     {
         $rowIdx = 0;
         for ($offset = 0, $len = $this->reader->getNumValues(); $offset < $len; $offset++) {
-
             $this->beforeAddCells($offset, $rowIdx);
 
             if ($this->shouldRenderOffset($offset)) {
@@ -226,74 +254,9 @@ abstract class AbstractTable implements TableInterface
                 $rowIdx++;
             }
         }
+
+        $this->numRenderedBodyRows = $rowIdx;
     }
-
-    /**
-     * Add the cells of a row.
-     * @param int $offset current index of the value array
-     * @param int $rowIdx row index
-     * @return void
-     */
-    public function addCells(int $offset, int $rowIdx): void
-    {
-        $remainder = $offset % $this->numValueCols;
-        if ($remainder === 0) {
-            $this->rendererCell->addFirstCellBody($offset, $rowIdx);
-        } elseif ($remainder < $this->numValueCols - 1) {
-            $this->rendererCell->addValueCellBody($offset, $rowIdx);
-        } elseif ($remainder === $this->numValueCols - 1) {
-            $this->rendererCell->addLastCellBody($offset, $rowIdx);
-        }
-    }
-
-    /**
-     * Is this the last row of the table header rows?
-     * Takes the state of the property CellHtml::noLabelLastDim into account.
-     * @param int $rowIdx row index
-     * @return bool
-     */
-    public function isLastRowHeader(int $rowIdx): bool
-    {
-        return $rowIdx === $this->numHeaderRows - 1;
-    }
-
-    /**
-     * Calculate the number of header rows.
-     * @return int
-     */
-    public function calcHeaderRows(): int
-    {
-        $num = 1;
-        if (count($this->colDims) > 0) {
-            // one row for the dimension label, and one row for the category label
-            $num = count($this->colDims) * 2;
-            if ($this->noLabelLastDim === true) {
-                --$num;
-            }
-        }
-
-        return $num;
-    }
-
-    /**
-     * Is this a dimension label or a category label row?
-     * Note: Per column dimension, a row for the dimension label
-     *      and a row for the dimension's category label are rendered.
-     * @param int $rowIdx row index
-     * @return bool
-     */
-    public function isDimensionRowHeader(int $rowIdx): bool
-    {
-        return $rowIdx % 2 === 0 && (
-                $this->noLabelLastDim === false || $rowIdx !== $this->numHeaderRows - 1
-            );
-    }
-
-    /**
-     * Return a new instance of the cell renderer.
-     * @return CellInterface
-     */
-    abstract protected function newCellRenderer(): CellInterface;
 
     /**
      * Lifecycle hook triggered immediately before a cell is processed.
@@ -323,6 +286,24 @@ abstract class AbstractTable implements TableInterface
     }
 
     /**
+     * Add the cells of a row.
+     * @param int $offset current index of the value array
+     * @param int $rowIdx row index
+     * @return void
+     */
+    public function addCells(int $offset, int $rowIdx): void
+    {
+        $remainder = $offset % $this->numValueCols;
+        if ($remainder === 0) {
+            $this->rendererCell->addFirstCellBody($offset, $rowIdx);
+        } elseif ($remainder < $this->numValueCols - 1) {
+            $this->rendererCell->addValueCellBody($offset, $rowIdx);
+        } elseif ($remainder === $this->numValueCols - 1) {
+            $this->rendererCell->addLastCellBody($offset, $rowIdx);
+        }
+    }
+
+    /**
      * Lifecycle hook triggered immediately after a cell has been processed.
      *
      * Can be overridden by child classes to execute side effects, such as
@@ -348,6 +329,31 @@ abstract class AbstractTable implements TableInterface
     protected function shouldAdvanceRow(int $offset): bool
     {
         return true;
+    }
+
+    /**
+     * Is this the last row of the table header rows?
+     * Takes the state of the property CellHtml::noLabelLastDim into account.
+     * @param int $rowIdx row index
+     * @return bool
+     */
+    public function isLastRowHeader(int $rowIdx): bool
+    {
+        return $rowIdx === $this->numHeaderRows - 1;
+    }
+
+    /**
+     * Is this a dimension label or a category label row?
+     * Note: Per column dimension, a row for the dimension label
+     *      and a row for the dimension's category label are rendered.
+     * @param int $rowIdx row index
+     * @return bool
+     */
+    public function isDimensionRowHeader(int $rowIdx): bool
+    {
+        return $rowIdx % 2 === 0 && (
+                $this->noLabelLastDim === false || $rowIdx !== $this->numHeaderRows - 1
+            );
     }
 
     /**
