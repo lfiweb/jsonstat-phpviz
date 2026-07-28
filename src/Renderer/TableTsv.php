@@ -6,7 +6,7 @@ use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
 
 /**
- * Renders json-stat data as a tab separated table.
+ * Renders json-stat data as a tab-separated table.
  *
  * @see TableHtml class for more info
  */
@@ -81,5 +81,15 @@ class TableTsv extends AbstractTable
     public function addCaption(): void
     {
         $this->tsv .= $this->caption.$this->separatorRow;
+    }
+
+    /**
+     * Return the internal, tab-separated string.
+     * Returns the tab-separated string as a reference, not as a copy.
+     * @return string
+     */
+    public function &getTsv(): string
+    {
+        return $this->tsv;
     }
 }

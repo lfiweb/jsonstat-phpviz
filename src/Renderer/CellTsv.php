@@ -4,23 +4,19 @@ namespace jsonstatPhpViz\Renderer;
 
 use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
-use jsonstatPhpViz\UtilArray;
 
 use function count;
 
 /**
- * Handle rendering of TAB-separated items (cells).
+ * Handle rendering of tab-separated items (cells).
  * @see CellInterface
  */
 class CellTsv extends AbstractCell
 {
     protected TableTsv $table;
 
-    /**
-     * internal reference to the TAB-separated string
-     * @var string
-     */
-    private string $tsv;
+    /** @var string internal reference to the tab-separated string */
+    protected string $tsv;
 
     /**
      * @param FormatterCell $cellFormatter
@@ -31,6 +27,7 @@ class CellTsv extends AbstractCell
     {
         parent::__construct($cellFormatter, $reader);
         $this->table = $rendererTable;
+        $this->tsv = &$this->table->getTsv();
     }
 
     /**
@@ -71,7 +68,7 @@ class CellTsv extends AbstractCell
     public function addFirstCellBody(int $offset, int $rowIdx): void
     {
         for ($colIdx = 0; $colIdx < $this->table->numLabelCols; $colIdx++) {
-            $this->addLabelCellBody($offset,$colIdx, $rowIdx);
+            $this->addLabelCellBody($offset, $colIdx, $rowIdx);
         }
         $this->addValueCellBody($offset, $rowIdx);
     }
@@ -92,6 +89,19 @@ class CellTsv extends AbstractCell
             $label = $this->getCategoryLabel($offset, $dimIdx);
         }
         $this->tsv .= $this->formatter->formatHeaderCell($label).$table->separatorCol;
+    }
+
+    /**
+     * Appends cells with values to the row.
+     * Inserts an HTMLTableCellElement at the end of the row with a value taken from the values at the given offset.
+     * @param int $offset value index
+     * @param int $rowIdx row index
+     * @return void the content of the cell
+     */
+    public function addValueCellBody(int $offset, int $rowIdx): void
+    {
+        $val = $this->reader->data->value[$offset];
+        $this->tsv .= $this->formatter->formatValueCell($val, $offset).$this->table->separatorCol;
     }
 
     /**
@@ -139,18 +149,5 @@ class CellTsv extends AbstractCell
     {
         $this->addValueCellBody($offset, $rowIdx);
         $this->tsv .= $this->table->separatorRow;
-    }
-
-    /**
-     * Appends cells with values to the row.
-     * Inserts an HTMLTableCellElement at the end of the row with a value taken from the values at the given offset.
-     * @param int $offset value index
-     * @param int $rowIdx row index
-     * @return void the content of the cell
-     */
-    public function addValueCellBody(int $offset, int $rowIdx): void
-    {
-        $val = $this->reader->data->value[$offset];
-        $this->tsv .= $this->formatter->formatValueCell($val, $offset).$this->table->separatorCol;
     }
 }
