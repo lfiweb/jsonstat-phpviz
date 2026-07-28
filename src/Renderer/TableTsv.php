@@ -71,7 +71,7 @@ class TableTsv extends AbstractTable
     {
         $this->build();
 
-        return $this->tsv;
+        return $this->tsv.$this->separatorRow;
     }
 
     /**
