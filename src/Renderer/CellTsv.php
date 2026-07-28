@@ -9,7 +9,7 @@ use jsonstatPhpViz\UtilArray;
 use function count;
 
 /**
- * Handle rendering of TAB separated items (cells).
+ * Handle rendering of TAB-separated items (cells).
  * @see CellInterface
  */
 class CellTsv extends AbstractCell
@@ -17,7 +17,7 @@ class CellTsv extends AbstractCell
     protected TableTsv $table;
 
     /**
-     * internal reference to the TAB separated string
+     * internal reference to the TAB-separated string
      * @var string
      */
     private string $tsv;
@@ -31,7 +31,6 @@ class CellTsv extends AbstractCell
     {
         parent::__construct($cellFormatter, $reader);
         $this->table = $rendererTable;
-        $this->tsv = &$rendererTable->getTsv();
     }
 
     /**
@@ -144,7 +143,7 @@ class CellTsv extends AbstractCell
 
     /**
      * Appends cells with values to the row.
-     * Inserts a HTMLTableCellElement at the end of the row with a value taken from the values at given offset.
+     * Inserts an HTMLTableCellElement at the end of the row with a value taken from the values at the given offset.
      * @param int $offset value index
      * @param int $rowIdx row index
      * @return void the content of the cell
