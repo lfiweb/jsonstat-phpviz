@@ -87,6 +87,8 @@ abstract class AbstractTable implements TableInterface
      */
     public int $numRenderedBodyRows;
 
+    public ?AbstractOffsetStrategy $offsetStrategy = null;
+
     /**
      * Instantiates the class.
      * @param Reader $jsonStatReader
@@ -242,47 +244,21 @@ abstract class AbstractTable implements TableInterface
     {
         $rowIdx = 0;
         for ($offset = 0, $len = $this->reader->getNumValues(); $offset < $len; $offset++) {
-            $this->beforeAddCells($offset, $rowIdx);
+            $this->offsetStrategy?->beforeAddCells($offset, $rowIdx, $this);
 
-            if ($this->shouldRenderOffset($offset)) {
+            if ($this->offsetStrategy?->shouldRenderOffset($offset, $this) ?? true) {
                 $this->addCells($offset, $rowIdx);
             }
 
-            $this->afterAddCells($offset, $rowIdx);
+            $this->offsetStrategy?->afterAddCells($offset, $rowIdx, $this);
 
-            if (($offset % $this->numValueCols === $this->numValueCols - 1) && $this->shouldAdvanceRow($offset)) {
+            $shouldAdvance = $this->offsetStrategy?->shouldAdvanceRow($offset, $this) ?? true;
+            if (($offset % $this->numValueCols === $this->numValueCols - 1) && $shouldAdvance) {
                 $rowIdx++;
             }
         }
 
         $this->numRenderedBodyRows = $rowIdx;
-    }
-
-    /**
-     * Lifecycle hook triggered immediately before a cell is processed.
-     *
-     * Can be overridden to initialize state, set up row-level flags,
-     * or prepare formatting before the data at the current offset is rendered as a cell.
-     *
-     * @param int $offset The current offset of the JSON-stat values.
-     * @param int $rowIdx The current vertical row index being rendered.
-     * @return void
-     */
-    protected function beforeAddCells(int $offset, int $rowIdx): void
-    {
-    }
-
-    /**
-     * Determines whether the cell at the current offset should be physically rendered.
-     *
-     * Can be overridden to implement custom filtering, such as skipping cells.
-     *
-     * @param int $offset The current rray offset of the JSON-stat values.
-     * @return bool True if the cell should be rendered, false to skip rendering.
-     */
-    protected function shouldRenderOffset(int $offset): bool
-    {
-        return true;
     }
 
     /**
@@ -301,34 +277,6 @@ abstract class AbstractTable implements TableInterface
         } elseif ($remainder === $this->numValueCols - 1) {
             $this->rendererCell->addLastCellBody($offset, $rowIdx);
         }
-    }
-
-    /**
-     * Lifecycle hook triggered immediately after a cell has been processed.
-     *
-     * Can be overridden by child classes to execute side effects, such as
-     * calculating CSS classes, injecting DOM attributes, or cleaning up state.
-     *
-     * @param int $offset The current offset of the JSON-stat values.
-     * @param int $rowIdx The current vertical row index being rendered.
-     * @return void
-     */
-    protected function afterAddCells(int $offset, int $rowIdx): void
-    {
-    }
-
-    /**
-     * Determines whether the vertical row index should increment at the end of a data row.
-     *
-     * This hook is evaluated when the loop reaches the end of the defined column span.
-     * Can be overridden to freeze the row index if the preceding row was completely skipped.
-     *
-     * @param int $offset The current offset at the end of the column span.
-     * @return bool True to increment the row index, false to maintain the current index.
-     */
-    protected function shouldAdvanceRow(int $offset): bool
-    {
-        return true;
     }
 
     /**
@@ -378,7 +326,7 @@ abstract class AbstractTable implements TableInterface
 
         for ($r = $startRowIdx; $r < $uncompressedRowIdx; $r++) {
             $checkOffset = $r * $this->numValueCols;
-            if ($this->shouldRenderOffset($checkOffset)) {
+            if ($this->offsetStrategy?->shouldRenderOffset($checkOffset, $this) ?? true) {
                 return false;
             }
         }
@@ -410,7 +358,7 @@ abstract class AbstractTable implements TableInterface
         $renderedCount = 0;
         for ($r = $startRowIdx; $r < $endRowIdx; $r++) {
             $checkOffset = $r * $this->numValueCols;
-            if ($this->shouldRenderOffset($checkOffset)) {
+            if ($this->offsetStrategy?->shouldRenderOffset($checkOffset, $this) ?? true) {
                 $renderedCount++;
             }
         }

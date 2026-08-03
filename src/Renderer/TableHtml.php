@@ -21,13 +21,13 @@ use function count;
  * whereas the column dimensions contain the actual values.
  *
  * Setting the property numRowDim (number of row dimensions) defines how many of the dimensions are used for the rows,
- * beginning at the start of the ordered size array of the json-stat schema. Remaining dimensions are used for columns.
+ * beginning at the start of the ordered size array of the json-stat schema. The remaining dimensions are used for columns.
  * Dimensions of length one can be excluded from rendering with property excludeOneDim.
  *
  * Setting the property noLabelLastDim will skip the row in the table heading containing the labels of the last
  * dimension.
  *
- * Note: In the context of JSON-stat, the word value is used. In the context of html, data is used.
+ * Note: In the context of JSON-stat, the word value is used. In the context of HTML, data is used.
  * So we speak either of value cells and label cells, or of data cells and header cells.
  *
  * @see www.json-stat.org
@@ -78,7 +78,7 @@ class TableHtml extends AbstractTable
      */
     public function readCaption(): void
     {
-        // since html content is allowed in caption when the property is set explicitly,
+        // since HTML content is allowed in caption when the property is set explicitly,
         // we have to escape it when set via json-stat to prevent html content from the untrusted source
         if (property_exists($this->reader->data, 'label')) {
             $this->caption = UtilHtml::escape($this->reader->data->label);

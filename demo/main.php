@@ -1,6 +1,7 @@
 <?php
 
 use jsonstatPhpViz\Reader;
+use jsonstatPhpViz\Renderer\AbstractOffsetStrategy;
 use jsonstatPhpViz\Renderer\AbstractTable;
 use jsonstatPhpViz\Renderer\StylerExcel;
 use jsonstatPhpViz\Renderer\TableExcel;
@@ -11,20 +12,25 @@ use PhpOffice\PhpSpreadsheet\Writer\Ods;
 require_once __DIR__.'/../vendor/autoload.php';
 
 // 1. Custom sparse renderer for the demo,
-class FilteredTableHtml extends TableHtml
+class RowExclusion extends AbstractOffsetStrategy
 {
-    /** @var array<int> Zero-indexed positions of the rows to remove */
-    public array $excludedRows = [];
+    /**
+     * @param array<int> $excludedRows Zero-indexed positions of the rows to remove
+     */
+    public function __construct(public array $excludedRows = [])
+    {
+    }
 
     /**
      * Calculate which row this offset belongs to in an uncompressed cube.
      * @param int $offset
+     * @param AbstractTable $table
      * @return bool
      */
-    private function isOffsetExcluded(int $offset): bool
+    private function isOffsetExcluded(int $offset, AbstractTable $table): bool
     {
 
-        $uncompressedRowIdx = (int)floor($offset / $this->numValueCols);
+        $uncompressedRowIdx = (int)floor($offset / $table->numValueCols);
         return in_array($uncompressedRowIdx, $this->excludedRows, true);
     }
 
@@ -34,11 +40,12 @@ class FilteredTableHtml extends TableHtml
      * Can be overridden to implement custom filtering, such as skipping cells.
      *
      * @param int $offset The current rray offset of the JSON-stat values.
+     * @param AbstractTable $table
      * @return bool True if the cell should be rendered, false to skip rendering.
      */
-    protected function shouldRenderOffset(int $offset): bool
+    public function shouldRenderOffset(int $offset, AbstractTable $table): bool
     {
-        return !$this->isOffsetExcluded($offset);
+        return !$this->isOffsetExcluded($offset, $table);
     }
 
     /**
@@ -48,11 +55,12 @@ class FilteredTableHtml extends TableHtml
      * Can be overridden to freeze the row index if the preceding row was completely skipped.
      *
      * @param int $offset The current offset at the end of the column span.
+     * @param AbstractTable $table
      * @return bool True to increment the row index, false to maintain the current index.
      */
-    protected function shouldAdvanceRow(int $offset): bool
+    public function shouldAdvanceRow(int $offset, AbstractTable $table): bool
     {
-        return !$this->isOffsetExcluded($offset);
+        return !$this->isOffsetExcluded($offset, $table);
     }
 }
 
@@ -146,8 +154,8 @@ $table1->caption .= ', dimension A and B are used as row dimensions.';
 //$table1->numRowDim  = 1;
 download($table1, $format, '1');
 
-$customTable = new FilteredTableHtml($reader);
-$customTable->excludedRows = [0, 2, 3];
+$customTable = getRenderer($reader, $format);
+$customTable->offsetStrategy = new RowExclusion([0, 2, 3]);
 $customTable->caption .= ', with custom filtered row indexes 0, 2, 3';
 
 // create the table with 3 dimensions used for the row grouping instead of 2 (default):
