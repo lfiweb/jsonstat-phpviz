@@ -125,7 +125,7 @@ class TableExcel extends AbstractTable
      * @return string binary, zipped string
      * @throws Exception
      */
-    protected function getBinaryContent(): string
+    public function getBinaryContent(): string
     {
         $tempFile = tempnam(sys_get_temp_dir(), 'phpviz_');
         try {
