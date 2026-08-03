@@ -16,7 +16,7 @@ abstract class AbstractOffsetStrategy
      *
      * @param int $offset The current array offset of the JSON-stat values.
      * @param int $rowIdx The current vertical row index being rendered.
-     *
+     * @param AbstractTable $table
      * @return void
      */
     public function beforeAddCells(int $offset, int $rowIdx, AbstractTable $table): void {}
@@ -27,7 +27,7 @@ abstract class AbstractOffsetStrategy
      * Use this to implement custom filtering, such as skipping specific cells.
      *
      * @param int $offset The current array offset of the JSON-stat values.
-     *
+     * @param AbstractTable $table
      * @return bool True if the cell should be rendered, false to skip rendering.
      */
     abstract public function shouldRenderOffset(int $offset, AbstractTable $table): bool;
@@ -40,7 +40,7 @@ abstract class AbstractOffsetStrategy
      *
      * @param int $offset The current array offset of the JSON-stat values.
      * @param int $rowIdx The current vertical row index being rendered.
-     *
+     * @param AbstractTable $table
      * @return void
      */
     public function afterAddCells(int $offset, int $rowIdx, AbstractTable $table): void {}
@@ -52,7 +52,7 @@ abstract class AbstractOffsetStrategy
      * Use this to freeze the row index if the preceding row was completely skipped.
      *
      * @param int $offset The current array offset at the end of the column span.
-     *
+     * @param AbstractTable $table
      * @return bool True to increment the row index, false to maintain the current index.
      */
     abstract public function shouldAdvanceRow(int $offset, AbstractTable $table): bool;

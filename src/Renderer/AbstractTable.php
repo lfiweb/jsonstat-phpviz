@@ -155,7 +155,7 @@ abstract class AbstractTable implements TableInterface
         $this->numLabelCols = count($this->rowDims);
         // add an extra row to label each dimension
         $this->numHeaderRows = $this->calcHeaderRows();
-        $this->rendererCell = $this->newCellRenderer();
+        $this->rendererCell ??= $this->newCellRenderer();
     }
 
     /**
