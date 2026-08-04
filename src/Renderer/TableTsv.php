@@ -58,7 +58,7 @@ class TableTsv extends AbstractTable
      */
     protected function newCellRenderer(): CellInterface
     {
-        $formatter = new FormatterCell($this->reader);
+        $formatter = $this->formatter ?? new FormatterCell($this->reader);
         return new CellTsv($formatter, $this->reader, $this);
     }
 

@@ -93,7 +93,7 @@ abstract class AbstractTable implements TableInterface
     /** @var LayoutExtensionInterface|null */
     public ?LayoutExtensionInterface $layout = null;
 
-    /** @var FormatterCell|null */
+    /** @var FormatterCell|null custom formatter for cell layout */
     public ?FormatterCell $formatter = null;
 
     /**
