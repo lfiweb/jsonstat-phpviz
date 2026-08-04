@@ -10,12 +10,12 @@ class AbstractLayoutExtension implements LayoutExtensionInterface
     /**
      * @inheritDoc
      */
-    public function renderCaption(AbstractTable $table): bool {
+    public function addCaption(AbstractTable $table): bool {
         return false;
     }
 
     /**
      * @inheritDoc
      */
-    public function renderFooter(AbstractTable $table): void {}
+    public function addFooter(AbstractTable $table): void {}
 }

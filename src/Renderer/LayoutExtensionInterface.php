@@ -8,12 +8,13 @@ namespace jsonstatPhpViz\Renderer;
 interface LayoutExtensionInterface
 {
     /**
-     * Hook to render a custom caption before headers are built.
+     * Hook to add a custom caption before headers are built.
+     * @return bool True if a custom caption was added, false to fall back to the default caption property if set.
      */
-    public function renderCaption(AbstractTable $table): bool;
+    public function addCaption(AbstractTable $table): bool;
 
     /**
-     * Hook to render a custom footer after all rows are built.
+     * Hook to add a custom footer after all rows are built.
      */
-    public function renderFooter(AbstractTable $table): void;
+    public function addFooter(AbstractTable $table): void;
 }
