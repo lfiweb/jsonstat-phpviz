@@ -124,8 +124,8 @@ abstract class AbstractTable implements TableInterface
     public function build(): void
     {
         $this->init();
-        $captionHandled = $this->layout && $this->layout->addCaption($this);
-        if (!$captionHandled && $this->caption) {
+        $captionAdded = $this->layout && $this->layout->addCaption($this);
+        if (!$captionAdded && $this->caption) {
             $this->addCaption();
         }
         $this->addHeaders();
