@@ -2,6 +2,7 @@
 
 namespace jsonstatPhpViz\Renderer;
 
+use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
 use jsonstatPhpViz\UtilArray;
 
@@ -89,6 +90,12 @@ abstract class AbstractTable implements TableInterface
 
     public ?AbstractOffsetStrategy $offsetStrategy = null;
 
+    /** @var LayoutExtensionInterface|null */
+    public ?LayoutExtensionInterface $layout = null;
+
+    /** @var FormatterCell|null */
+    public ?FormatterCell $formatter = null;
+
     /**
      * Instantiates the class.
      * @param Reader $jsonStatReader
@@ -117,11 +124,13 @@ abstract class AbstractTable implements TableInterface
     public function build(): void
     {
         $this->init();
-        if ($this->caption) {
+        $captionHandled = $this->layout && $this->layout->renderCaption($this);
+        if (!$captionHandled && $this->caption) {
             $this->addCaption();
         }
         $this->addHeaders();
         $this->addRows();
+        $this->layout?->renderFooter($this);
     }
 
     /**
