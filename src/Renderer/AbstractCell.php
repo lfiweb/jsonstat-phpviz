@@ -4,24 +4,23 @@ namespace jsonstatPhpViz\Renderer;
 
 use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
-use jsonstatPhpViz\UtilArray;
 
 /**
  * Implements some methods of the CellInterface common to all cell renderers.
  */
 abstract class AbstractCell implements CellInterface
 {
-    protected Reader $reader;
-    protected FormatterCell $formatter;
+    public FormatterCell $formatter;
+    public Reader $reader;
+
 
     /**
-     * @param FormatterCell $cellFormatter
-     * @param Reader $reader
+     * @param AbstractTable $table
      */
-    public function __construct(FormatterCell $cellFormatter, Reader $reader)
+    public function __construct(public AbstractTable $table)
     {
-        $this->reader = $reader;
-        $this->formatter = $cellFormatter;
+        $this->formatter = $table->formatter;
+        $this->reader = $table->reader;
     }
 
     /**
@@ -50,8 +49,10 @@ abstract class AbstractCell implements CellInterface
      */
     protected function getLabel(int $catIdx, int $dimIdx): string
     {
-        $id = $this->reader->getDimensionId($this->table->numOneDim + $dimIdx);
-        $catId = $this->reader->getCategoryId($id, $catIdx);
-        return $this->reader->getCategoryLabel($id, $catId);
+        $reader = $this->table->reader;
+        $id = $reader->getDimensionId($this->table->numOneDim + $dimIdx);
+        $catId = $reader->getCategoryId($id, $catIdx);
+
+        return $reader->getCategoryLabel($id, $catId);
     }
 }

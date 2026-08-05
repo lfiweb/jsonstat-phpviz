@@ -2,7 +2,6 @@
 
 namespace jsonstatPhpViz\Renderer;
 
-use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\LabelWidthCalculator;
 use jsonstatPhpViz\Reader;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
@@ -205,7 +204,6 @@ class TableExcel extends AbstractTable
      */
     protected function newCellRenderer(): CellInterface
     {
-        $formatter = $this->formatter ?? new FormatterCell($this->reader);
-        return new CellExcel($formatter, $this->reader, $this);
+        return new CellExcel($this);
     }
 }

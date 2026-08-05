@@ -6,8 +6,6 @@ use DOMElement;
 use DOMException;
 use DOMNode;
 use jsonstatPhpViz\DOM\ClassList;
-use jsonstatPhpViz\FormatterCell;
-use jsonstatPhpViz\Reader;
 use jsonstatPhpViz\UtilArray;
 
 use function count;
@@ -18,17 +16,13 @@ use function count;
  */
 class CellHtml extends AbstractCell
 {
-    protected TableHtml $table;
-
     /**
      * Construct the cell renderer.
-     * @param FormatterCell $cellFormatter
-     * @param Reader $reader
      * @param TableHtml $rendererTable
      */
-    public function __construct(FormatterCell $cellFormatter, Reader $reader, TableHtml $rendererTable)
+    public function __construct(TableHtml $rendererTable)
     {
-        parent::__construct($cellFormatter, $reader);
+        parent::__construct($rendererTable);
         $this->table = $rendererTable;
     }
 
@@ -81,8 +75,9 @@ class CellHtml extends AbstractCell
         $scope = null;
         $css = null;
         if ($this->table->isLastRowHeader($rowIdx)) {
-            $id = $this->reader->getDimensionId($this->table->numOneDim + $dimIdx);
-            $label = $this->reader->getDimensionLabel($id);
+            $reader = $this->table->reader;
+            $id = $reader->getDimensionId($this->table->numOneDim + $dimIdx);
+            $label = $reader->getDimensionLabel($id);
             $scope = 'col';
             $css = 'rowdim'.($dimIdx + 1);
         }
@@ -142,8 +137,9 @@ class CellHtml extends AbstractCell
         $dimIdx = $this->table->numRowDim + (int)floor($rowIdx / 2);
         if ($this->table->isDimensionRowHeader($rowIdx)) {
             // set attributes for dimension label cell
-            $dimId = $this->reader->getDimensionId($this->table->numOneDim + $dimIdx);
-            $label = $this->reader->getDimensionLabel($dimId);
+            $reader = $this->table->reader;
+            $dimId = $reader->getDimensionId($this->table->numOneDim + $dimIdx);
+            $label = $reader->getDimensionLabel($dimId);
             $colspan = $this->calcColspanDimHeader($dimIdx);    // prev stride
         } else {
             // set attributes for category label cell
@@ -168,9 +164,10 @@ class CellHtml extends AbstractCell
      */
     public function addValueCellBody(int $offset, int $rowIdx): void
     {
-        $doc = $this->table->doc;
-        $val = $this->reader->data->value[$offset];
-        $val = $this->formatter->formatValueCell($val, $offset);
+        $table = $this->table;
+        $doc = $table->doc;
+        $val = $table->reader->data->value[$offset];
+        $val = $table->formatter->formatValueCell($val, $offset);
         $cell = $doc->createElement('td');
         $cell->appendChild($doc->createTextNode($val));
         $this->table->body->lastChild->appendChild($cell);
@@ -230,7 +227,7 @@ class CellHtml extends AbstractCell
 
 
     /**
-     * Create, add and return a header cell element.
+     * Create, add, and return a header cell element.
      * @param ?String $label cell content
      * @return DOMElement table cell element
      * @throws DOMException
@@ -239,7 +236,7 @@ class CellHtml extends AbstractCell
     {
         $doc = $this->table->doc;
         $cell = $doc->createElement('th');
-        $label = $this->formatter->formatHeaderCell($label);
+        $label = $this->table->formatter->formatHeaderCell($label);
         $cell->appendChild($doc->createTextNode($label));
 
         return $this->table->head->lastChild->appendChild($cell);

@@ -5,6 +5,7 @@ namespace jsonstatPhpViz;
 use function count;
 use function is_float;
 use function is_int;
+use function sprintf;
 
 /**
  * Handle formatting of table cells.
@@ -20,8 +21,8 @@ class FormatterCell
     }
 
     /**
-     * Null values have to be replaced with an empty string in the table cells,
-     * otherwise a void element <td/> is created by the DOMDocument, wich is invalid html.
+     * Null values have to be replaced with an empty string in the table cells;
+     * otherwise a void element <td/> is created by the DOMDocument, which is invalid HTML.
      */
     public string $nullLabel = '';
 

@@ -2,8 +2,6 @@
 
 namespace jsonstatPhpViz\Renderer;
 
-use jsonstatPhpViz\FormatterCell;
-use jsonstatPhpViz\Reader;
 
 use function count;
 
@@ -13,21 +11,14 @@ use function count;
  */
 class CellTsv extends AbstractCell
 {
-    protected TableTsv $table;
-
-    /** @var string internal reference to the tab-separated string */
-    protected string $tsv;
 
     /**
-     * @param FormatterCell $cellFormatter
-     * @param Reader $reader
      * @param TableTsv $rendererTable
      */
-    public function __construct(FormatterCell $cellFormatter, Reader $reader, TableTsv $rendererTable)
+    public function __construct(TableTsv $rendererTable)
     {
-        parent::__construct($cellFormatter, $reader);
+        parent::__construct($rendererTable);
         $this->table = $rendererTable;
-        $this->tsv = &$this->table->getTsv();
     }
 
     /**
@@ -53,10 +44,10 @@ class CellTsv extends AbstractCell
         $label = '';
         $table = $this->table;
         if ($table->repeatLabels || $table->isLastRowHeader($rowIdx)) {
-            $id = $this->reader->getDimensionId($table->numOneDim + $dimIdx);
-            $label = $this->reader->getDimensionLabel($id);
+            $id = $table->reader->getDimensionId($table->numOneDim + $dimIdx);
+            $label = $table->reader->getDimensionLabel($id);
         }
-        $this->tsv .= $this->formatter->formatHeaderCell($label).$table->separatorCol;
+        $this->table->tsv .= $table->formatter->formatHeaderCell($label).$table->separatorCol;
     }
 
     /**
@@ -88,7 +79,7 @@ class CellTsv extends AbstractCell
         if ($table->repeatLabels || $isFirstRenderedRow) {
             $label = $this->getCategoryLabel($offset, $dimIdx);
         }
-        $this->tsv .= $this->formatter->formatHeaderCell($label).$table->separatorCol;
+        $table->tsv .= $table->formatter->formatHeaderCell($label).$table->separatorCol;
     }
 
     /**
@@ -100,8 +91,9 @@ class CellTsv extends AbstractCell
      */
     public function addValueCellBody(int $offset, int $rowIdx): void
     {
-        $val = $this->reader->data->value[$offset];
-        $this->tsv .= $this->formatter->formatValueCell($val, $offset).$this->table->separatorCol;
+        $table = $this->table;
+        $val = $table->reader->data->value[$offset];
+        $table->tsv .= $table->formatter->formatValueCell($val, $offset).$table->separatorCol;
     }
 
     /**
@@ -112,10 +104,11 @@ class CellTsv extends AbstractCell
      */
     public function addLastCellHeader(int $offset, int $rowIdx): void
     {
-        if (count($this->table->colDims) !== 0) {
+        $table = $this->table;
+        if (count($table->colDims) !== 0) {
             $this->addValueCellHeader($offset, $rowIdx);
         }
-        $this->tsv .= $this->table->separatorRow;
+        $table->tsv .= $table->separatorRow;
     }
 
     /**
@@ -130,13 +123,13 @@ class CellTsv extends AbstractCell
         //  e.g., one for the dimension label and one for the category label
         $table = $this->table;
         $dimIdx = $table->numRowDim + (int)floor($rowIdx / 2);
-        $id = $this->reader->getDimensionId($table->numOneDim + $dimIdx);
+        $id = $table->reader->getDimensionId($table->numOneDim + $dimIdx);
         if ($table->isDimensionRowHeader($rowIdx)) {
-            $label = $this->reader->getDimensionLabel($id);
+            $label = $table->reader->getDimensionLabel($id);
         } else {
             $label = $this->getCategoryLabel($offset, $dimIdx);
         }
-        $this->tsv .= $this->formatter->formatHeaderCell($label).$table->separatorCol;
+        $table->tsv .= $table->formatter->formatHeaderCell($label).$table->separatorCol;
     }
 
     /**
@@ -148,6 +141,6 @@ class CellTsv extends AbstractCell
     public function addLastCellBody(int $offset, int $rowIdx): void
     {
         $this->addValueCellBody($offset, $rowIdx);
-        $this->tsv .= $this->table->separatorRow;
+        $this->table->tsv .= $this->table->separatorRow;
     }
 }

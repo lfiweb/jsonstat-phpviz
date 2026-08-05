@@ -2,7 +2,6 @@
 
 namespace jsonstatPhpViz\Renderer;
 
-use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
 
 /**
@@ -16,7 +15,7 @@ class TableTsv extends AbstractTable
      * Holds the tab separated data.
      * @var string
      */
-    protected string $tsv;
+    public string $tsv;
 
     public string $separatorRow = "\n";
 
@@ -58,8 +57,7 @@ class TableTsv extends AbstractTable
      */
     protected function newCellRenderer(): CellInterface
     {
-        $formatter = $this->formatter ?? new FormatterCell($this->reader);
-        return new CellTsv($formatter, $this->reader, $this);
+        return new CellTsv($this);
     }
 
     /**
@@ -83,13 +81,4 @@ class TableTsv extends AbstractTable
         $this->tsv .= $this->caption.$this->separatorRow;
     }
 
-    /**
-     * Return the internal, tab-separated string.
-     * Returns the tab-separated string as a reference, not as a copy.
-     * @return string
-     */
-    public function &getTsv(): string
-    {
-        return $this->tsv;
-    }
 }

@@ -2,9 +2,6 @@
 
 namespace jsonstatPhpViz\Renderer;
 
-use jsonstatPhpViz\FormatterCell;
-use jsonstatPhpViz\Reader;
-use jsonstatPhpViz\UtilArray;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
@@ -12,23 +9,20 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use function count;
 
 /**
- * Handle rendering of html table cells.
+ * Handle rendering of HTML table cells.
  * @see CellInterface
  */
 class CellExcel extends AbstractCell
 {
-    protected TableExcel $table;
     protected Worksheet $worksheet;
 
     /**
      * Instantiate the class with the cell formatter and the JSON-stat reader.
-     * @param FormatterCell $cellFormatter
-     * @param Reader $reader
      * @param TableExcel $rendererTable
      */
-    public function __construct(FormatterCell $cellFormatter, Reader $reader, TableExcel $rendererTable)
+    public function __construct(TableExcel $rendererTable)
     {
-        parent::__construct($cellFormatter, $reader);
+        parent::__construct($rendererTable);
         $this->table = $rendererTable;
         $this->worksheet = $this->table->getActiveWorksheet();
     }
@@ -69,8 +63,8 @@ class CellExcel extends AbstractCell
     {
         $label = null;
         if ($this->table->isLastRowHeader($rowIdx)) {
-            $id = $this->reader->getDimensionId($this->table->numOneDim + $dimIdx);
-            $label = $this->reader->getDimensionLabel($id);
+            $id = $this->table->reader->getDimensionId($this->table->numOneDim + $dimIdx);
+            $label = $this->table->reader->getDimensionLabel($id);
         }
         $this->addCellHeader($dimIdx + 1, $this->adjustYHeader($rowIdx), $label);
     }
@@ -121,10 +115,10 @@ class CellExcel extends AbstractCell
         $dimIdx = $this->table->numRowDim + (int)floor($rowIdx / 2);
         $stride = $this->table->strides[$dimIdx];
         $product = $this->table->shape[$dimIdx] * $stride;
-        $id = $this->reader->getDimensionId($this->table->numOneDim + $dimIdx);
+        $id = $this->table->reader->getDimensionId($this->table->numOneDim + $dimIdx);
         if ($this->table->isDimensionRowHeader($rowIdx)) {
             // set attributes for dimension label cell
-            $label = $this->reader->getDimensionLabel($id);
+            $label = $this->table->reader->getDimensionLabel($id);
             $colspan = $product > 1 ? $product : 0;
         } else {
             // set attributes for category label cell
@@ -143,7 +137,7 @@ class CellExcel extends AbstractCell
 
     /**
      * Append a value cell to the row.
-     * Inserts a HTMLTableCellElement at the end of the row
+     * Inserts an HTMLTableCellElement at the end of the row
      * with a value taken from the JSON-stat values attribute at the given offset.
      * @param int $offset
      * @param int $rowIdx
@@ -153,8 +147,8 @@ class CellExcel extends AbstractCell
     {
         $x = $this->adjustX($offset);
         $y = $this->adjustYBody($rowIdx);
-        $val = $this->reader->data->value[$offset];
-        $val = $this->formatter->formatValueCell($val, $offset);
+        $val = $this->table->reader->data->value[$offset];
+        $val = $this->table->formatter->formatValueCell($val, $offset);
         $this->worksheet->setCellValue([$x, $y], $val);
     }
 
@@ -192,7 +186,7 @@ class CellExcel extends AbstractCell
      */
     private function addCellHeader($x, $y, ?string $label = null): void
     {
-        $label = $this->formatter->formatHeaderCell($label);
+        $label = $this->table->formatter->formatHeaderCell($label);
         $this->worksheet->setCellValueExplicit([$x, $y], $label, DataType::TYPE_STRING);
     }
 
