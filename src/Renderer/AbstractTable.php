@@ -164,6 +164,9 @@ abstract class AbstractTable implements TableInterface
         $this->numLabelCols = count($this->rowDims);
         // add an extra row to label each dimension
         $this->numHeaderRows = $this->calcHeaderRows();
+
+        // initialize the default formatter and cell renderer if a builder didn't inject one in the constructor
+        $this->formatter ??= new FormatterCell($this->reader);
         $this->rendererCell ??= $this->newCellRenderer();
     }
 
