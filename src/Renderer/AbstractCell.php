@@ -2,7 +2,6 @@
 
 namespace jsonstatPhpViz\Renderer;
 
-use jsonstatPhpViz\FormatterCell;
 use jsonstatPhpViz\Reader;
 
 /**
@@ -10,7 +9,6 @@ use jsonstatPhpViz\Reader;
  */
 abstract class AbstractCell implements CellInterface
 {
-    public FormatterCell $formatter;
     public Reader $reader;
 
 
@@ -19,7 +17,6 @@ abstract class AbstractCell implements CellInterface
      */
     public function __construct(public AbstractTable $table)
     {
-        $this->formatter = $table->formatter;
         $this->reader = $table->reader;
     }
 
