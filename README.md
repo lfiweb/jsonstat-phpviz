@@ -79,7 +79,7 @@ Render the table as comma separated values (csv):
 
 ```php
 $reader = new Reader($jsonstat);
-$table = new \jsonstatPhpViz\Renderer\TableTsv($reader);
+$table = new TableTsv($reader);
 $table->separatorCol = ",";
 $html = $table->render();
 ```
@@ -100,34 +100,36 @@ The renderer applies the following rules when generating a html table:
 ## HTML inside JSON-stat
 **Caution**: Do this only if you trust the origin of the JSON-stat.
 
-The renderer (or rather the DOMDocument) escapes all html contained in the JSON-stat when inserting it into the DOM.
-If you want to allow HTML inside the table cells, you need to override the classes `TableHtml` and `CellHtml` as follows:
+The renderer (or rather the DOMDocument) escapes all HTML contained in the JSON-stat when inserting it into the DOM.
+If you want to allow HTML inside the table cells, you need to override the class `CellHtml` 
+and manually set the rendererCell property on the table as follows:
 ```php
-class MyRendererTable extends TableHtml
-{
-    /**
-     * Override with the new html cell renderer.
-     * @return void
-     */
-    protected function newCellRenderer(): CellInterface
-    {
-        $formatter = new FormatterCell($this->reader);
-        return new MyCellHtml($formatter, $this->reader, $this);
-    }
-}
-
 class MyCellHtml extends CellHtml
 {
-    // render html inside label (header) cells
-    public function addCellHeader(DOMElement $row, ?string $str = null, ?string $scope = null, ?string $colspan = null, ?string $rowspan = null): DOMElement
+
+    /**
+     * Create, add, and return a header cell element.
+     *
+     * @param ?String $label cell content
+     *
+     * @return DOMElement table cell element
+     * @throws DOMException
+     */
+    protected function addCellHeader(?string $label = null): DOMNode
     {
-        $cell = parent::headerCell($row, $str, $scope, $colspan, $rowspan);
+        $cell = parent::addCellHeader($label);
         $cell->textContent = '';
-        UtilHtml::append($cell, $str);
+        if ($label !== null) {
+            $label = $this->table->formatter->formatHeaderCell($label);
+            UtilHtml::append($cell, $label);
+        }
 
         return $cell;
     }
 }
+
+$table = new TableHtml($reader);
+$table->formatter = new FormatterCell($table->reader);
 ```
 
 ## Note:
