@@ -90,7 +90,10 @@ abstract class AbstractTable implements TableInterface
 
     public ?AbstractOffsetStrategy $offsetStrategy = null;
 
-    /** @var LayoutExtensionInterface|null */
+    /**
+     * Add custom caption and footer without having to extend the class.
+     * @var LayoutExtensionInterface|null
+     */
     public ?LayoutExtensionInterface $layout = null;
 
     /** @var FormatterCell|null custom formatter for cell layout */
