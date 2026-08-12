@@ -17,13 +17,7 @@ interface TableInterface
     public function __construct(Reader $jsonStatReader,  ?int $numRowDim = null);
 
     /**
-     * Set the number of dimensions to be used for rows.
-     * @param int $numRowDim number of row dimensions
-     */
-    public function setNumRowDim(int $numRowDim): void;
-
-    /**
-     * Renders the data as an HTML table.
+     * Renders the data as a table.
      * Reads the value array and renders it as a table.
      * @return string
      */
@@ -31,7 +25,7 @@ interface TableInterface
 
     /**
      * Returns the default number of dimensions used for rendering rows.
-     * By default, a table is rendered using all dimensions for rows
+     * By default, a table is rendered using all dimensions for rows,
      * except the last two dimensions are used for columns. When there are fewer than three dimensions,
      * only the first dimension is used for rows.
      * @return int

@@ -112,15 +112,6 @@ abstract class AbstractTable implements TableInterface
     }
 
     /**
-     * Set the number of dimensions to be used for rows.
-     * @param int $numRowDim
-     */
-    public function setNumRowDim(int $numRowDim): void
-    {
-        $this->numRowDim = $numRowDim;
-    }
-
-    /**
      * Creates the internal structure of the table.
      * @return void
      */

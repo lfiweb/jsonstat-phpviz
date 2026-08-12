@@ -62,7 +62,7 @@ class TableHtml extends AbstractTable
      * @param Reader $jsonStatReader
      * @param int|null $numRowDim
      */
-    public function __construct(Reader $jsonStatReader, ?int $numRowDim = null)
+    public function __construct(Reader $jsonStatReader, public ?int $numRowDim = null)
     {
         parent::__construct($jsonStatReader, $numRowDim);
         $this->dom = new Table();

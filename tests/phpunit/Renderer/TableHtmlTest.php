@@ -120,8 +120,7 @@ class TableHtmlTest extends TestCase
         $i = 0;
         $x = [];
         for (; $i < $len; $i++) {
-            $renderer = new TableHtml($reader);
-            $renderer->setNumRowDim($i);
+            $renderer = new TableHtml($reader, $i);
             $renderer->render();
             $nlX = FactoryRendererTable::getTBodyChildNodes($renderer->domNode);
             $nlY = FactoryRendererTable::getTheadLastChildNodes($renderer->domNode);
