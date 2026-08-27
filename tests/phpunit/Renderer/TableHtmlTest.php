@@ -1,13 +1,16 @@
 <?php
+
 declare(strict_types=1);
 
 namespace jsonstatPhpViz\Test\Renderer;
 
 use JsonException;
 use jsonstatPhpViz\Renderer\TableHtml;
+use jsonstatPhpViz\Test\TestFactory\JsonstatBuilder;
 use jsonstatPhpViz\Test\TestFactory\JsonstatReader;
 use jsonstatPhpViz\Test\TestFactory\RendererTable as FactoryRendererTable;
 use PHPUnit\Framework\TestCase;
+
 use function array_slice;
 use function count;
 
@@ -30,8 +33,8 @@ class TableHtmlTest extends TestCase
      */
     public function testRenderHtml(): void
     {
-        $reader = $this->factory->create(__DIR__ . '/../../resources/integer.json');
-        $fileHtml = __DIR__ . '/../../resources/integer.html';
+        $reader = $this->factory->create(__DIR__.'/../../resources/integer.json');
+        $fileHtml = __DIR__.'/../../resources/integer.html';
         $table = new TableHtml($reader);
         $htmlTable = $table->render();
         self::assertStringEqualsFile($fileHtml, $htmlTable);
@@ -44,11 +47,11 @@ class TableHtmlTest extends TestCase
     public function testRendererTransposed(): void
     {
         // transpose a dimension having size > 1 while excluding dimensions of size one
-        $reader = $this->factory->create(__DIR__ . '/../../resources/volume.json');
+        $reader = $this->factory->create(__DIR__.'/../../resources/volume.json');
         $reader->transpose([0, 1, 2, 4, 3, 5]);
         $table = new TableHtml($reader);
         $table->excludeOneDim = true;
-        $path = __DIR__ . '/../../resources/volume-transposed.html';
+        $path = __DIR__.'/../../resources/volume-transposed.html';
         self::assertStringEqualsFile($path, $table->render());
 
         // transpose back
@@ -62,7 +65,7 @@ class TableHtmlTest extends TestCase
         $reader->transpose([0, 4, 2, 3, 1, 5]);
         $table = new TableHtml($reader, $numRowDim);
         $table->excludeOneDim = true;
-        $path = __DIR__ . '/../../resources/volume-onedim-transposed.html';
+        $path = __DIR__.'/../../resources/volume-onedim-transposed.html';
         self::assertStringEqualsFile($path, $table->render());
     }
 
@@ -74,7 +77,7 @@ class TableHtmlTest extends TestCase
     public function testRenderNull(): void
     {
         // note: top-left header cell never has content, no need to set anything to null for testing
-        $reader = $this->factory->create(__DIR__ . '/../../resources/integer.json');
+        $reader = $this->factory->create(__DIR__.'/../../resources/integer.json');
         $reader->data->value[1] = null; // inject a null value
         $table = new TableHtml($reader);
         $htmlTable = $table->render();
@@ -89,44 +92,36 @@ class TableHtmlTest extends TestCase
      */
     public function testRenderDecimals(): void
     {
-        $reader = $this->factory->create(__DIR__ . '/../../resources/volume.json');
-        $rendererTable = new TableHtml($reader);
-        $rendererTable->excludeOneDim = false;
-        $rendererTable->render();
-        $domNode = $rendererTable->domNode;
-        $cell = FactoryRendererTable::getValueCell($domNode, 0);
-        self::assertEquals('3.8', $cell->textContent);
-        $cell = FactoryRendererTable::getValueCell($domNode, 1);
-        self::assertEquals('9', $cell->textContent);
-        $cell = FactoryRendererTable::getValueCell($domNode, 44);
-        self::assertEquals('7.0', $cell->textContent);
+        // the unit of the last dimension defines the number of decimals per value column
+        $reader = JsonstatBuilder::create()
+            ->dimension('area', 'Produktionsregion', ['CH' => 'Schweiz'])
+            ->dimension('unit', 'Einheit', ['vol' => 'm³/ha', 'err' => '±%'])
+            ->unit(['vol' => 1, 'err' => 0])
+            ->values([3.8, 9])
+            ->reader();
 
-        $rendererTable = new TableHtml($reader);
-        $rendererTable->excludeOneDim = true;
-        $rendererTable->render();
-        $cell = FactoryRendererTable::getValueCell($domNode, 44);
-        self::assertEquals('7.0', $cell->textContent);
+        $table = new TableHtml($reader);
+        $table->render();
+        self::assertSame('3.8', FactoryRendererTable::getValueCell($table->domNode, 0)->textContent);
+        self::assertSame('9', FactoryRendererTable::getValueCell($table->domNode, 1)->textContent);
     }
 
     /**
      * Test that the correct number of rows and columns are created when using the numRowDim argument.
-     * @throws JsonException
      */
     public function testRenderRowDim(): void
     {
-        $reader = $this->factory->create(__DIR__ . '/../../resources/volume.json');
-        $size = $reader->data->size;
-        $len = count($size) + 1;
-        $i = 0;
-        $x = [];
-        for (; $i < $len; $i++) {
-            $renderer = new TableHtml($reader, $i);
+        $shape = [2, 3, 2];
+        for ($numRowDim = 0, $len = count($shape) + 1; $numRowDim < $len; $numRowDim++) {
+            $renderer = new TableHtml(JsonstatBuilder::fromShape($shape)->reader(), $numRowDim);
             $renderer->render();
+            $rowDims = array_slice($shape, 0, $numRowDim);
+            $colDims = array_slice($shape, $numRowDim);
             $nlX = FactoryRendererTable::getTBodyChildNodes($renderer->domNode);
             $nlY = FactoryRendererTable::getTheadLastChildNodes($renderer->domNode);
-            self::assertSame(array_product($x), $nlX->length);
-            self::assertSame(array_product($size) + $i, $nlY->length);
-            $x[] = array_shift($size);
+            self::assertSame(array_product($rowDims), $nlX->length, 'numRowDim '.$numRowDim);
+            // the last header row has one cell per value column plus one label cell per row dimension
+            self::assertSame(array_product($colDims) + $numRowDim, $nlY->length, 'numRowDim '.$numRowDim);
         }
     }
 
@@ -137,13 +132,13 @@ class TableHtmlTest extends TestCase
      */
     public function testNumRowDimAuto(): void
     {
-        $reader = $this->factory->create(__DIR__ . '/../../resources/volume.json');
+        $reader = $this->factory->create(__DIR__.'/../../resources/volume.json');
         $table = new TableHtml($reader);
         self::assertSame(4, $table->getNumRowDimAuto());
         $table->excludeOneDim = true;
         self::assertSame(2, $table->getNumRowDimAuto());
 
-        $reader = $this->factory->create(__DIR__ . '/../../resources/oecd.json');
+        $reader = $this->factory->create(__DIR__.'/../../resources/oecd.json');
         $table = new TableHtml($reader);
         self::assertSame(1, $table->getNumRowDimAuto());
         $table->excludeOneDim = true;
@@ -155,7 +150,7 @@ class TableHtmlTest extends TestCase
      */
     public function testExcludeOneDim(): void
     {
-        $reader = $this->factory->create(__DIR__ . '/../../resources/volume.json');
+        $reader = $this->factory->create(__DIR__.'/../../resources/volume.json');
         $renderer = new TableHtml($reader, 2);
 
         $renderer->excludeOneDim = true;
@@ -185,7 +180,7 @@ class TableHtmlTest extends TestCase
     {
         $html = '<i>Test:</i> cell';
         $htmlEncoded = htmlspecialchars($html, ENT_HTML5, 'UTF-8');
-        $reader = $this->factory->create(__DIR__ . '/../../resources/integer.json');
+        $reader = $this->factory->create(__DIR__.'/../../resources/integer.json');
         $reader->data->value[3] = $html;
         $reader->data->dimension->{'A'}->label = $html;
 
@@ -204,7 +199,7 @@ class TableHtmlTest extends TestCase
     {
         $html = '<p><b>Test:</b> caption</p>';
         $htmlEncoded = htmlspecialchars($html, ENT_HTML5, 'UTF-8');
-        $reader = $this->factory->create(__DIR__ . '/../../resources/integer.json');
+        $reader = $this->factory->create(__DIR__.'/../../resources/integer.json');
         $reader->data->label = $html;
 
         $table = new TableHtml($reader);
@@ -224,7 +219,7 @@ class TableHtmlTest extends TestCase
      */
     public function testNoLabelLastDim(): void
     {
-        $reader = $this->factory->create(__DIR__ . '/../../resources/integer.json');
+        $reader = $this->factory->create(__DIR__.'/../../resources/integer.json');
         $renderer = new TableHtml($reader, 2);
         $renderer->noLabelLastDim = true;
         $renderer->render();
