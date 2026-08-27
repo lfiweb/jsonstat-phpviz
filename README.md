@@ -108,18 +108,21 @@ class MyCellHtml extends CellHtml
 {
 
     /**
-     * Create, add, and return a header cell element.
+     * Append the label as a HTML fragment and escape potential entities.
      *
+     * The label is data and may contain characters such as '<' (e.g. '<1%'), which is not valid
+     * markup and would make UtilHtml::append() insert plain text. The data is therefore
+     * escaped before the markup of the formatter is added.
      * @param ?String $label cell content
-     *
      * @return DOMElement table cell element
      * @throws DOMException
      */
     protected function addCellHeader(?string $label = null): DOMNode
     {
         $cell = parent::addCellHeader($label);
-        $cell->textContent = '';
         if ($label !== null) {
+            $cell->textContent = '';
+            $label = UtilHtml::escape($label);
             $label = $this->table->formatter->formatHeaderCell($label);
             UtilHtml::append($cell, $label);
         }
