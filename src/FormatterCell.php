@@ -54,7 +54,7 @@ class FormatterCell
 
     /**
      * Format a header cell <th>
-     * Format cells used as a header for group of columns or rows (headings).
+     * Format cells used as a header for a group of columns or rows (headings).
      * @param string|null $str
      * @return string
      */
