@@ -14,7 +14,7 @@
     "ext-json": "*",
     "ext-libxml": "*",
     "ext-mbstring": "*",
-    "php": "8.3"
+    "php": "^8.3"
   },
   "require-dev": {
     "phpoffice/phpspreadsheet": "5.*",
