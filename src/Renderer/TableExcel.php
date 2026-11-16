@@ -4,12 +4,11 @@ namespace jsonstatPhpViz\Renderer;
 
 use jsonstatPhpViz\LabelWidthCalculator;
 use jsonstatPhpViz\Reader;
-use PhpOffice\PhpSpreadsheet\Cell\DataType;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use PhpOffice\PhpSpreadsheet\Writer\Exception;
-use PhpOffice\PhpSpreadsheet\Writer\IWriter;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use SpreadsheetWriter\Exception\ExceptionInterface;
+use SpreadsheetWriter\Sheet;
+use SpreadsheetWriter\Workbook;
+use SpreadsheetWriter\Writer\WriterInterface;
+use SpreadsheetWriter\Writer\Xlsx;
 
 use function array_slice;
 use function count;
@@ -31,20 +30,21 @@ class TableExcel extends AbstractTable
      */
     public int $numCaptionRows = 0;
 
-    /*
-     * the writer used for rendering (saving), defaults to Xlsx.
-     */
     /**
-     * an instance of the PhpSpreadsheet
-     * @var Spreadsheet
+     * the workbook holding the sheet
+     * @var Workbook
      */
-    protected Spreadsheet $xls;
+    protected Workbook $workbook;
     /**
-     * the current worksheet of the PhpSpreadsheet
-     * @var Worksheet
+     * the sheet of the workbook
+     * @var Sheet
      */
-    protected Worksheet $worksheet;
-    private IWriter $writer;
+    protected Sheet $sheet;
+    /**
+     * the writer used for rendering, defaults to Xlsx
+     * @var WriterInterface
+     */
+    private WriterInterface $writer;
     public LabelWidthCalculator $widthCalculator;
 
     /**
@@ -55,27 +55,27 @@ class TableExcel extends AbstractTable
     public function __construct(Reader $jsonStatReader, ?int $numRowDim = null)
     {
         parent::__construct($jsonStatReader, $numRowDim);
-        $this->xls = new Spreadsheet();
-        $this->worksheet = $this->xls->getActiveSheet();
-        $this->writer = new Xlsx($this->xls);
+        $this->workbook = new Workbook();
+        $this->sheet = $this->workbook->getActiveSheet();
+        $this->writer = new Xlsx();
     }
 
     /**
-     * Set the writer to be used when rendering the output.
-     * @param IWriter $writer
+     * Set the writer to be used when rendering the output, e.g. new Ods().
+     * @param WriterInterface $writer
      *
      * @return void
      */
-    public function setWriter(IWriter $writer): void
+    public function setWriter(WriterInterface $writer): void
     {
         $this->writer = $writer;
     }
 
     /**
      * Render the table in memory.
-     * Writes the file temporarily to disk or memory and then returns it as a binary string.
+     * Builds and styles the table and then returns the file as a binary string.
      * @return string binary, zipped string
-     * @throws Exception
+     * @throws ExceptionInterface
      */
     public function render(): string
     {
@@ -108,45 +108,24 @@ class TableExcel extends AbstractTable
 
 
     /**
-     * Save the spreadsheet to the system's temp directory and return it as a binary string.
-     *
-     * ARCHITECTURE NOTE:
-     * PhpSpreadsheet relies on PHP's native ZipArchive extension to build .xlsx and .ods
-     * files. ZipArchive is strictly designed to write to a physical POSIX file path.
-     * Attempting to force it to write to a stream wrapper like 'php://memory' causes
-     * severe CPU thrashing and memory reallocation loops.
-     * To bypass this while maintaining a high-performance, stateless design, we write
-     * to sys_get_temp_dir(). In modern Linux environments, /tmp is typically mounted
-     * as a 'tmpfs' RAM disk. This ensures the operation remains a fast,
-     * pure memory-to-memory transfer with zero physical disk I/O. The temporary
-     * file is instantly unlinked after reading to prevent memory bloat.
-     *
+     * Return the spreadsheet file as a binary string.
+     * The file is created in memory by the writer, no temp file is used.
      * @return string binary, zipped string
-     * @throws Exception
+     * @throws ExceptionInterface
      */
     public function getBinaryContent(): string
     {
-        $tempFile = tempnam(sys_get_temp_dir(), 'phpviz_');
-        try {
-            $this->writer->save($tempFile);
-            $content = file_get_contents($tempFile);
-        } finally {
-            if (file_exists($tempFile)) {
-                unlink($tempFile);
-            }
-        }
-
-        return $content;
+        return $this->writer->write($this->workbook);
     }
 
     /**
      * Create and insert the caption.
-     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws ExceptionInterface
      */
     public function addCaption(): void
     {
-        $this->worksheet->setCellValueExplicit([1, 1], $this->caption, DataType::TYPE_STRING);
-        $this->worksheet->mergeCells([1, 1, $this->numLabelCols + $this->numValueCols, 1]);
+        $this->sheet->setString(1, 1, $this->caption);
+        $this->sheet->mergeCells(1, 1, $this->numLabelCols + $this->numValueCols, 1);
         ++$this->numCaptionRows;
     }
 
@@ -180,21 +159,21 @@ class TableExcel extends AbstractTable
     }
 
     /**
-     * Return the spreadsheet.
-     * @return Spreadsheet
+     * Return the workbook.
+     * @return Workbook
      */
-    public function getSpreadSheet(): Spreadsheet
+    public function getWorkbook(): Workbook
     {
-        return $this->xls;
+        return $this->workbook;
     }
 
     /**
-     * Return the active worksheet.
-     * @return Worksheet
+     * Return the sheet of the workbook.
+     * @return Sheet
      */
-    public function getActiveWorksheet(): Worksheet
+    public function getActiveSheet(): Sheet
     {
-        return $this->worksheet;
+        return $this->sheet;
     }
 
 

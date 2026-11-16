@@ -2,11 +2,13 @@
 
 namespace jsonstatPhpViz\Renderer;
 
-use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use SpreadsheetWriter\Sheet;
+use SpreadsheetWriter\Style\HorizontalAlignment;
+use SpreadsheetWriter\Style\Style;
+use SpreadsheetWriter\Style\VerticalAlignment;
 
 /**
- * Apply styles to the worksheet.
+ * Apply styles to the sheet.
  */
 class StylerExcel
 {
@@ -18,7 +20,7 @@ class StylerExcel
      * maximum column width when the column has more characters
      */
     public const COL_WIDTH_MAX = 32;
-    protected Worksheet $worksheet;
+    protected Sheet $sheet;
 
     public function __construct(protected TableExcel $table)
     {
@@ -29,27 +31,25 @@ class StylerExcel
      */
     public function style(): void
     {
-        $this->worksheet = $this->table->getActiveWorksheet();
+        $this->sheet = $this->table->getActiveSheet();
         $this->styleCaption();
         $this->styleHeader();
         $this->styleLabelCellBody();
         $this->styleValueCellBody();
-        $this->worksheet->setSelectedCell('A1');    // there doesn't seem to be a deselect method
     }
 
     /**
-     * Style the caption cells of the current worksheet.
+     * Style the caption cells of the sheet.
      * @return void
      */
     public function styleCaption(): void
     {
-        $this->worksheet->getRowDimension(1)->setRowHeight(24);
-        $style = $this->worksheet->getStyle([1, 1, 1, 1]);
-        $style->getAlignment()->setVertical(Alignment::VERTICAL_TOP);
+        $this->sheet->setRowHeight(1, 24);
+        $this->sheet->setStyle(1, 1, 1, 1, new Style(vertical: VerticalAlignment::Top));
     }
 
     /**
-     * Style the header cells of the current worksheet.
+     * Style the header cells of the sheet.
      * @return void
      */
     public function styleHeader(): void
@@ -77,12 +77,10 @@ class StylerExcel
             $fromRow += $table->numCaptionRows;
         }
         $toRow = $table->getRowIdxBodyAdjusted() - 1;
-        $style = $this->worksheet->getStyle([$fromCol, $fromRow, $toCol, $toRow]);
-        $style->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $this->sheet->setStyle($fromCol, $fromRow, $toCol, $toRow, new Style(horizontal: HorizontalAlignment::Center));
 
         $toRow += $table->numRenderedBodyRows;
-        $style = $this->worksheet->getStyle([$fromCol, $fromRow, $toCol, $toRow]);
-        $style->getAlignment()->setVertical(Alignment::VERTICAL_TOP);
+        $this->sheet->setStyle($fromCol, $fromRow, $toCol, $toRow, new Style(vertical: VerticalAlignment::Top));
     }
 
     /**
@@ -95,8 +93,7 @@ class StylerExcel
     public function setColWidth(int $colIdx): void
     {
         $width = $this->calcColWidth($colIdx);
-        $colDim = $this->worksheet->getColumnDimensionByColumn($colIdx);
-        $colDim->setWidth($width);
+        $this->sheet->setColumnWidth($colIdx, $width);
     }
 
     /**
@@ -139,8 +136,7 @@ class StylerExcel
         $toRow = $fromRow + array_product($table->rowDims);
         $fromCol = ($table->numLabelCols === 0 ? 1 : $table->numLabelCols) + 1;
         $toCol = $fromCol + $table->numLabelCols;
-        $style = $this->worksheet->getStyle([$fromCol, $fromRow, $toCol, $toRow]);
-        $style->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+        $this->sheet->setStyle($fromCol, $fromRow, $toCol, $toRow, new Style(horizontal: HorizontalAlignment::Left));
     }
 
     /**
@@ -154,7 +150,6 @@ class StylerExcel
         $toRow = $fromRow + array_product($table->rowDims);
         $fromCol = ($table->numLabelCols === 0 ? 1 : $table->numLabelCols) + 1;
         $toCol = $table->numLabelCols + $table->numValueCols;
-        $style = $this->worksheet->getStyle([$fromCol, $fromRow, $toCol, $toRow]);
-        $style->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        $this->sheet->setStyle($fromCol, $fromRow, $toCol, $toRow, new Style(horizontal: HorizontalAlignment::Right));
     }
 }

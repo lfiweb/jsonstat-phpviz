@@ -7,7 +7,8 @@ use jsonstatPhpViz\Renderer\StylerExcel;
 use jsonstatPhpViz\Renderer\TableExcel;
 use jsonstatPhpViz\Renderer\TableHtml;
 use jsonstatPhpViz\Renderer\TableTsv;
-use PhpOffice\PhpSpreadsheet\Writer\Ods;
+use SpreadsheetWriter\Exception\ExceptionInterface;
+use SpreadsheetWriter\Writer\Ods;
 
 require_once __DIR__.'/../vendor/autoload.php';
 
@@ -112,7 +113,7 @@ function download(AbstractTable|TableExcel $table, string $format, string $id): 
         }
         if ($format === 'ods') {
             $table->styler = new StylerExcel($table);
-            $table->setWriter(new Ods($table->getSpreadSheet()));
+            $table->setWriter(new Ods());
             header('Content-Type: application/vnd.oasis.opendocument.spreadsheet');
             header('Content-Disposition: attachment; filename="table.ods"');
         }
@@ -124,7 +125,7 @@ function download(AbstractTable|TableExcel $table, string $format, string $id): 
 
         try {
             $data = $table->render();
-        } catch (\PhpOffice\PhpSpreadsheet\Writer\Exception $exception) {
+        } catch (ExceptionInterface $exception) {
             $data = $exception->getMessage();
         }
         exit($data);

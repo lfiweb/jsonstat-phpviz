@@ -2,9 +2,8 @@
 
 namespace jsonstatPhpViz\Renderer;
 
-use PhpOffice\PhpSpreadsheet\Cell\DataType;
-use PhpOffice\PhpSpreadsheet\Exception;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use SpreadsheetWriter\Exception\ExceptionInterface;
+use SpreadsheetWriter\Sheet;
 
 use function count;
 
@@ -14,7 +13,7 @@ use function count;
  */
 class CellExcel extends AbstractCell
 {
-    protected Worksheet $worksheet;
+    protected Sheet $sheet;
 
     /**
      * Instantiate the class with the cell formatter and the JSON-stat reader.
@@ -24,7 +23,7 @@ class CellExcel extends AbstractCell
     {
         parent::__construct($rendererTable);
         $this->table = $rendererTable;
-        $this->worksheet = $this->table->getActiveWorksheet();
+        $this->sheet = $this->table->getActiveSheet();
     }
 
     /**
@@ -75,7 +74,7 @@ class CellExcel extends AbstractCell
      * @param int $dimIdx dimension index
      * @param int $rowIdx row index
      * @return void
-     * @throws Exception
+     * @throws ExceptionInterface
      */
     public function addLabelCellBody(int $offset, int $dimIdx, int $rowIdx): void
     {
@@ -97,7 +96,7 @@ class CellExcel extends AbstractCell
                 $this->addCellHeader($x, $y, $label);
 
                 if ($rowspan > 1) {
-                    $this->worksheet->mergeCells([$x, $y, $x, $y + $rowspan - 1]);
+                    $this->sheet->mergeCells($x, $y, $x, $y + $rowspan - 1);
                 }
             }
         }
@@ -106,7 +105,7 @@ class CellExcel extends AbstractCell
      * Creates the cells for the headers of the value columns.
      * @param int $offset value index
      * @param int $rowIdx row index
-     * @throws Exception
+     * @throws ExceptionInterface
      */
     public function addValueCellHeader(int $offset, int $rowIdx): void
     {
@@ -130,7 +129,7 @@ class CellExcel extends AbstractCell
             $y = $this->adjustYHeader($rowIdx);
             $this->addCellHeader($x, $y, $label);
             if ($colspan > 1) {
-                $this->worksheet->mergeCells([$x, $y, $x + $colspan - 1, $y]);
+                $this->sheet->mergeCells($x, $y, $x + $colspan - 1, $y);
             }
         }
     }
@@ -149,7 +148,7 @@ class CellExcel extends AbstractCell
         $y = $this->adjustYBody($rowIdx);
         $val = $this->table->reader->data->value[$offset];
         $val = $this->table->formatter->formatValueCell($val, $offset);
-        $this->worksheet->setCellValue([$x, $y], $val);
+        $this->sheet->setValue($x, $y, $val);
     }
 
     /**
@@ -157,7 +156,7 @@ class CellExcel extends AbstractCell
      * @param int $offset value index
      * @param int $rowIdx row index
      * @return void
-     * @throws Exception
+     * @throws ExceptionInterface
      */
     public function addLastCellHeader(int $offset, int $rowIdx): void
     {
@@ -187,7 +186,7 @@ class CellExcel extends AbstractCell
     private function addCellHeader($x, $y, ?string $label = null): void
     {
         $label = $this->table->formatter->formatHeaderCell($label);
-        $this->worksheet->setCellValueExplicit([$x, $y], $label, DataType::TYPE_STRING);
+        $this->sheet->setString($x, $y, $label);
     }
 
     /**

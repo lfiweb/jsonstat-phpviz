@@ -9,19 +9,22 @@
       "email": "simon.speich@wsl.ch"
     }
   ],
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../spreadsheet-writer"
+    }
+  ],
   "require": {
     "ext-dom": "*",
     "ext-json": "*",
     "ext-libxml": "*",
     "ext-mbstring": "*",
+    "nafidas/spreadsheet-writer": "@dev",
     "php": "^8.3"
   },
   "require-dev": {
-    "phpoffice/phpspreadsheet": "5.*",
     "phpunit/phpunit": "10.*"
-  },
-  "suggest": {
-    "phpoffice/phpspreadsheet": "5.*; Install if you want to render/export JSON-stat as an Excel file"
   },
   "autoload": {
     "psr-4": {
