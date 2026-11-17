@@ -4,15 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d9e5b9366609931187844f0e9f9032e3",
+    "content-hash": "53e629af7728fddbec92fe983a13b525",
     "packages": [
         {
-            "name": "nafidas/spreadsheet-writer",
-            "version": "dev-master",
+            "name": "lfiweb/spreadsheet-writer",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/lfiweb/spreadsheet-writer.git",
+                "reference": "af70f542731e3c62496226ab443fe9c50b63a957"
+            },
             "dist": {
-                "type": "path",
-                "url": "../spreadsheet-writer",
-                "reference": "ed082d122433f67aaccc6bed8eef56bebf3ec6f0"
+                "type": "zip",
+                "url": "https://api.github.com/repos/lfiweb/spreadsheet-writer/zipball/af70f542731e3c62496226ab443fe9c50b63a957",
+                "reference": "af70f542731e3c62496226ab443fe9c50b63a957",
+                "shasum": ""
             },
             "require": {
                 "ext-mbstring": "*",
@@ -31,23 +37,16 @@
                     "SpreadsheetWriter\\": "src/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "SpreadsheetWriter\\Test\\": "tests/phpunit/"
-                }
-            },
-            "scripts": {
-                "test": [
-                    "phpunit"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-3.0-or-later"
             ],
             "description": "Lightweight writer for XLSX and ODS spreadsheet files without formulas or reading support",
-            "transport-options": {
-                "relative": true
-            }
+            "support": {
+                "issues": "https://github.com/lfiweb/spreadsheet-writer/issues",
+                "source": "https://github.com/lfiweb/spreadsheet-writer/tree/v1.0.0"
+            },
+            "time": "2026-11-17T12:58:59+00:00"
         }
     ],
     "packages-dev": [
@@ -1706,9 +1705,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "nafidas/spreadsheet-writer": 20
-    },
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
