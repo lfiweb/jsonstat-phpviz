@@ -9,18 +9,12 @@
       "email": "simon.speich@wsl.ch"
     }
   ],
-  "repositories": [
-    {
-      "type": "path",
-      "url": "../spreadsheet-writer"
-    }
-  ],
   "require": {
     "ext-dom": "*",
     "ext-json": "*",
     "ext-libxml": "*",
     "ext-mbstring": "*",
-    "nafidas/spreadsheet-writer": "@dev",
+    "lfiweb/spreadsheet-writer": "^1.0",
     "php": "^8.3"
   },
   "require-dev": {
